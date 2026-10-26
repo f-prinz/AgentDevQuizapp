@@ -229,4 +229,3 @@ Werkzeugen. Diese Anforderungen schlagen keine Stackabweichung vor.
 - Beim Sortieren werden Punkte pro korrekt positioniertem Begriff vergeben.
   Seed-Inhalte verwenden eine eindeutige Sollreihenfolge. Gleichwertige
   Ordnungswerte gehoeren nicht zum bestaetigten MVP-Inhaltsmodell.
-

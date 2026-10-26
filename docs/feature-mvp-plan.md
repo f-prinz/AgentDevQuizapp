@@ -76,7 +76,7 @@ Test-/Lint- und Schreibscope fuer die vorhandenen Tasks:
 | TECH-1/4, FEAT-1/3/5/7/9/11/13 | `npm --prefix apps/server test` | `npm --prefix apps/server run lint` | `apps/server/`, server_developer; rote FEAT-Tests server_test_engineer |
 | TECH-2, FEAT-2/4/6/8/10/12/14/15 | `npm --prefix apps/web test` | `npm --prefix apps/web run lint` | `apps/web/`, web_developer; rote FEAT-Tests web_test_engineer |
 | TECH-3 | `npm --prefix contracts test` | kein verpflichtender ESLint-Befehl; `npm --prefix contracts run typecheck` als zusaetzliche Evidence | `contracts/`, integration_engineer |
-| TECH-5 | `node scripts/check-state.mjs` | entfällt | vier `docs/feature-mvp-*.md` gemaess Task-Scope; Analyst, Validator, Architect, Planner |
+| TECH-5 | `node scripts/check-state.mjs` | entfällt | fuenf `docs/feature-mvp-*.md` gemaess Task-Scope; Analyst, Validator, Architect, Planner |
 | TECH-6 | `node --test test/task-metadata.test.mjs` | entfällt | `scripts/`, `test/`; gezielter Skript-Entwickler, unabhaengiger Reviewer |
 
 TECH-1/2 brauchen zusaetzlich Build-/Startnachweise. TECH-4 fuehrt neben
