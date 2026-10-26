@@ -1,6 +1,6 @@
 # Fortschritt
 
-Aktueller Stand: TECH-1 DONE; TECH-2 IN_PROGRESS; TECH-3 DONE; TECH-4 DONE; FEAT-1 TODO; FEAT-2 TODO; FEAT-3 TODO; FEAT-4 TODO; FEAT-5 TODO; FEAT-6 TODO; FEAT-7 TODO; FEAT-8 TODO; FEAT-9 TODO; FEAT-10 TODO; FEAT-11 TODO; FEAT-12 TODO; FEAT-13 TODO; FEAT-14 TODO; TECH-5 DONE; TECH-6 DONE; FEAT-15 TODO; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO. Historische Meldungen unten bleiben erhalten.
+Aktueller Stand: TECH-1 DONE; TECH-2 BLOCKED; TECH-3 DONE; TECH-4 DONE; FEAT-1 IN_PROGRESS; FEAT-2 TODO; FEAT-3 TODO; FEAT-4 TODO; FEAT-5 TODO; FEAT-6 TODO; FEAT-7 TODO; FEAT-8 TODO; FEAT-9 TODO; FEAT-10 TODO; FEAT-11 TODO; FEAT-12 TODO; FEAT-13 TODO; FEAT-14 TODO; TECH-5 DONE; TECH-6 DONE; FEAT-15 TODO; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO. Historische Meldungen unten bleiben erhalten.
 
 2026-10-26T12:27:54.828Z: TECH-5 IN_PROGRESS.   
 
@@ -71,3 +71,9 @@ Aktueller Stand: TECH-1 DONE; TECH-2 IN_PROGRESS; TECH-3 DONE; TECH-4 DONE; FEAT
 2026-10-26T14:31:09.263Z: TECH-4 aktualisiert.   
 
 2026-10-26T14:31:09.937Z: TECH-4 DONE.  Code- und Security-Review ohne offene Findings; 26 Tests mit echtem PostgreSQL, ESLint, Typcheck und Build gruen 
+
+2026-10-26T14:36:17.204Z: TECH-2 Fix-Retry 1/3. Erste Review-Fixrunde: Projektor behielt nun unabhaengig vom Viewport Desktopbreite und Raster; HTTP-Smoke auf aktuelle Scaffold-Routen korrigiert
+
+2026-10-26T14:36:17.698Z: TECH-2 BLOCKED.  Keine offenen Code-Findings; Browserabnahme als Umgebungsblocker offen Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen.
+
+2026-10-26T14:36:18.410Z: FEAT-1 IN_PROGRESS.   

@@ -44,13 +44,19 @@
         "TECH-5",
         "TECH-3"
       ],
-      "status": "IN_PROGRESS",
-      "fix_retries": 0,
+      "status": "BLOCKED",
+      "fix_retries": 1,
       "inventory_refs": [],
       "allows_dep_change": true,
       "classification": "TARGET_ALIGNED",
       "priority": "P0",
-      "implemented_by": "web_developer"
+      "implemented_by": "web_developer",
+      "review_result": "Keine offenen Code-Findings; Browserabnahme als Umgebungsblocker offen",
+      "test_evidence": "tasks/evidence/TECH-2-2026-10-26T14-10-52-898Z.json",
+      "red_evidence": "tasks/evidence/TECH-2-2026-10-26T14-01-01-324Z.json",
+      "lint_evidence": "tasks/evidence/TECH-2-2026-10-26T14-11-04-257Z.json",
+      "reviewed_by": "code_reviewer",
+      "blocked_reason": "Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen."
     },
     {
       "id": "TECH-3",
@@ -117,11 +123,12 @@
         "TECH-1",
         "TECH-3"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "classification": "CURRENT_STACK_ONLY",
-      "priority": "P0"
+      "priority": "P0",
+      "implemented_by": "server_developer"
     },
     {
       "id": "FEAT-2",
@@ -563,6 +570,11 @@
       ]
     }
   ],
-  "blockers": [],
-  "last_updated_utc": "2026-10-26T14:31:09.937Z"
+  "blockers": [
+    {
+      "task_id": "TECH-2",
+      "reason": "Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen."
+    }
+  ],
+  "last_updated_utc": "2026-10-26T14:36:18.410Z"
 }
