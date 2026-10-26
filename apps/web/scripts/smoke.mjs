@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 
 const base = process.env.WEB_SMOKE_URL ?? 'http://127.0.0.1:5173';
-for (const route of ['/', '/lobbies/smoke/host', '/lobbies/smoke/join', '/lobbies/smoke/player', '/lobbies/smoke/projector']) {
+for (const route of ['/', '/lobbies/smoke/host', '/join', '/player', '/projector']) {
   const response = await fetch(new URL(route, base), { signal: AbortSignal.timeout(5000) });
   assert.equal(response.status, 200, route);
   assert.match(response.headers.get('content-type') ?? '', /text\/html/);
