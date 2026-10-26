@@ -1,0 +1,10 @@
+{
+  "task_id": "TECH-6",
+  "command": "node --test test/task-metadata.test.mjs",
+  "exit_code": 0,
+  "stdout_tail": "✔ add-task accepts virtual contracts without registering an apps component (78.2218ms)\n✔ add-task rejects invalid component and unknown flags without changing accounting files (188.1691ms)\n✔ update-task writes validated planning metadata for TODO tasks and rerenders backlog (127.4613ms)\n✔ update-task rejects invalid classes, unknown dependencies, self-dependencies, cycles and DONE edits atomically (989.5711ms)\n✔ update-task can explicitly clear dependencies with an empty --deps value (135.977ms)\n✔ selftest exits nonzero and prints unexpected exceptions instead of swallowing them (936.1856ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2735.1769\n",
+  "stderr_tail": "",
+  "started": "2026-10-26T13:05:18.297Z",
+  "finished": "2026-10-26T13:05:21.111Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

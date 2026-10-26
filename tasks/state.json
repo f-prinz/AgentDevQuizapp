@@ -316,16 +316,20 @@
       "lint_command": null,
       "red_evidence_required": true,
       "dependencies": [],
-      "status": "IN_PROGRESS",
-      "fix_retries": 0,
+      "status": "DONE",
+      "fix_retries": 1,
       "inventory_refs": [],
       "allowed_paths": [
         "scripts/",
         "test/"
       ],
-      "implemented_by": "integration_engineer"
+      "implemented_by": "integration_engineer",
+      "review_result": "Alle Review-Findings behoben; 6 Regressionstests und 62 Workflowtests gruen, unabhaengig bestaetigt",
+      "test_evidence": "tasks/evidence/TECH-6-2026-10-26T13-05-18-297Z.json",
+      "red_evidence": "tasks/evidence/TECH-6-2026-10-26T12-45-41-060Z.json",
+      "reviewed_by": "code_reviewer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-26T12:43:37.793Z"
+  "last_updated_utc": "2026-10-26T13:05:26.731Z"
 }
