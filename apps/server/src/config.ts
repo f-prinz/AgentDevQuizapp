@@ -4,12 +4,40 @@ import process from 'node:process';
 export interface ServerConfig {
   host: string;
   port: number;
+  allowedOrigins?: string[];
 }
 
 const hostnamePattern = /^(?=.{1,253}$)(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)(?:\.(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?))*$/;
 
 function isValidHost(host: string): boolean {
   return isIP(host) !== 0 || hostnamePattern.test(host);
+}
+
+function parseAllowedOrigins(rawOrigins: string): string[] {
+  const origins = rawOrigins.split(',').map(origin => origin.trim()).filter(Boolean);
+  if (origins.length === 0) {
+    throw new Error('Invalid ALLOWED_ORIGINS: expected one or more HTTP origins.');
+  }
+
+  const normalized = origins.map((origin) => {
+    let parsed: URL;
+    try {
+      parsed = new URL(origin);
+    } catch {
+      throw new Error('Invalid ALLOWED_ORIGINS: expected one or more HTTP origins.');
+    }
+    if ((parsed.protocol !== 'http:' && parsed.protocol !== 'https:')
+      || parsed.username !== ''
+      || parsed.password !== ''
+      || parsed.pathname !== '/'
+      || parsed.search !== ''
+      || parsed.hash !== '') {
+      throw new Error('Invalid ALLOWED_ORIGINS: expected one or more HTTP origins.');
+    }
+    return parsed.origin;
+  });
+
+  return [...new Set(normalized)];
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
@@ -29,5 +57,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     throw new Error('Invalid PORT: expected an integer from 1 to 65535.');
   }
 
-  return { host, port };
+  const config: ServerConfig = { host, port };
+  if (env.ALLOWED_ORIGINS !== undefined) {
+    config.allowedOrigins = parseAllowedOrigins(env.ALLOWED_ORIGINS);
+  }
+  return config;
 }
