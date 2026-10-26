@@ -110,7 +110,26 @@
       "introduced_by": "FEAT-1",
       "removed_by": null,
       "notes": "lobby.start nur Host; unter2 abgewiesen, ab2 Uebersicht; keine Spielrunden behauptet"
+    },
+    {
+      "id": "INV-6",
+      "capability": "Lobbysitzung nach Verbindungsverlust ohne Doppelbeitritt fortsetzen",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "file",
+          "ref": "apps/server/src/app.ts"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/reconnect.test.ts"
+        }
+      ],
+      "introduced_by": "FEAT-13",
+      "removed_by": null,
+      "notes": "Gleiche Rolle/Spieler-ID/Name/Lobbyphase, mehrere Verbindungen korrekt; Ping/Pong erkennt stille Verbindung, Sitzung bleibt; nach Serverneustart ungueltig. Aktive Rundendaten werden mit FEAT-3 erweitert."
     }
   ],
-  "last_updated_utc": "2026-10-26T15:13:22.536Z"
+  "last_updated_utc": "2026-10-26T15:33:08.370Z"
 }

@@ -171,11 +171,12 @@
         "FEAT-13",
         "TECH-4"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "classification": "CURRENT_STACK_ONLY",
-      "priority": "P0"
+      "priority": "P0",
+      "implemented_by": "server_developer"
     },
     {
       "id": "FEAT-4",
@@ -350,12 +351,19 @@
       "dependencies": [
         "FEAT-1"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-6"
+      ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P0",
-      "implemented_by": "server_developer"
+      "implemented_by": "server_developer",
+      "review_result": "Code und Security ohne Findings;38Servertests gruen; Lobbyreauth und Heartbeat ohne Doppelbeitritt, aktive Runden folgt FEAT-3",
+      "test_evidence": "tasks/evidence/FEAT-13-2026-10-26T15-32-51-743Z.json",
+      "red_evidence": "tasks/evidence/FEAT-13-2026-10-26T15-27-16-383Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-13-2026-10-26T15-32-59-010Z.json",
+      "reviewed_by": "code_reviewer"
     },
     {
       "id": "FEAT-14",
@@ -586,5 +594,5 @@
       "reason": "Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen."
     }
   ],
-  "last_updated_utc": "2026-10-26T15:22:09.657Z"
+  "last_updated_utc": "2026-10-26T15:33:28.581Z"
 }
