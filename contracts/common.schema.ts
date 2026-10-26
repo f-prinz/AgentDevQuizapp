@@ -1,0 +1,13 @@
+import { z } from 'zod';
+export const ProtocolVersionSchema = z.literal(1);
+export const IdSchema = z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/);
+export const TokenSchema = z.string().min(43).max(128).regex(/^[A-Za-z0-9_-]+$/);
+export const NameSchema = z.string().trim().max(20);
+export const TextSchema = z.string().trim().min(1).max(4000);
+export const FiniteNumberSchema = z.number().finite();
+export const TimestampSchema = z.number().int().nonnegative();
+export const RoleSchema = z.enum(['host', 'player', 'projector']);
+export const GameKindSchema = z.enum(['quiz', 'sorting', 'estimation']);
+export const PhaseSchema = z.enum(['lobby', 'overview', 'start', 'playing', 'evaluation']);
+export const CommandBase = { version: ProtocolVersionSchema, requestId: IdSchema };
+export const uniqueIds = (items: readonly { id: string }[]) => new Set(items.map(item => item.id)).size === items.length;
