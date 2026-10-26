@@ -123,7 +123,7 @@
         "TECH-1",
         "TECH-3"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
       "inventory_refs": [
         "INV-3",
@@ -132,7 +132,12 @@
       ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P0",
-      "implemented_by": "server_developer"
+      "implemented_by": "server_developer",
+      "review_result": "Code- und Security-Review ohne Findings; vollstaendig34 Tests gruen; Inventaraudit5von5 und gezielte20Ankertests bestanden",
+      "test_evidence": "tasks/evidence/FEAT-1-2026-10-26T15-11-14-148Z.json",
+      "red_evidence": "tasks/evidence/FEAT-1-2026-10-26T14-40-11-514Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-1-2026-10-26T15-11-21-013Z.json",
+      "reviewed_by": "code_reviewer"
     },
     {
       "id": "FEAT-2",
@@ -345,11 +350,12 @@
       "dependencies": [
         "FEAT-1"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "classification": "CURRENT_STACK_ONLY",
-      "priority": "P0"
+      "priority": "P0",
+      "implemented_by": "server_developer"
     },
     {
       "id": "FEAT-14",
@@ -580,5 +586,5 @@
       "reason": "Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen."
     }
   ],
-  "last_updated_utc": "2026-10-26T15:13:25.762Z"
+  "last_updated_utc": "2026-10-26T15:22:09.657Z"
 }
