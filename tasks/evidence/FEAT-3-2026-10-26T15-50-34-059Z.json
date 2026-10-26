@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-3",
+  "command": "npm --prefix apps/server test -- test/game-state.test.ts",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 test\n> vitest run test/game-state.test.ts\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/apps/server\n\n ❯ test/game-state.test.ts (7 tests | 1 failed) 457ms\n   ❯ server game state and round timers (7)\n     × deselects and reselects in overview, advances a two-question quiz, and returns waiting players after finish 32ms\n\n Test Files  1 failed (1)\n      Tests  1 failed | 6 passed (7)\n   Start at  16:50:34\n   Duration  800ms (tests 68%, import 27%, transform 4%, worker 1%)\n\n",
+  "stderr_tail": "\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  test/game-state.test.ts > server game state and round timers > deselects and reselects in overview, advances a two-question quiz, and returns waiting players after finish\nAssertionError: expected 'start' to be 'playing' // Object.is equality\n\nExpected: \"playing\"\nReceived: \"start\"\n\n ❯ test/game-state.test.ts:334:36\n    332|     expect((await command(host, 'game.next', { roundId: firstRoundId }…\n    333|     const secondTransition = await snapshot(host, value => value.round…\n    334|     expect(secondTransition.phase).toBe('playing');\n       |                                    ^\n    335|     const secondPlaying = secondTransition;\n    336|     if (secondPlaying.round?.phase !== 'playing') throw new Error('Exp…\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n",
+  "started": "2026-10-26T15:50:34.059Z",
+  "finished": "2026-10-26T15:50:35.553Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

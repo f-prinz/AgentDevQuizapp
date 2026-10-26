@@ -24,6 +24,17 @@ seconds. A peer that misses a pong is terminated at the next heartbeat, and a
 player is marked disconnected only after the last socket for that session
 closes, so another open tab keeps the participant connected.
 
+The host selects and prepares catalog games before starting a round. Players
+present at preparation are frozen into that round; anyone joining later waits
+until the next game. Round deadlines are server-authoritative: quiz and
+estimation rounds run for 30 seconds, sorting rounds for 60 seconds, and
+answers are accepted through the inclusive deadline plus two-second grace
+period. Final submissions from every frozen player close input early, but only
+the host can reveal the evaluation. Reauthentication restores the current
+round, that player's draft/final state, and the original deadline. For a
+multi-question quiz, the host starts each following question from evaluation;
+it receives a new round ID and deadline while keeping the participant set.
+
 Run the existing server checks with `npm test`, `npm run lint`, and
 `npm run build`. PostgreSQL integration tests create an isolated temporary
 cluster under `tmp/` and do not use the configured application database.

@@ -9,16 +9,31 @@ import {
   NameSchema,
   PlayerSnapshotSchema,
   ProjectorSnapshotSchema,
+  type Answer,
   type GameSeed,
   type Session,
   type Snapshot,
 } from '@raccoons/contracts';
+import {
+  closeExpiredInput,
+  finishGame,
+  nextQuestion,
+  prepareGame,
+  projectRound,
+  revealGame,
+  saveAnswer,
+  selectGame,
+  startGame,
+  type GameLobbyState,
+} from './game.ts';
 
 interface Player {
   id: string;
   name: string;
   number: number;
   connected: boolean;
+  answer: Answer | null;
+  final: boolean;
 }
 
 interface StoredSession {
@@ -28,11 +43,7 @@ interface StoredSession {
   playerId?: string;
 }
 
-export interface Lobby {
-  id: string;
-  phase: 'lobby' | 'overview';
-  revision: number;
-  players: Player[];
+export interface Lobby extends GameLobbyState {
   sessions: Map<string, StoredSession>;
 }
 
@@ -71,14 +82,17 @@ function toAuthenticatedSession(lobby: Lobby, session: StoredSession): Authentic
   };
 }
 
-function publicCatalog(catalog: unknown): Array<{ id: string; kind: GameSeed['kind']; title: string; rules: string; played: boolean }> {
+function publicCatalog(
+  catalog: unknown,
+  playedGameIds: ReadonlySet<string>,
+): Array<{ id: string; kind: GameSeed['kind']; title: string; rules: string; played: boolean }> {
   if (!Array.isArray(catalog)) return [];
 
   return catalog.flatMap((value: unknown) => {
     const seed = GameSeedSchema.safeParse(value);
     if (!seed.success) return [];
     const { id, kind, title, rules } = seed.data;
-    const entry = CatalogEntrySchema.safeParse({ id, kind, title, rules, played: false });
+    const entry = CatalogEntrySchema.safeParse({ id, kind, title, rules, played: playedGameIds.has(id) });
     return entry.success ? [entry.data] : [];
   });
 }
@@ -93,6 +107,9 @@ export class LobbyRegistry {
       phase: 'lobby',
       revision: 0,
       players: [],
+      selectedGameId: null,
+      playedGameIds: new Set(),
+      round: null,
       sessions: new Map(),
     };
     const host = createSession(lobby, 'host');
@@ -126,6 +143,8 @@ export class LobbyRegistry {
       name,
       number: lobby.players.length + 1,
       connected: false,
+      answer: null,
+      final: false,
     };
     lobby.players.push(player);
     const session = createSession(lobby, 'player', player.id);
@@ -188,7 +207,63 @@ export class LobbyRegistry {
     return undefined;
   }
 
-  snapshot(session: AuthenticatedSession, catalog: unknown): Snapshot | undefined {
+  selectGame(session: AuthenticatedSession, gameId: string | null, catalog: unknown): LobbyErrorCode | undefined {
+    const lobby = this.lobbies.get(session.lobbyId);
+    if (!lobby) return ErrorCodeSchema.parse('LOBBY_NOT_FOUND');
+    return selectGame(lobby, session.role, gameId, catalog);
+  }
+
+  prepareGame(session: AuthenticatedSession, catalog: unknown): LobbyErrorCode | undefined {
+    const lobby = this.lobbies.get(session.lobbyId);
+    if (!lobby) return ErrorCodeSchema.parse('LOBBY_NOT_FOUND');
+    return prepareGame(lobby, session.role, catalog);
+  }
+
+  startGame(session: AuthenticatedSession, roundId: string, now: number): LobbyErrorCode | undefined {
+    const lobby = this.lobbies.get(session.lobbyId);
+    if (!lobby) return ErrorCodeSchema.parse('LOBBY_NOT_FOUND');
+    return startGame(lobby, session.role, roundId, now);
+  }
+
+  revealGame(session: AuthenticatedSession, roundId: string): LobbyErrorCode | undefined {
+    const lobby = this.lobbies.get(session.lobbyId);
+    if (!lobby) return ErrorCodeSchema.parse('LOBBY_NOT_FOUND');
+    return revealGame(lobby, session.role, roundId);
+  }
+
+  nextQuestion(session: AuthenticatedSession, roundId: string, now: number): LobbyErrorCode | undefined {
+    const lobby = this.lobbies.get(session.lobbyId);
+    if (!lobby) return ErrorCodeSchema.parse('LOBBY_NOT_FOUND');
+    return nextQuestion(lobby, session.role, roundId, now);
+  }
+
+  finishGame(session: AuthenticatedSession, roundId: string): LobbyErrorCode | undefined {
+    const lobby = this.lobbies.get(session.lobbyId);
+    if (!lobby) return ErrorCodeSchema.parse('LOBBY_NOT_FOUND');
+    return finishGame(lobby, session.role, roundId);
+  }
+
+  answer(
+    session: AuthenticatedSession,
+    roundId: string,
+    answer: Answer,
+    final: boolean,
+    now: number,
+  ): LobbyErrorCode | undefined {
+    const lobby = this.lobbies.get(session.lobbyId);
+    if (!lobby) return ErrorCodeSchema.parse('LOBBY_NOT_FOUND');
+    return saveAnswer(lobby, session.role, session.playerId, roundId, answer, final, now);
+  }
+
+  closeExpiredRounds(now: number): string[] {
+    const closedLobbyIds: string[] = [];
+    for (const lobby of this.lobbies.values()) {
+      if (closeExpiredInput(lobby, now)) closedLobbyIds.push(lobby.id);
+    }
+    return closedLobbyIds;
+  }
+
+  snapshot(session: AuthenticatedSession, catalog: unknown, now = Date.now()): Snapshot | undefined {
     const lobby = this.lobbies.get(session.lobbyId);
     if (!lobby) return undefined;
 
@@ -197,17 +272,17 @@ export class LobbyRegistry {
       type: 'snapshot' as const,
       lobbyId: lobby.id,
       revision: lobby.revision,
-      serverTime: Date.now(),
+      serverTime: now,
       phase: lobby.phase,
       participants: lobby.players.map(player => ({
         id: player.id,
         name: player.name || `Spieler ${player.number}`,
         number: player.number,
         connected: player.connected,
-        waiting: false,
+        waiting: lobby.round !== null && !lobby.round.participantIds.includes(player.id),
       })),
-      catalog: publicCatalog(catalog),
-      selectedGameId: null,
+      catalog: publicCatalog(catalog, lobby.playedGameIds),
+      selectedGameId: lobby.selectedGameId,
       ranking: [],
       rankingTransition: null,
     };
@@ -218,10 +293,14 @@ export class LobbyRegistry {
           ...common,
           role: 'host',
           canStartLobby: lobby.phase === 'lobby' && lobby.players.length >= 2,
-          round: null,
+          round: projectRound(lobby, 'host', undefined, now),
         });
       case 'projector':
-        return ProjectorSnapshotSchema.parse({ ...common, role: 'projector', round: null });
+        return ProjectorSnapshotSchema.parse({
+          ...common,
+          role: 'projector',
+          round: projectRound(lobby, 'projector', undefined, now),
+        });
       case 'player': {
         const player = this.getPlayer(session);
         if (!player) return undefined;
@@ -229,8 +308,12 @@ export class LobbyRegistry {
           ...common,
           role: 'player',
           playerId: player.id,
-          input: { answer: null, final: false, participating: true },
-          round: null,
+          input: {
+            answer: player.answer,
+            final: player.final,
+            participating: lobby.round === null || lobby.round.participantIds.includes(player.id),
+          },
+          round: projectRound(lobby, 'player', player.id, now),
         });
       }
     }
