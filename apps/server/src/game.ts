@@ -238,6 +238,12 @@ function parsedAnswer(answer: Answer): Answer {
   return AnswerSchema.parse(answer);
 }
 
+function questionPoints(round: ActiveGameRound, answer: Answer | null): number {
+  if (round.seed.kind !== 'quiz' || answer?.kind !== 'quiz') return 0;
+  const correctOptionId = round.seed.questions[round.questionIndex]?.correctOptionId;
+  return answer.optionId === correctOptionId ? 1 : 0;
+}
+
 function hasNextQuestion(round: ActiveGameRound): boolean {
   return round.seed.kind === 'quiz' && round.questionIndex + 1 < round.seed.questions.length;
 }
@@ -393,7 +399,7 @@ export function projectRound(
         hasNextQuestion: hasNext,
         ownEvaluation: {
           answer: player?.answer ?? null,
-          points: 0,
+          points: questionPoints(round, player?.answer ?? null),
           distance: null,
           positionsCorrect: null,
         },
@@ -407,7 +413,14 @@ export function projectRound(
       results: round.participantIds.flatMap(id => {
         const player = lobby.players.find(item => item.id === id);
         if (!player) return [];
-        return [{ playerId: player.id, name: player.name || `Spieler ${player.number}`, points: 0, rank: null, distance: null, errors: null }];
+        return [{
+          playerId: player.id,
+          name: player.name || `Spieler ${player.number}`,
+          points: questionPoints(round, player.answer),
+          rank: null,
+          distance: null,
+          errors: null,
+        }];
       }),
     };
   }

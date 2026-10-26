@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-7",
+  "command": "npm --prefix apps/server test -- test/game-state.test.ts -t scores each quiz question once",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 test\n> vitest run test/game-state.test.ts -t scores each quiz question once\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/apps/server\n\n ❯ test/game-state.test.ts (9 tests | 1 failed | 8 skipped) 925ms\n   ❯ server game state and round timers (9)\n     × scores each quiz question once from the last valid selection and finishes only after the final question 924ms\n\n Test Files  1 failed (1)\n      Tests  1 failed | 8 skipped (9)\n   Start at  17:59:55\n   Duration  2.21s (tests 51%, import 44%, transform 4%)\n\n",
+  "stderr_tail": "\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  test/game-state.test.ts > server game state and round timers > scores each quiz question once from the last valid selection and finishes only after the final question\nAssertionError: expected [ +0, +0 ] to deeply equal [ 1, +0 ]\n\n- Expected\n+ Received\n\n  [\n-   1,\n+   0,\n    0,\n  ]\n\n ❯ test/game-state.test.ts:326:72\n    324|       round.players[1].snapshot.role === 'player' ? round.players[1].s…\n    325|     ]);\n    326|     expect(firstEvaluation.round.results.map(result => result.points))…\n       |                                                                        ^\n    327|     const firstPlayerEvaluation = await snapshot(round.players[0], val…\n    328|       && value.round?.roundId === round.roundId);\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n",
+  "started": "2026-10-26T16:59:53.397Z",
+  "finished": "2026-10-26T16:59:58.034Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

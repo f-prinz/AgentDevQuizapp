@@ -201,8 +201,12 @@ async function snapshot(client: Client, predicate: (value: ReturnType<typeof Sna
   ));
 }
 
-async function beginRound(kind: 'quiz' | 'sorting' | 'estimation', clock = makeClock()): Promise<RoundFixture> {
-  const server = await startServer({ now: clock.now });
+async function beginRound(
+  kind: 'quiz' | 'sorting' | 'estimation',
+  clock = makeClock(),
+  catalog: unknown[] = games,
+): Promise<RoundFixture> {
+  const server = await startServer({ now: clock.now }, catalog);
   const lobby = await createLobby(server);
   const playerSessions = [
     await joinPlayer(server, lobby.lobbyId, 'Player one'),
@@ -276,6 +280,105 @@ describe('server game state and round timers', () => {
       expect(JSON.stringify([host, projector, player])).not.toContain('"value":');
     }
     if (kind === 'estimation') expect(JSON.stringify([host, projector, player])).not.toContain('"target":');
+  });
+
+  it('scores each quiz question once from the last valid selection and finishes only after the final question', async () => {
+    const clock = makeClock();
+    const round = await beginRound('quiz', clock, [multiQuestionQuiz]);
+    const [hostFirst, , playerOneFirst] = round.playing;
+    if (hostFirst.role !== 'host' || hostFirst.round?.phase !== 'playing' || playerOneFirst.role !== 'player'
+      || playerOneFirst.round?.phase !== 'playing' || playerOneFirst.round.task.kind !== 'quiz') {
+      throw new Error('Expected the first quiz question to be playing.');
+    }
+    expect(hostFirst.round.questionIndex).toBe(0);
+    expect(hostFirst.round.task.kind).toBe('quiz');
+    expect(hostFirst.round.task.question).toBe('Which option is correct?');
+    expect(hostFirst.round.timer.deadline - hostFirst.round.timer.serverTime).toBe(30_000);
+    const firstDeadline = hostFirst.round.timer.deadline;
+    expect(playerOneFirst.round.task.options.map(option => option.id)).toEqual(['a', 'b', 'c', 'd']);
+
+    expect((await command(round.players[0], 'answer.set', {
+      roundId: round.roundId, answer: { kind: 'quiz', optionId: 'a' },
+    })).type).toBe('ack');
+    expect((await command(round.players[0], 'answer.set', {
+      roundId: round.roundId, answer: { kind: 'quiz', optionId: 'c' },
+    })).type).toBe('ack');
+    expect((await command(round.players[0], 'answer.submit', {
+      roundId: round.roundId, answer: { kind: 'quiz', optionId: 'c' },
+    })).type).toBe('ack');
+    expect((await command(round.players[1], 'answer.submit', {
+      roundId: round.roundId, answer: { kind: 'quiz', optionId: 'a' },
+    })).type).toBe('ack');
+    expect((await command(round.host, 'game.reveal', { roundId: round.roundId })).type).toBe('ack');
+
+    const firstEvaluation = await snapshot(round.host, value => value.phase === 'evaluation'
+      && value.round?.roundId === round.roundId);
+    if (firstEvaluation.role !== 'host' || firstEvaluation.round?.phase !== 'evaluation'
+      || firstEvaluation.round.solution.kind !== 'quiz') {
+      throw new Error('Expected the first quiz question evaluation.');
+    }
+    expect(firstEvaluation.round.questionIndex).toBe(0);
+    expect(firstEvaluation.round.solution.correctOptionId).toBe('c');
+    expect(firstEvaluation.round.hasNextQuestion).toBe(true);
+    expect(firstEvaluation.round.results.map(result => result.playerId)).toEqual([
+      round.playing[2].role === 'player' ? round.playing[2].playerId : '',
+      round.players[1].snapshot.role === 'player' ? round.players[1].snapshot.playerId : '',
+    ]);
+    expect(firstEvaluation.round.results.map(result => result.points)).toEqual([1, 0]);
+    const firstPlayerEvaluation = await snapshot(round.players[0], value => value.phase === 'evaluation'
+      && value.round?.roundId === round.roundId);
+    if (firstPlayerEvaluation.role !== 'player' || firstPlayerEvaluation.round?.phase !== 'evaluation') {
+      throw new Error('Expected the first player quiz evaluation.');
+    }
+    expect(firstPlayerEvaluation.round.ownEvaluation).toMatchObject({
+      answer: { kind: 'quiz', optionId: 'c' }, points: 1,
+    });
+    expect(ErrorEventSchema.parse(await command(round.host, 'game.reveal', { roundId: round.roundId })))
+      .toMatchObject({ code: 'INVALID_PHASE' });
+    expect(ErrorEventSchema.parse(await command(round.host, 'game.finish', { roundId: round.roundId })))
+      .toMatchObject({ code: 'INVALID_PHASE' });
+
+    clock.set(clock.now() + 1_000);
+    expect((await command(round.host, 'game.next', { roundId: round.roundId })).type).toBe('ack');
+    const secondPlaying = await snapshot(round.host, value => value.phase === 'playing'
+      && value.round?.questionIndex === 1);
+    if (secondPlaying.role !== 'host' || secondPlaying.round?.phase !== 'playing'
+      || secondPlaying.round.task.kind !== 'quiz') {
+      throw new Error('Expected the host to advance to the second quiz question.');
+    }
+    const secondRoundId = secondPlaying.round.roundId;
+    expect(secondRoundId).not.toBe(round.roundId);
+    expect(secondPlaying.round.task.question).toBe('Which option comes next?');
+    expect(secondPlaying.round.task.kind === 'quiz'
+      ? secondPlaying.round.task.options.map(option => option.id)
+      : []).toEqual(['a2', 'b2', 'c2', 'd2']);
+    expect(secondPlaying.round.timer.deadline - secondPlaying.round.timer.serverTime).toBe(30_000);
+    expect(secondPlaying.round.timer.deadline).toBeGreaterThan(firstDeadline);
+    expect(secondPlaying.phase).toBe('playing');
+
+    expect((await command(round.players[0], 'answer.submit', {
+      roundId: secondRoundId, answer: { kind: 'quiz', optionId: 'a2' },
+    })).type).toBe('ack');
+    expect((await command(round.players[1], 'answer.submit', {
+      roundId: secondRoundId, answer: { kind: 'quiz', optionId: 'b2' },
+    })).type).toBe('ack');
+    expect((await command(round.host, 'game.reveal', { roundId: secondRoundId })).type).toBe('ack');
+    const lastEvaluation = await snapshot(round.host, value => value.phase === 'evaluation'
+      && value.round?.roundId === secondRoundId);
+    if (lastEvaluation.role !== 'host' || lastEvaluation.round?.phase !== 'evaluation'
+      || lastEvaluation.round.solution.kind !== 'quiz') {
+      throw new Error('Expected the last quiz question evaluation.');
+    }
+    expect(lastEvaluation.round.questionIndex).toBe(1);
+    expect(lastEvaluation.round.solution.correctOptionId).toBe('b2');
+    expect(lastEvaluation.round.hasNextQuestion).toBe(false);
+    expect(lastEvaluation.round.results.map(result => result.points)).toEqual([0, 1]);
+    expect(ErrorEventSchema.parse(await command(round.host, 'game.next', { roundId: secondRoundId })))
+      .toMatchObject({ code: 'INVALID_PHASE' });
+    expect((await command(round.host, 'game.finish', { roundId: secondRoundId })).type).toBe('ack');
+    expect(await snapshot(round.host, value => value.phase === 'overview')).toMatchObject({
+      phase: 'overview', round: null,
+    });
   });
 
   it('keeps sorting solutions hidden from late players and preserves their shuffled task on reauth', async () => {
