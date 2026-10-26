@@ -1,0 +1,10 @@
+{
+  "task_id": "TECH-2",
+  "command": "node apps/web/scripts/smoke.mjs",
+  "exit_code": 0,
+  "stdout_tail": "Vite serves the entry document for all five app routes; this is an HTTP startup check, not browser rendering.\n",
+  "stderr_tail": "",
+  "started": "2026-10-26T14:16:15.483Z",
+  "finished": "2026-10-26T14:16:15.656Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp\\tmp\\worktrees\\web"
+}
