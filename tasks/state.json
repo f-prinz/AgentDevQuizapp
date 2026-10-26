@@ -18,12 +18,13 @@
         "TECH-5",
         "TECH-3"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allows_dep_change": true,
       "classification": "TARGET_ALIGNED",
-      "priority": "P0"
+      "priority": "P0",
+      "implemented_by": "server_developer"
     },
     {
       "id": "TECH-2",
@@ -56,8 +57,8 @@
         "TECH-5",
         "TECH-6"
       ],
-      "status": "IN_PROGRESS",
-      "fix_retries": 0,
+      "status": "DONE",
+      "fix_retries": 1,
       "inventory_refs": [],
       "allowed_paths": [
         "contracts/"
@@ -65,7 +66,11 @@
       "allows_dep_change": true,
       "classification": "TARGET_ALIGNED",
       "priority": "P0",
-      "implemented_by": "integration_engineer"
+      "implemented_by": "integration_engineer",
+      "review_result": "Code- und Security-Review ohne offene Findings; sieben Schematests und Typpruefung gruen",
+      "test_evidence": "tasks/evidence/TECH-3-2026-10-26T13-34-30-194Z.json",
+      "red_evidence": "tasks/evidence/TECH-3-2026-10-26T13-23-54-281Z.json",
+      "reviewed_by": "code_reviewer"
     },
     {
       "id": "TECH-4",
@@ -544,5 +549,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-26T13:09:25.852Z"
+  "last_updated_utc": "2026-10-26T13:34:46.113Z"
 }
