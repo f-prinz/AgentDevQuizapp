@@ -1,6 +1,6 @@
 # Fortschritt
 
-Aktueller Stand: TECH-1 DONE; TECH-2 IN_PROGRESS; TECH-3 DONE; TECH-4 IN_PROGRESS; FEAT-1 TODO; FEAT-2 TODO; FEAT-3 TODO; FEAT-4 TODO; FEAT-5 TODO; FEAT-6 TODO; FEAT-7 TODO; FEAT-8 TODO; FEAT-9 TODO; FEAT-10 TODO; FEAT-11 TODO; FEAT-12 TODO; FEAT-13 TODO; FEAT-14 TODO; TECH-5 DONE; TECH-6 DONE; FEAT-15 TODO; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO. Historische Meldungen unten bleiben erhalten.
+Aktueller Stand: TECH-1 DONE; TECH-2 IN_PROGRESS; TECH-3 DONE; TECH-4 DONE; FEAT-1 TODO; FEAT-2 TODO; FEAT-3 TODO; FEAT-4 TODO; FEAT-5 TODO; FEAT-6 TODO; FEAT-7 TODO; FEAT-8 TODO; FEAT-9 TODO; FEAT-10 TODO; FEAT-11 TODO; FEAT-12 TODO; FEAT-13 TODO; FEAT-14 TODO; TECH-5 DONE; TECH-6 DONE; FEAT-15 TODO; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO. Historische Meldungen unten bleiben erhalten.
 
 2026-10-26T12:27:54.828Z: TECH-5 IN_PROGRESS.   
 
@@ -65,3 +65,9 @@ Aktueller Stand: TECH-1 DONE; TECH-2 IN_PROGRESS; TECH-3 DONE; TECH-4 IN_PROGRES
 2026-10-26T13:53:33.215Z: TECH-1 DONE.  Unabhaengiges Review ohne Findings; 17 Tests, ESLint, Typcheck, Build, HTTPsmoke gruen 
 
 2026-10-26T13:53:34.606Z: TECH-4 IN_PROGRESS.   
+
+2026-10-26T14:31:07.985Z: TECH-4 Fix-Retry 1/3. Erste Review-Fixrunde: vollstaendiger validierter Katalog-Readback vor COMMIT, lokale URL ohne Query-Overrides, Pool-Ende vor Listen; separate Windows-Testfixture-Diagnose korrigiert
+
+2026-10-26T14:31:09.263Z: TECH-4 aktualisiert.   
+
+2026-10-26T14:31:09.937Z: TECH-4 DONE.  Code- und Security-Review ohne offene Findings; 26 Tests mit echtem PostgreSQL, ESLint, Typcheck und Build gruen 

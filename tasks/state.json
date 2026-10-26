@@ -91,12 +91,19 @@
         "TECH-1",
         "TECH-3"
       ],
-      "status": "IN_PROGRESS",
-      "fix_retries": 0,
-      "inventory_refs": [],
+      "status": "DONE",
+      "fix_retries": 1,
+      "inventory_refs": [
+        "INV-2"
+      ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P0",
-      "implemented_by": "server_developer"
+      "implemented_by": "server_developer",
+      "review_result": "Code- und Security-Review ohne offene Findings; 26 Tests mit echtem PostgreSQL, ESLint, Typcheck und Build gruen",
+      "test_evidence": "tasks/evidence/TECH-4-2026-10-26T14-30-26-269Z.json",
+      "red_evidence": "tasks/evidence/TECH-4-2026-10-26T14-21-47-768Z.json",
+      "lint_evidence": "tasks/evidence/TECH-4-2026-10-26T14-30-35-337Z.json",
+      "reviewed_by": "code_reviewer"
     },
     {
       "id": "FEAT-1",
@@ -557,5 +564,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-26T13:53:34.606Z"
+  "last_updated_utc": "2026-10-26T14:31:09.937Z"
 }

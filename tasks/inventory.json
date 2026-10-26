@@ -24,7 +24,34 @@
       "introduced_by": "TECH-1",
       "removed_by": null,
       "notes": "Betriebsfaehigkeit: HTTP200 mit Protokollversion1; realer HTTP-Smoke und Shutdown belegt; keine Gameplayfunktion"
+    },
+    {
+      "id": "INV-2",
+      "capability": "Validierten Spielekatalog aus PostgreSQL vor Serverstart laden",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "file",
+          "ref": "apps/server/src/catalog.ts"
+        },
+        {
+          "type": "file",
+          "ref": "apps/server/src/bootstrap.ts"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/catalog.test.ts"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/bootstrap.test.ts"
+        }
+      ],
+      "introduced_by": "TECH-4",
+      "removed_by": null,
+      "notes": "Nur Katalog persistent; Seed-Upserts idempotent, vorhandene Fremdeintraege erhalten; echte isolierte PostgreSQL-Tests, keine Loesungsroute"
     }
   ],
-  "last_updated_utc": "2026-10-26T13:53:32.084Z"
+  "last_updated_utc": "2026-10-26T14:31:08.835Z"
 }
