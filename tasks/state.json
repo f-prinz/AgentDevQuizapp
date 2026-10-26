@@ -352,11 +352,20 @@
       "dependencies": [
         "FEAT-3"
       ],
-      "status": "IN_PROGRESS",
-      "fix_retries": 0,
-      "inventory_refs": [],
+      "status": "DONE",
+      "fix_retries": 2,
+      "inventory_refs": [
+        "INV-11"
+      ],
       "classification": "CURRENT_STACK_ONLY",
-      "priority": "P1"
+      "priority": "P1",
+      "test_result": "54/54 server tests green on main; thirds/ties/N=0/last-valid/extreme distances and completed ranking verified.",
+      "review_result": "Independent code and security review approved without blockers.",
+      "test_evidence": "tasks/evidence/FEAT-11-2026-10-26T18-32-46-924Z.json",
+      "red_evidence": "tasks/evidence/FEAT-11-2026-10-26T18-10-54-393Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-11-2026-10-26T18-33-21-335Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/FEAT-11.md"
     },
     {
       "id": "FEAT-12",
@@ -656,5 +665,5 @@
       "reason": "Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen."
     }
   ],
-  "last_updated_utc": "2026-10-26T18:02:59.674Z"
+  "last_updated_utc": "2026-10-26T18:34:35.883Z"
 }

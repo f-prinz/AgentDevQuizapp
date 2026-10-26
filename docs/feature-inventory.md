@@ -6,6 +6,7 @@
 |---|---|---|---|---|---|---|
 | INV-1 | Lokalen Serverzustand via GET /health abfragen | server | aktiv | route: `GET /health` in `apps/server/src/app.ts`<br>test: `apps/server/test/app.test.ts`<br>file: `apps/server/scripts/smoke.ts` | TECH-1 | - |
 | INV-10 | Sortierbegriffe nach Wert ordnen und Punkte je Position werten | server | aktiv | file: `apps/server/src/game.ts`<br>test: `apps/server/test/game-state.test.ts` | FEAT-9 | - |
+| INV-11 | Schaetzergebnisse nach Ranggruppen und Gleichstaenden werten | server | aktiv | file: `apps/server/src/game.ts`<br>test: `apps/server/test/game-state.test.ts` | FEAT-11 | - |
 | INV-2 | Validierten Spielekatalog aus PostgreSQL vor Serverstart laden | server | aktiv | file: `apps/server/src/catalog.ts`<br>file: `apps/server/src/bootstrap.ts`<br>test: `apps/server/test/catalog.test.ts`<br>test: `apps/server/test/bootstrap.test.ts` | TECH-4 | - |
 | INV-3 | Lobby mit getrennten Rollenlinks und Sitzungen erstellen | server | aktiv | route: `POST /lobbies` in `apps/server/src/app.ts`<br>test: `apps/server/test/lobby.test.ts` | FEAT-1 | - |
 | INV-4 | Spieler mit Namen beitreten und Teilnehmer live aktualisieren | server | aktiv | route: `POST /lobbies/:lobbyId/players` in `apps/server/src/app.ts`<br>test: `apps/server/test/lobby.test.ts` | FEAT-1 | - |
@@ -15,4 +16,4 @@
 | INV-8 | Quizfragen einzeln mit einem Punkt je richtiger Antwort auswerten | server | aktiv | file: `apps/server/src/game.ts`<br>test: `apps/server/test/game-state.test.ts` | FEAT-7 | - |
 | INV-9 | Abgeschlossene Quizpunkte als Ranking und Spielkatalogstatus bereitstellen | server | aktiv | file: `apps/server/src/game.ts`<br>file: `apps/server/src/lobby.ts`<br>test: `apps/server/test/game-state.test.ts` | FEAT-5 | - |
 
-Stand: 2026-10-26T17:49:42.058Z
+Stand: 2026-10-26T18:34:30.643Z

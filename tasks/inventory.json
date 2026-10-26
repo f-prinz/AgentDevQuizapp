@@ -189,7 +189,7 @@
       ],
       "introduced_by": "FEAT-5",
       "removed_by": null,
-      "notes": "Quiz- und Sortierpunkte werden je Auswertung einmal kumuliert und erst beim finalen Abschluss als Spielspalte im Host-/Projektorranking veröffentlicht; Gleichstandsränge und Beitrittsreihenfolge. Schaetzpunkte bleiben bis FEAT-11 offen."
+      "notes": "Quiz-, Sortier- und Schaetzergebnisse werden je Auswertung einmal kumuliert und erst nach finalem Spielabschluss als Spielspalte im Host-/Projektorranking veroeffentlicht; Gleichstandsrangfolge nach Beitrittsnummer."
     },
     {
       "id": "INV-10",
@@ -209,7 +209,26 @@
       "introduced_by": "FEAT-9",
       "removed_by": null,
       "notes": "Spieler sehen zufaellig angeordnete Begriffe ohne Werte; nach Aufloesung erscheinen Werte in aufsteigender Sollreihenfolge. Je richtige Position ein Punkt, Fehlerzahl = Anzahl Begriffe minus Punkte. Das abgeschlossene Ergebnis fliesst ins Ranking."
+    },
+    {
+      "id": "INV-11",
+      "capability": "Schaetzergebnisse nach Ranggruppen und Gleichstaenden werten",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "file",
+          "ref": "apps/server/src/game.ts"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/game-state.test.ts"
+        }
+      ],
+      "introduced_by": "FEAT-11",
+      "removed_by": null,
+      "notes": "Nur gueltige endliche Schaetzungen bilden N; absolute Distanz, Rang 1+Anzahl strikt naeherer Schaetzungen, ceil(N/3)/ceil(2N/3) mit Grenzgleichstand zur besseren Stufe. Alle Besten erhalten +2, maximal5; fehlend/N=0 ergibt0 und keinen Rang. Schaetzpunkte fliessen erst nach Spielabschluss ins Ranking. Extremdistanzen bleiben wire-seitig endlich."
     }
   ],
-  "last_updated_utc": "2026-10-26T17:49:42.058Z"
+  "last_updated_utc": "2026-10-26T18:34:30.643Z"
 }
