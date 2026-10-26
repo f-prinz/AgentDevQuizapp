@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-11",
+  "command": "npm --prefix apps/server test -- test/game-state.test.ts -t scores valid estimates|gives unanswered estimates",
+  "exit_code": 255,
+  "stdout_tail": "",
+  "stderr_tail": "Der Befehl \"gives\" ist entweder falsch geschrieben oder\r\nkonnte nicht gefunden werden.\r\n",
+  "started": "2026-10-26T18:10:40.189Z",
+  "finished": "2026-10-26T18:10:40.311Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

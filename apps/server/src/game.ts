@@ -280,6 +280,64 @@ function answerPoints(round: ActiveGameRound, answer: Answer | null): number {
   return 0;
 }
 
+interface EstimateScore {
+  points: number;
+  rank: number;
+  distance: number;
+}
+
+interface EstimateDistance {
+  output: number;
+  comparison: number;
+  overflow: boolean;
+}
+
+function estimateDistance(value: number, target: number): EstimateDistance {
+  const direct = Math.abs(value - target);
+  if (Number.isFinite(direct)) return { output: direct, comparison: direct, overflow: false };
+
+  // Half-scale before adding so the comparison remains finite when the true difference exceeds MAX_VALUE.
+  const comparison = Math.abs(value / 2) + Math.abs(target / 2);
+  return { output: Number.MAX_VALUE, comparison, overflow: true };
+}
+
+function compareEstimateDistances(left: EstimateDistance, right: EstimateDistance): number {
+  if (left.overflow !== right.overflow) return left.overflow ? 1 : -1;
+  if (left.comparison < right.comparison) return -1;
+  if (left.comparison > right.comparison) return 1;
+  return 0;
+}
+
+function estimateScores(lobby: GameLobbyState, round: ActiveGameRound): Map<string, EstimateScore> {
+  if (round.seed.kind !== 'estimation') return new Map();
+  const target = round.seed.target;
+
+  const estimates = round.participantIds.flatMap(playerId => {
+    const player = lobby.players.find(item => item.id === playerId);
+    const answer = player?.answer;
+    if (answer?.kind !== 'estimation' || !Number.isFinite(answer.value)) return [];
+    return [{ playerId, distance: estimateDistance(answer.value, target) }];
+  });
+  if (estimates.length === 0) return new Map();
+
+  const count = estimates.length;
+  const minimumDistance = estimates.reduce((minimum, estimate) =>
+    compareEstimateDistances(estimate.distance, minimum) < 0 ? estimate.distance : minimum,
+  estimates[0]!.distance);
+  const upperBoundary = Math.ceil(count / 3);
+  const lowerBoundary = Math.ceil((2 * count) / 3);
+  return new Map(estimates.map(estimate => {
+    const rank = 1 + estimates.filter(other =>
+      compareEstimateDistances(other.distance, estimate.distance) < 0).length;
+    const tierPoints = rank <= upperBoundary ? 3 : rank > lowerBoundary ? 0 : 1;
+    return [estimate.playerId, {
+      rank,
+      distance: estimate.distance.output,
+      points: tierPoints + (compareEstimateDistances(estimate.distance, minimumDistance) === 0 ? 2 : 0),
+    }] as const;
+  }));
+}
+
 function hasNextQuestion(round: ActiveGameRound): boolean {
   return round.seed.kind === 'quiz' && round.questionIndex + 1 < round.seed.questions.length;
 }
@@ -293,12 +351,13 @@ export function revealGame(
   const round = lobby.round;
   if (!round || round.roundId !== roundId) return error('STALE_ROUND');
   if (lobby.phase !== 'playing' || !round.inputClosed) return error('INVALID_PHASE');
-  if (round.seed.kind === 'quiz' || round.seed.kind === 'sorting') {
-    for (const playerId of round.participantIds) {
-      const player = lobby.players.find(item => item.id === playerId);
-      const points = answerPoints(round, player?.answer ?? null);
-      round.totalPoints.set(playerId, (round.totalPoints.get(playerId) ?? 0) + points);
-    }
+  const estimates = estimateScores(lobby, round);
+  for (const playerId of round.participantIds) {
+    const player = lobby.players.find(item => item.id === playerId);
+    const points = round.seed.kind === 'estimation'
+      ? estimates.get(playerId)?.points ?? 0
+      : answerPoints(round, player?.answer ?? null);
+    round.totalPoints.set(playerId, (round.totalPoints.get(playerId) ?? 0) + points);
   }
   lobby.phase = 'evaluation';
   lobby.revision += 1;
@@ -456,6 +515,7 @@ export function projectRound(
   }
 
   if (lobby.phase === 'evaluation') {
+    const estimates = estimateScores(lobby, round);
     const solution = round.seed.kind === 'quiz'
       ? {
         kind: 'quiz',
@@ -471,6 +531,7 @@ export function projectRound(
       const player = lobby.players.find(item => item.id === playerId);
       const answer = player?.answer ?? null;
       const sortingScore = sortingEvaluation(round, answer);
+      const estimate = player ? estimates.get(player.id) : undefined;
       return {
         ...base,
         phase: 'evaluation',
@@ -478,8 +539,8 @@ export function projectRound(
         hasNextQuestion: hasNext,
         ownEvaluation: {
           answer,
-          points: answerPoints(round, answer),
-          distance: null,
+          points: round.seed.kind === 'estimation' ? estimate?.points ?? 0 : answerPoints(round, answer),
+          distance: estimate?.distance ?? null,
           positionsCorrect: sortingScore.positionsCorrect,
         },
       };
@@ -492,13 +553,14 @@ export function projectRound(
       results: round.participantIds.flatMap(id => {
         const player = lobby.players.find(item => item.id === id);
         if (!player) return [];
-        const points = answerPoints(round, player.answer);
+        const estimate = estimates.get(player.id);
+        const points = round.seed.kind === 'estimation' ? estimate?.points ?? 0 : answerPoints(round, player.answer);
         return [{
           playerId: player.id,
           name: player.name || `Spieler ${player.number}`,
           points,
-          rank: null,
-          distance: null,
+          rank: estimate?.rank ?? null,
+          distance: estimate?.distance ?? null,
           errors: round.seed.kind === 'sorting' ? round.seed.terms.length - points : null,
         }];
       }),
