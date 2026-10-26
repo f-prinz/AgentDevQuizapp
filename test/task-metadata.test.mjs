@@ -111,6 +111,11 @@ test('add-task rejects invalid component and unknown flags without changing acco
   assert.notEqual(unknownFlag.status, 0);
   assert.match(`${unknownFlag.stdout}${unknownFlag.stderr}`, /Unknown\/incomplete flag/);
   assert.deepEqual(snapshotAccounting(), beforeState);
+
+  const missingTitle = run('scripts/add-task.mjs', 'TECH-11', '--component', 'server', '--title', '--mystery');
+  assert.notEqual(missingTitle.status, 0);
+  assert.match(`${missingTitle.stdout}${missingTitle.stderr}`, /title|Pflicht|incomplete/i);
+  assert.deepEqual(snapshotAccounting(), beforeState);
 });
 
 test('update-task writes validated planning metadata for TODO tasks and rerenders backlog', () => {
@@ -137,6 +142,7 @@ test('update-task rejects invalid classes, unknown dependencies, self-dependenci
     ['TECH-2', '--priority', 'P9'],
     ['TECH-2', '--component', 'mobile'],
     ['TECH-2', '--unrecognized', 'value'],
+    ['TECH-2', '--title', ''],
     ['TECH-2', '--deps', 'MISSING-9'],
     ['TECH-2', '--deps', 'TECH-2'],
     ['TECH-1', '--deps', 'TECH-2'],
@@ -155,4 +161,31 @@ test('update-task can explicitly clear dependencies with an empty --deps value',
   assert.equal(result.status, 0, result.stderr);
   const task = readJson('tasks/state.json').tasks.find(entry => entry.id === 'TECH-2');
   assert.deepEqual(task.dependencies, []);
+});
+
+test('selftest exits nonzero and prints unexpected exceptions instead of swallowing them', () => {
+  const injectedFixture = fs.mkdtempSync(path.join(os.tmpdir(), `${fixturePrefix}unexpected-`));
+  try {
+    fs.cpSync(path.join(projectRoot, 'scripts'), path.join(injectedFixture, 'scripts'), { recursive: true });
+    fs.writeFileSync(path.join(injectedFixture, 'package.json'), '{"type":"module"}\n');
+    const selftestPath = path.join(injectedFixture, 'scripts/selftest.mjs');
+    const source = fs.readFileSync(selftestPath, 'utf8');
+    const marker = "  console.log('== Basis-Checks ==');";
+    assert.equal(source.split(marker).length - 1, 1, 'expected one stable injection point in selftest');
+    fs.writeFileSync(selftestPath, source.replace(marker, "  throw new Error('SELFTEST_SENTINEL_INJECTED');\n" + marker));
+
+    const result = spawnSync(process.execPath, ['scripts/selftest.mjs'], {
+      cwd: injectedFixture,
+      encoding: 'utf8',
+      windowsHide: true,
+    });
+    const output = `${result.stdout}${result.stderr}`;
+    assert.notEqual(result.status, 0, 'unexpected selftest exceptions must fail the process');
+    assert.match(output, /SELFTEST_SENTINEL_INJECTED/, 'unexpected exception must remain visible');
+  } finally {
+    const resolved = path.resolve(injectedFixture);
+    const tempRoot = path.resolve(os.tmpdir());
+    assert.ok(resolved.startsWith(`${tempRoot}${path.sep}${fixturePrefix}unexpected-`), 'refusing to remove an unowned injection fixture');
+    fs.rmSync(resolved, { recursive: true, force: true });
+  }
 });

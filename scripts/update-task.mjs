@@ -6,7 +6,7 @@ import { currentBranch } from './lib/gitflow.mjs';
 import { parseDependencies, validateTaskDefinition } from './lib/task-metadata.mjs';
 
 const usage =
-  'Usage: update-task.mjs <TASK-ID> [TODO|IN_PROGRESS|DONE|BLOCKED] [--by <agent>] [--reason <text>] [--test-evidence <file>] [--red-evidence <file>] [--lint-evidence <file>] [--reviewed-by <agent>] [--review-file <path>] [--test-result <text>] [--review-result <text>] [--add-inv INV-x] [--scope <path>]* [--deps-change]';
+  'Usage: update-task.mjs <TASK-ID> [TODO|IN_PROGRESS|DONE|BLOCKED] [--by <agent>] [--reason <text>] [--test-evidence <file>] [--red-evidence <file>] [--lint-evidence <file>] [--reviewed-by <agent>] [--review-file <path>] [--test-result <text>] [--review-result <text>] [--add-inv INV-x] [--component <c>] [--title <t>] [--ak <text>] [--test <command>] [--lint <command>] [--deps <A,B>] [--classification <class>] [--priority P0|P1|P2] [--scope <path>]* [--deps-change]';
 
 const transitions = {
   TODO: ['IN_PROGRESS'],

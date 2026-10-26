@@ -1,0 +1,10 @@
+{
+  "task_id": "TECH-6",
+  "command": "node --test test/task-metadata.test.mjs",
+  "exit_code": 1,
+  "stdout_tail": "✔ add-task accepts virtual contracts without registering an apps component (73.1608ms)\n✔ add-task rejects invalid component and unknown flags without changing accounting files (123.4278ms)\n✔ update-task writes validated planning metadata for TODO tasks and rerenders backlog (121.7534ms)\n✔ update-task rejects invalid classes, unknown dependencies, self-dependencies, cycles and DONE edits atomically (1016.0177ms)\n✔ update-task can explicitly clear dependencies with an empty --deps value (142.613ms)\n✖ selftest exits nonzero and prints unexpected exceptions instead of swallowing them (871.0867ms)\nℹ tests 6\nℹ suites 0\nℹ pass 5\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2618.9908\n\n✖ failing tests:\n\ntest at test\\task-metadata.test.mjs:160:1\n✖ selftest exits nonzero and prints unexpected exceptions instead of swallowing them (871.0867ms)\n  AssertionError [ERR_ASSERTION]: unexpected selftest exceptions must fail the process\n      at TestContext.<anonymous> (file:///C:/dev/Bedburg/AgentDevQuizapp/test/task-metadata.test.mjs:177:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: 0,\n    expected: 0,\n    operator: 'notStrictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr_tail": "",
+  "started": "2026-10-26T12:54:00.478Z",
+  "finished": "2026-10-26T12:54:03.175Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

@@ -24,7 +24,7 @@ const expect = (name, res, predicate) => {
     console.log(`  ok  ${name}`);
   } else {
     failures.push(name);
-    const out = `${res.stdout ?? ''}${res.stderr ?? ''}`.trim().split('\n').slice(-10).join('\n      ');
+    const out = `${res.stdout ?? ''}${res.stderr ?? ''}`.trim().split('\n').slice(-30).join('\n      ');
     console.log(`FAIL  ${name} (exit ${code})\n      ${out}`);
   }
 };
@@ -241,10 +241,19 @@ try {
   nodeTest('archive-tasks CHG-2', 'archive-tasks.mjs', ['CHG-2']);
   nodeTest('check-state final', 'check-state.mjs');
   nodeTest('check-inventory final', 'check-inventory.mjs');
+} catch (error) {
+  failures.push(`Unexpected exception: ${error?.stack ?? error}`);
+  console.error(`FAIL  Unexpected exception\n      ${error?.stack ?? error}`);
 } finally {
+  for (const target of [T, R]) {
+    try {
+      fs.rmSync(target, { recursive: true, force: true });
+    } catch (error) {
+      failures.push(`Cleanup failed for ${target}: ${error?.stack ?? error}`);
+      console.error(`FAIL  Cleanup failed for ${target}\n      ${error?.stack ?? error}`);
+    }
+  }
   console.log(`\n${passed} Tests bestanden, ${failures.length} fehlgeschlagen`);
   if (failures.length) console.log(`Fehlgeschlagen: ${failures.join(', ')}`);
-  fs.rmSync(T, { recursive: true, force: true });
-  fs.rmSync(R, { recursive: true, force: true });
-  process.exit(failures.length ? 1 : 0);
+  process.exitCode = failures.length ? 1 : 0;
 }

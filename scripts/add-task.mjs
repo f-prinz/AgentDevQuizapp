@@ -23,6 +23,7 @@ for (let i = 0; i < rest.length; i++) {
   else if (flag === '--no-tdd') { opts.tdd = false; }
   else if (flag === '--deps-change') { opts.depsChange = true; }
   else if (['--component', '--title', '--ak', '--test', '--lint', '--deps', '--classification', '--priority'].includes(flag) && value !== undefined) {
+    if (value.startsWith('--')) throw Error(`Missing value for ${flag}`);
     opts[flag.slice(2)] = value; i++;
   } else {
     throw Error(`Unknown/incomplete flag ${flag}`);
@@ -32,7 +33,7 @@ for (let i = 0; i < rest.length; i++) {
 const state = loadState();
 if (state.tasks.some(t => t.id === id)) throw Error(`Task ${id} existiert bereits`);
 if (loadArchive().tasks?.some(t => t.id === id)) throw Error(`Task ${id} existiert bereits im Archiv`);
-if (!opts.component || !opts.title) throw Error('--component und --title sind Pflicht');
+if (!opts.component || !opts.title?.trim()) throw Error('--component und ein nichtleerer --title sind Pflicht');
 const dependencies = parseDependencies(opts.deps);
 
 // TDD-Default: FEAT und BUG verlangen rote Evidence; CHG/TECH optional via --tdd.

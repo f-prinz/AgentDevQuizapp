@@ -15,6 +15,9 @@ export function parseDependencies(value = '') {
 }
 
 export function validateTaskDefinition(task, state, archivedTasks = []) {
+  if (typeof task.title !== 'string' || !task.title.trim()) {
+    throw Error(`${task.id}: title darf nicht leer sein`);
+  }
   const components = new Set([...(state.components ?? []), 'contracts']);
   if (!components.has(task.component)) {
     throw Error(`Unbekannte Komponente ${task.component} (deklariert: ${(state.components ?? []).join(', ')}, contracts)`);
