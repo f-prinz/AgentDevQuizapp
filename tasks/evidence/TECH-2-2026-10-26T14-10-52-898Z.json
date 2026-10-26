@@ -1,0 +1,10 @@
+{
+  "task_id": "TECH-2",
+  "command": "npm --prefix apps/web test",
+  "exit_code": 0,
+  "stdout_tail": "\n> @raccoons/web@1.0.0 test\n> vitest run\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/tmp/worktrees/web/apps/web\n\n\n Test Files  2 passed (2)\n      Tests  9 passed (9)\n   Start at  15:10:54\n   Duration  5.99s (environment 76%, setup 14%, import 6%, tests 2%, transform 1%)\n\n",
+  "stderr_tail": "",
+  "started": "2026-10-26T14:10:52.898Z",
+  "finished": "2026-10-26T14:11:00.391Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp\\tmp\\worktrees\\web"
+}

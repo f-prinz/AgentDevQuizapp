@@ -1,0 +1,10 @@
+{
+  "task_id": "TECH-2",
+  "command": "npm --prefix apps/web test",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/web@1.0.0 test\n> vitest run\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/tmp/worktrees/web/apps/web\n\n ❯ src/projector-layout.test.tsx (3 tests | 1 failed) 196ms\n   ❯ projector layout at narrow viewport widths (3)\n     × keeps desktop width and side-by-side regions on the projector route 108ms\n\n Test Files  1 failed | 1 passed (2)\n      Tests  1 failed | 8 passed (9)\n   Start at  15:01:02\n   Duration  8.01s (environment 74%, setup 17%, import 6%, tests 2%, transform 1%)\n\n",
+  "stderr_tail": "\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  src/projector-layout.test.tsx > projector layout at narrow viewport widths > keeps desktop width and side-by-side regions on the projector route\nAssertionError: expected 0 to be greater than or equal to 1024\n ❯ src/projector-layout.test.tsx:80:41\n     78|\n     79|     expect(window.innerWidth).toBeLessThan(desktopMinimumWidth);\n     80|     expect(minWidthInPixels(projector)).toBeGreaterThanOrEqual(desktop…\n       |                                         ^\n     81|     expect(layout).not.toBeNull();\n     82|     expect(getComputedStyle(layout!).display).toBe(\"grid\");\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n",
+  "started": "2026-10-26T14:01:01.324Z",
+  "finished": "2026-10-26T14:01:10.489Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp\\tmp\\worktrees\\web"
+}
