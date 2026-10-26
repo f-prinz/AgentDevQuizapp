@@ -16,6 +16,14 @@ results remain in memory. Seed files are in `seeds/`; versioned SQL migrations
 are in `migrations/`. Seed upserts use stable game IDs and preserve catalog
 entries that are not managed by the seed files.
 
+An existing role session can reconnect with its session ID and token while the
+server process and lobby are still running. Authentication restores that
+session's role and player identity without adding another participant; a server
+restart clears the session. WebSocket connections receive a ping every 30
+seconds. A peer that misses a pong is terminated at the next heartbeat, and a
+player is marked disconnected only after the last socket for that session
+closes, so another open tab keeps the participant connected.
+
 Run the existing server checks with `npm test`, `npm run lint`, and
 `npm run build`. PostgreSQL integration tests create an isolated temporary
 cluster under `tmp/` and do not use the configured application database.
