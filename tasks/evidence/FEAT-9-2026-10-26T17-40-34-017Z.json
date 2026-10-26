@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-9",
+  "command": "npm --prefix apps/server test -- test/game-state.test.ts -t scores sorting positions",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 test\n> vitest run test/game-state.test.ts -t scores sorting positions\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/apps/server\n\n ❯ test/game-state.test.ts (12 tests | 1 failed | 10 skipped) 849ms\n   ❯ server game state and round timers (12)\n     × scores sorting positions, reveals the value order, and carries points into completed ranking 44ms\n\n Test Files  1 failed (1)\n      Tests  1 failed | 1 passed | 10 skipped (12)\n   Start at  18:40:36\n   Duration  2.07s (tests 49%, import 46%, transform 4%)\n\n",
+  "stderr_tail": "\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  test/game-state.test.ts > server game state and round timers > scores sorting positions, reveals the value order, and carries points into completed ranking\nAssertionError: expected [ [ 'term_b', 2 ], …(2) ] to deeply equal [ [ 'term_a', 1 ], …(2) ]\n\n- Expected\n+ Received\n\n  [\n    [\n-     \"term_a\",\n-     1,\n-   ],\n-   [\n      \"term_b\",\n      2,\n    ],\n    [\n      \"term_c\",\n      3,\n+   ],\n+   [\n+     \"term_a\",\n+     1,\n    ],\n  ]\n\n ❯ test/game-state.test.ts:601:57\n    599|     }\n    600|     const solution = hostEvaluation.round.solution.terms;\n    601|     expect(solution.map(term => [term.id, term.value])).toEqual([\n       |                                                         ^\n    602|       ['term_a', 1], ['term_b', 2], ['term_c', 3],\n    603|     ]);\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n",
+  "started": "2026-10-26T17:40:34.017Z",
+  "finished": "2026-10-26T17:40:38.203Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
