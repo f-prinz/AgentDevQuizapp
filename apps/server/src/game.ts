@@ -256,6 +256,30 @@ function questionPoints(round: ActiveGameRound, answer: Answer | null): number {
   return answer.optionId === correctOptionId ? 1 : 0;
 }
 
+function sortingTermsByValue(round: ActiveGameRound) {
+  if (round.seed.kind !== 'sorting') return [];
+  return [...round.seed.terms].sort((left, right) => left.value - right.value);
+}
+
+function sortingEvaluation(round: ActiveGameRound, answer: Answer | null) {
+  if (round.seed.kind !== 'sorting' || answer?.kind !== 'sorting') {
+    return { points: 0, positionsCorrect: null };
+  }
+
+  const correctOrder = sortingTermsByValue(round).map(term => term.id);
+  const positionsCorrect = answer.termIds.map((termId, index) => termId === correctOrder[index]);
+  return {
+    points: positionsCorrect.filter(Boolean).length,
+    positionsCorrect,
+  };
+}
+
+function answerPoints(round: ActiveGameRound, answer: Answer | null): number {
+  if (round.seed.kind === 'quiz') return questionPoints(round, answer);
+  if (round.seed.kind === 'sorting') return sortingEvaluation(round, answer).points;
+  return 0;
+}
+
 function hasNextQuestion(round: ActiveGameRound): boolean {
   return round.seed.kind === 'quiz' && round.questionIndex + 1 < round.seed.questions.length;
 }
@@ -269,10 +293,10 @@ export function revealGame(
   const round = lobby.round;
   if (!round || round.roundId !== roundId) return error('STALE_ROUND');
   if (lobby.phase !== 'playing' || !round.inputClosed) return error('INVALID_PHASE');
-  if (round.seed.kind === 'quiz') {
+  if (round.seed.kind === 'quiz' || round.seed.kind === 'sorting') {
     for (const playerId of round.participantIds) {
       const player = lobby.players.find(item => item.id === playerId);
-      const points = questionPoints(round, player?.answer ?? null);
+      const points = answerPoints(round, player?.answer ?? null);
       round.totalPoints.set(playerId, (round.totalPoints.get(playerId) ?? 0) + points);
     }
   }
@@ -440,21 +464,23 @@ export function projectRound(
         correctOptionId: round.seed.questions[round.questionIndex]?.correctOptionId ?? '',
       }
       : round.seed.kind === 'sorting'
-        ? { kind: 'sorting', question: round.seed.question, terms: round.seed.terms }
+        ? { kind: 'sorting', question: round.seed.question, terms: sortingTermsByValue(round) }
         : { kind: 'estimation', question: round.seed.question, target: round.seed.target };
     const hasNext = hasNextQuestion(round);
     if (role === 'player') {
       const player = lobby.players.find(item => item.id === playerId);
+      const answer = player?.answer ?? null;
+      const sortingScore = sortingEvaluation(round, answer);
       return {
         ...base,
         phase: 'evaluation',
         solution,
         hasNextQuestion: hasNext,
         ownEvaluation: {
-          answer: player?.answer ?? null,
-          points: questionPoints(round, player?.answer ?? null),
+          answer,
+          points: answerPoints(round, answer),
           distance: null,
-          positionsCorrect: null,
+          positionsCorrect: sortingScore.positionsCorrect,
         },
       };
     }
@@ -466,13 +492,14 @@ export function projectRound(
       results: round.participantIds.flatMap(id => {
         const player = lobby.players.find(item => item.id === id);
         if (!player) return [];
+        const points = answerPoints(round, player.answer);
         return [{
           playerId: player.id,
           name: player.name || `Spieler ${player.number}`,
-          points: questionPoints(round, player.answer),
+          points,
           rank: null,
           distance: null,
-          errors: null,
+          errors: round.seed.kind === 'sorting' ? round.seed.terms.length - points : null,
         }];
       }),
     };

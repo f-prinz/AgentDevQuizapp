@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-9",
+  "command": "npm --prefix apps/server test",
+  "exit_code": 0,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 test\n> vitest run\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/apps/server\n\n\n Test Files  8 passed (8)\n      Tests  50 passed (50)\n   Start at  18:45:32\n   Duration  28.40s (tests 87%, import 12%, transform 1%)\n\n",
+  "stderr_tail": "",
+  "started": "2026-10-26T17:45:29.629Z",
+  "finished": "2026-10-26T17:46:00.944Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

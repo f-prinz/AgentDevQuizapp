@@ -532,6 +532,119 @@ describe('server game state and round timers', () => {
     }
   });
 
+  it('scores sorting positions, reveals the value order, and carries points into completed ranking', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const sortingSeed = GameSeedSchema.parse({
+      id: 'sorting_game', kind: 'sorting', title: 'Sort', rules: 'Order the terms.',
+      question: 'Put the terms in value order.',
+      terms: [
+        { id: 'term_b', text: 'Second', value: 2 },
+        { id: 'term_c', text: 'Third', value: 3 },
+        { id: 'term_a', text: 'First', value: 1 },
+      ],
+    });
+    const round = await beginRound('sorting', makeClock(), [sortingSeed]);
+    const [hostPlaying, projectorPlaying, firstPlayerPlaying] = round.playing;
+    const secondPlayerPlaying = await snapshot(round.players[1], value => value.phase === 'playing');
+    if (hostPlaying.role !== 'host' || hostPlaying.round?.phase !== 'playing'
+      || hostPlaying.round.task.kind !== 'sorting'
+      || projectorPlaying.role !== 'projector' || projectorPlaying.round?.phase !== 'playing'
+      || projectorPlaying.round.task.kind !== 'sorting'
+      || firstPlayerPlaying.role !== 'player' || firstPlayerPlaying.round?.phase !== 'playing'
+      || firstPlayerPlaying.round.task.kind !== 'sorting'
+      || secondPlayerPlaying.role !== 'player' || secondPlayerPlaying.round?.phase !== 'playing'
+      || secondPlayerPlaying.round.task.kind !== 'sorting') {
+      throw new Error('Expected the sorting task in every round view.');
+    }
+    const canonicalOrder = ['term_a', 'term_b', 'term_c'];
+    for (const playerView of [firstPlayerPlaying, secondPlayerPlaying]) {
+      if (playerView.role !== 'player' || playerView.round?.phase !== 'playing'
+      ) {
+        throw new Error('Expected a player sorting task.');
+      }
+      const playerRound = playerView.round;
+      if (playerRound.task.kind !== 'sorting') throw new Error('Expected sorting terms.');
+      const sortingTask = playerRound.task;
+      const termIds = sortingTask.terms.map(term => term.id);
+      expect([...termIds].sort()).toEqual([...canonicalOrder].sort());
+      expect(termIds).not.toEqual(canonicalOrder);
+      expect(sortingTask.terms.every(term => !('value' in term))).toBe(true);
+      expect(playerRound.timer.deadline - playerRound.timer.serverTime).toBe(60_000);
+    }
+    expect(hostPlaying.round.timer.deadline - hostPlaying.round.timer.serverTime).toBe(60_000);
+    expect(projectorPlaying.round.timer.deadline - projectorPlaying.round.timer.serverTime).toBe(60_000);
+    expect(JSON.stringify([hostPlaying, projectorPlaying, firstPlayerPlaying, secondPlayerPlaying]))
+      .not.toContain('"value":');
+
+    const firstPlayerId = firstPlayerPlaying.playerId;
+    const secondPlayerId = secondPlayerPlaying.playerId;
+    const answers = [
+      { player: round.players[0], termIds: canonicalOrder },
+      { player: round.players[1], termIds: ['term_b', 'term_a', 'term_c'] },
+    ];
+    for (const { player, termIds } of answers) {
+      expect((await command(player, 'answer.submit', {
+        roundId: round.roundId, answer: { kind: 'sorting', termIds },
+      })).type).toBe('ack');
+    }
+    expect((await command(round.host, 'game.reveal', { roundId: round.roundId })).type).toBe('ack');
+    const [hostEvaluation, projectorEvaluation, firstPlayerEvaluation, secondPlayerEvaluation] = await Promise.all([
+      snapshot(round.host, value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+      snapshot(round.projector, value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+      snapshot(round.players[0], value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+      snapshot(round.players[1], value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+    ]);
+    if (hostEvaluation.role !== 'host' || hostEvaluation.round?.phase !== 'evaluation'
+      || hostEvaluation.round.solution.kind !== 'sorting'
+      || projectorEvaluation.role !== 'projector' || projectorEvaluation.round?.phase !== 'evaluation'
+      || projectorEvaluation.round.solution.kind !== 'sorting'
+      || firstPlayerEvaluation.role !== 'player' || firstPlayerEvaluation.round?.phase !== 'evaluation'
+      || firstPlayerEvaluation.round.solution.kind !== 'sorting'
+      || secondPlayerEvaluation.role !== 'player' || secondPlayerEvaluation.round?.phase !== 'evaluation'
+      || secondPlayerEvaluation.round.solution.kind !== 'sorting') {
+      throw new Error('Expected sorting evaluation results for all roles.');
+    }
+    const solution = hostEvaluation.round.solution.terms;
+    expect(solution.map(term => [term.id, term.value])).toEqual([
+      ['term_a', 1], ['term_b', 2], ['term_c', 3],
+    ]);
+    expect(projectorEvaluation.round.solution).toEqual(hostEvaluation.round.solution);
+    expect(firstPlayerEvaluation.round.solution).toEqual(hostEvaluation.round.solution);
+    expect(secondPlayerEvaluation.round.solution).toEqual(hostEvaluation.round.solution);
+    expect(firstPlayerEvaluation.round.ownEvaluation).toMatchObject({
+      answer: { kind: 'sorting', termIds: canonicalOrder }, points: 3, positionsCorrect: [true, true, true],
+    });
+    expect(secondPlayerEvaluation.round.ownEvaluation).toMatchObject({
+      answer: { kind: 'sorting', termIds: ['term_b', 'term_a', 'term_c'] },
+      points: 1, positionsCorrect: [false, false, true],
+    });
+    const expectedResults = [
+      { playerId: firstPlayerId, points: 3, errors: 0 },
+      { playerId: secondPlayerId, points: 1, errors: 2 },
+    ];
+    for (const evaluation of [hostEvaluation.round, projectorEvaluation.round]) {
+      expect(evaluation.results).toEqual(expect.arrayContaining(expectedResults.map(result =>
+        expect.objectContaining(result),
+      )));
+    }
+
+    expect((await command(round.host, 'game.finish', { roundId: round.roundId })).type).toBe('ack');
+    const [completedHost, completedProjector] = await Promise.all([
+      snapshot(round.host, value => value.phase === 'overview' && value.revision > hostEvaluation.revision),
+      snapshot(round.projector, value => value.phase === 'overview' && value.revision > hostEvaluation.revision),
+    ]);
+    if (completedHost.role !== 'host' || completedProjector.role !== 'projector') {
+      throw new Error('Expected completed ranking snapshots for host and projector.');
+    }
+    for (const [playerId, points] of [[firstPlayerId, 3], [secondPlayerId, 1]] as const) {
+      for (const ranking of [completedHost.ranking, completedProjector.ranking]) {
+        expect(ranking.find(entry => entry.playerId === playerId)?.games).toContainEqual({
+          gameId: 'sorting_game', points,
+        });
+      }
+    }
+  });
+
   it('keeps sorting solutions hidden from late players and preserves their shuffled task on reauth', async () => {
     const random = vi.spyOn(Math, 'random').mockReturnValue(0);
     const round = await beginRound('sorting');
