@@ -8,8 +8,9 @@ Das Projekt besteht aus mehreren Anwendungsteilen (Komponenten) mit jeweils eige
 
 | Komponente | Verzeichnis | Zweck | Status |
 |---|---|---|---|
-| contracts | contracts/ | Schnittstellen-Artefakte (API-Schemas, geteilte Typen, Versionierung) | OFFEN |
-| <!-- <name> | apps/<name>/ | <zweck> | OFFEN --> |
+| contracts | contracts/ | Schnittstellen-Artefakte (WS-Events, REST-Schemas, geteilte Typen, Versionierung) | OFFEN |
+| server | apps/server/ | Backend: Lobby-/Spielverwaltung, Echtzeit-Events, Persistenz, Spielinhalte | VORSCHLAG |
+| web | apps/web/ | Frontend: Ansichten fuer Spieler, Host und Projektor (Mobile First) | VORSCHLAG |
 
 Jede neue Komponente wird ueber `node scripts/add-component.mjs <name> --purpose "<text>"` angelegt (legt Agenten-Paar aus `docs/templates/` an, registriert sie in `.codex/config.toml`, ergaenzt `tasks/state.json.components`, Matrix- und `docs/agent-context.md`-Zeile sowie `apps/<name>/`). Konsistenz prueft `node scripts/verify.mjs`.
 
@@ -35,9 +36,52 @@ Lint-Schritt fuer diese Komponente; ist sie gefuellt, wird Lint-Evidence zum
 harten DONE-Kriterium.
 -->
 
+### server
+
+| Bereich | Aktueller Stack | Freigegebenes Ziel |
+| --- | --- | --- |
+| Runtime/Sprache | | Node.js (>=24, TypeScript, ESM) |
+| Framework | | Fastify (HTTP) + `ws` (WebSocket) — Alternative: Socket.IO |
+| Kommunikation | | WebSocket (Lobby-/Spiel-Events) + REST (Lobby-Setup, Health) |
+| Persistenz | | PostgreSQL via `pg` + SQL-Migrationen — Alternative: Prisma/Drizzle |
+| Tests | | Vitest (Unit + Integration, in-memory WS) |
+| Lint/Statik-Analyse | | ESLint + `tsc --noEmit` |
+
+Status: VORSCHLAG — wartet auf Nutzerfreigabe (siehe offene Fragen in
+`docs/project-idea.md`, insb. Wahl ws vs. Socket.IO und pg vs. ORM).
+
+Begruendung: Echtzeit-Mehrspieler mit 3 Rollen und synchronisierten Timern
+braucht Push-Kommunikation — WebSocket ist die naheliegende Wahl;
+PostgreSQL deckt die persistenten Spieldaten (Katalog, Lobbies, Punkte) ab
+und entspricht der Nutzerangabe in `Prinzgame.md`.
+
+### web
+
+| Bereich | Aktueller Stack | Freigegebenes Ziel |
+| --- | --- | --- |
+| Runtime/Sprache | | TypeScript, ESM |
+| Framework | | React (Vite) + react-router |
+| Kommunikation | | nativer WebSocket-Client gegen `server` (+ REST fuer Lobby-Setup) |
+| Persistenz | | keine (Session-Token im localStorage fuer Reconnect) |
+| Tests | | Vitest + React Testing Library; Drag-and-Drop/Timer via jsdom |
+| Lint/Statik-Analyse | | ESLint + `tsc --noEmit` |
+
+Status: VORSCHLAG — wartet auf Nutzerfreigabe.
+
+Begruendung: React entspricht der Nutzerangabe ("Frontend moeglichst
+reactJS"); Vite liefert lokalen Dev-Server + Build ohne zusaetzliche
+Infrastruktur. Tailwind/shadcn bewusst NICHT vorgeschlagen: die UI hat ein
+festes, schlankes Farbsystem — CSS Custom Properties reichen.
+
 ### contracts
 
 Schnittstellenartefakte werden versioniert und sind die einzige verbindliche Kopplungsstelle zwischen Komponenten. Format und Versionsregeln werden mit der ersten Komponenten-Schnittstelle festgelegt.
+
+Vorschlag fuer das Format: TypeScript-Typen/Schemas (z. B. `zod`-Schemas,
+die sowohl `server` validiert als auch `web` typisiert), ein Schema je
+Event-Familie (`lobby`, `game`, `timer`); Dateien
+`contracts/<familie>.schema.ts` + `contracts/README.md` mit
+Versionsregeln (additive Aenderungen frei, Breaking nur mit Migration).
 
 ## Geltungsbereich und Migration
 
