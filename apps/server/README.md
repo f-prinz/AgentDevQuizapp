@@ -5,6 +5,12 @@ The server requires local PostgreSQL. Copy `.env.example` to `.env`, set
 directory. The server starts listening only after it validates the seed files,
 applies SQL migrations and seeds, and reads the catalog back from PostgreSQL.
 
+`ALLOWED_ORIGINS` is a comma-separated list of HTTP(S) origins permitted to
+open a browser WebSocket connection. The local Vite origins on port 5173 are
+the default. For local phone testing, configure the exact LAN origin used by
+the frontend and an explicit server `HOST`; paths, credentials, and wildcard
+origins are not accepted.
+
 The catalog is the only persistent application data. Lobby state and game
 results remain in memory. Seed files are in `seeds/`; versioned SQL migrations
 are in `migrations/`. Seed upserts use stable game IDs and preserve catalog
