@@ -53,9 +53,11 @@ const authTimeoutMs = 10_000;
 const rateLimitWindowMs = 10_000;
 const maxMessagesPerWindow = 60;
 const defaultHeartbeatIntervalMs = 30_000;
+const gameTimerIntervalMs = 100;
 
 export interface BuildServerOptions {
   heartbeatIntervalMs?: number;
+  now?: () => number;
 }
 
 interface ConnectionState {
@@ -106,12 +108,18 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
   }
 
   const app = Fastify({ logger: false });
+  const now = options.now ?? Date.now;
   const registry = new LobbyRegistry();
   const websocketServer = new WebSocketServer({ noServer: true, maxPayload: maxWebSocketPayload });
   const connections = new Map<WebSocket, ConnectionState>();
   const sessionConnectionCounts = new Map<string, number>();
   const allowedOrigins = new Set(config.allowedOrigins ?? defaultAllowedOrigins);
   let closing = false;
+
+  const gameTimer = setInterval(() => {
+    for (const lobbyId of registry.closeExpiredRounds(now())) broadcast(lobbyId);
+  }, gameTimerIntervalMs);
+  gameTimer.unref();
 
   const heartbeatTimer = setInterval(() => {
     for (const socket of websocketServer.clients) {
@@ -155,7 +163,7 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
   };
 
   const sendSnapshot = (socket: WebSocket, session: AuthenticatedSession): void => {
-    const snapshot = registry.snapshot(session, getCatalog());
+    const snapshot = registry.snapshot(session, getCatalog(), now());
     if (snapshot) sendWebSocketMessage(socket, snapshot);
   };
 
@@ -163,6 +171,26 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
     for (const [socket, state] of connections) {
       if (state.session?.lobbyId === lobbyId) sendSnapshot(socket, state.session);
     }
+  };
+
+  const completeMutation = (
+    socket: WebSocket,
+    session: AuthenticatedSession,
+    requestId: string,
+    errorCode: LobbyErrorCode | undefined,
+  ): void => {
+    if (errorCode) {
+      sendError(socket, errorCode, requestId);
+      if (errorCode === 'INPUT_CLOSED') broadcast(session.lobbyId);
+      return;
+    }
+    sendWebSocketMessage(socket, AckEventSchema.parse({
+      version: 1,
+      type: 'ack',
+      requestId,
+      revision: registry.getRevision(session.lobbyId),
+    }));
+    broadcast(session.lobbyId);
   };
 
   const handleCommand = (socket: WebSocket, state: ConnectionState, raw: RawData, isBinary: boolean): void => {
@@ -222,7 +250,7 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
         type: 'time.sync',
         requestId: command.requestId,
         clientTime: command.clientTime,
-        serverTime: Date.now(),
+        serverTime: now(),
       }));
       return;
     }
@@ -259,9 +287,82 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
       return;
     }
 
-    // Game commands are part of the shared wire protocol, but their state
-    // transitions belong to later server feature tasks.
-    sendError(socket, 'INVALID_PHASE', command.requestId);
+    if (command.type === 'game.select') {
+      completeMutation(
+        socket,
+        state.session,
+        command.requestId,
+        registry.selectGame(state.session, command.gameId, getCatalog()),
+      );
+      return;
+    }
+
+    if (command.type === 'game.prepare') {
+      completeMutation(
+        socket,
+        state.session,
+        command.requestId,
+        registry.prepareGame(state.session, getCatalog()),
+      );
+      return;
+    }
+
+    if (command.type === 'game.start') {
+      completeMutation(
+        socket,
+        state.session,
+        command.requestId,
+        registry.startGame(state.session, command.roundId, now()),
+      );
+      return;
+    }
+
+    if (command.type === 'game.reveal') {
+      completeMutation(
+        socket,
+        state.session,
+        command.requestId,
+        registry.revealGame(state.session, command.roundId),
+      );
+      return;
+    }
+
+    if (command.type === 'game.next') {
+      completeMutation(
+        socket,
+        state.session,
+        command.requestId,
+        registry.nextQuestion(state.session, command.roundId, now()),
+      );
+      return;
+    }
+
+    if (command.type === 'game.finish') {
+      completeMutation(
+        socket,
+        state.session,
+        command.requestId,
+        registry.finishGame(state.session, command.roundId),
+      );
+      return;
+    }
+
+    if (command.type === 'answer.set' || command.type === 'answer.submit') {
+      completeMutation(
+        socket,
+        state.session,
+        command.requestId,
+        registry.answer(
+          state.session,
+          command.roundId,
+          command.answer,
+          command.type === 'answer.submit',
+          now(),
+        ),
+      );
+      return;
+    }
+
   };
 
   const onUpgrade = (request: import('node:http').IncomingMessage, socket: import('node:stream').Duplex, head: Buffer): void => {
@@ -342,6 +443,7 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
   app.addHook('preClose', async () => {
     closing = true;
     clearInterval(heartbeatTimer);
+    clearInterval(gameTimer);
     app.server.off('upgrade', onUpgrade);
     for (const [socket, state] of connections) {
       clearTimeout(state.authTimer);

@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-3",
+  "command": "npm --prefix apps/server test -- test/game-state.test.ts",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 test\n> vitest run test/game-state.test.ts\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/apps/server\n\n ❯ test/game-state.test.ts (7 tests | 1 failed) 2470ms\n   ❯ server game state and round timers (7)\n     × deselects and reselects in overview, advances a two-question quiz, and returns waiting players after finish 2042ms\n\n Test Files  1 failed (1)\n      Tests  1 failed | 6 passed (7)\n   Start at  16:47:04\n   Duration  2.84s (tests 91%, import 7%, transform 2%)\n\n",
+  "stderr_tail": "\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  test/game-state.test.ts > server game state and round timers > deselects and reselects in overview, advances a two-question quiz, and returns waiting players after finish\nError: Timed out waiting for a WebSocket message.\n ❯ Timeout._onTimeout test/game-state.test.ts:125:18\n    123|           const waiterIndex = waiters.findIndex(waiter => waiter.resol…\n    124|           if (waiterIndex >= 0) waiters.splice(waiterIndex, 1);\n    125|           reject(new Error('Timed out waiting for a WebSocket message.…\n       |                  ^\n    126|         }, timeoutMs);\n    127|         waiters.push({ predicate, resolve, reject, timer });\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n",
+  "started": "2026-10-26T15:47:03.719Z",
+  "finished": "2026-10-26T15:47:07.242Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

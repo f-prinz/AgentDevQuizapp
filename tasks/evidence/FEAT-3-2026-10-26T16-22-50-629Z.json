@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-3",
+  "command": "npm --prefix apps/server run build",
+  "exit_code": 0,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 build\n> tsc -p tsconfig.build.json\n\n",
+  "stderr_tail": "",
+  "started": "2026-10-26T16:22:50.629Z",
+  "finished": "2026-10-26T16:22:54.188Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
