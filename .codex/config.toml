@@ -1,0 +1,77 @@
+# Project-local Codex multi-agent configuration
+#
+# Modell-Zuweisung (gesetzt in agents/<name>.toml via model /
+# model_reasoning_effort). Kosten: $ guenstig ... $$$$ teuer.
+#   gpt-6.1-sol / high   ($$$$): software_architect, code_reviewer,
+#                                security_reviewer, bug_reproducer
+#   gpt-6.1-sol / medium ($$$):  database_engineer, integration_engineer,
+#                                technical_planner, scope_auditor
+#   gpt-6.1-sol / low    ($$):   analyst_validator
+#   gpt-6-luna / medium  ($$):   analyst, system_validator, e2e_tester,
+#                                <komponente>_developer, <komponente>_test_engineer
+#   gpt-6-luna / low     ($):    local_environment, documentation_agent
+# Orchestrator (Haupt-Session): gpt-6.1-sol / high empfohlen (via --model).
+#
+# Komponenten-Agents: pro Komponente in docs/tech-stack.md wird je ein
+# <komponente>_developer und <komponente>_test_engineer aus
+# docs/templates/ angelegt und hier registriert.
+[agents]
+max_threads = 3
+default_subagent_model = "gpt-6-luna"
+default_subagent_reasoning_effort = "low"
+
+[agents.analyst]
+description = "Formuliert Anforderungen und Produktentscheidungen"
+config_file = "agents/analyst.toml"
+
+[agents.analyst_validator]
+description = "Prueft Anforderungen adversarial (pruefen, nicht erweitern)"
+config_file = "agents/analyst-validator.toml"
+
+[agents.software_architect]
+description = "Entwirft lokale Softwarearchitektur"
+config_file = "agents/software-architect.toml"
+
+[agents.database_engineer]
+description = "Entwirft Datenmodelle und Migrationen"
+config_file = "agents/database-engineer.toml"
+
+[agents.technical_planner]
+description = "Erstellt abhaengigkeitsorientierten Taskplan"
+config_file = "agents/technical-planner.toml"
+
+[agents.integration_engineer]
+description = "Verbindet Anwendungskomponenten"
+config_file = "agents/integration-engineer.toml"
+
+[agents.code_reviewer]
+description = "Prueft Aenderungen und Wartbarkeit"
+config_file = "agents/code-reviewer.toml"
+
+[agents.e2e_tester]
+description = "Prueft vollstaendige Nutzerablaeufe"
+config_file = "agents/e2e-tester.toml"
+
+[agents.security_reviewer]
+description = "Prueft Sicherheitsrisiken"
+config_file = "agents/security-reviewer.toml"
+
+[agents.bug_reproducer]
+description = "Reproduziert Fehler und lokalisiert die Ursache (keine Codeaenderungen)"
+config_file = "agents/bug-reproducer.toml"
+
+[agents.local_environment]
+description = "Richtet lokale Entwicklungsumgebung ein"
+config_file = "agents/local-environment.toml"
+
+[agents.system_validator]
+description = "Validiert Gesamtsystem lokal"
+config_file = "agents/system-validator.toml"
+
+[agents.documentation_agent]
+description = "Erstellt technische Dokumentation"
+config_file = "agents/documentation-agent.toml"
+
+[agents.scope_auditor]
+description = "Prueft Funktionsinventar gegen den Ist-Zustand"
+config_file = "agents/scope-auditor.toml"

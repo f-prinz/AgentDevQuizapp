@@ -1,0 +1,74 @@
+# Tech-Stack-Entscheidung
+
+Status: **OFFEN**. Solange hier keine Komponente und kein Stack freigegeben ist, duerfen Architektur- und Implementierungsentscheidungen nur als Vorschlag dokumentiert werden; Umsetzung erst nach Nutzerfreigabe.
+
+## Komponenten
+
+Das Projekt besteht aus mehreren Anwendungsteilen (Komponenten) mit jeweils eigenem Stack und eigenem Verzeichnis. Konvention: `apps/<komponente>/`; Schnittstellen-Artefakte liegen in `contracts/`.
+
+| Komponente | Verzeichnis | Zweck | Status |
+|---|---|---|---|
+| contracts | contracts/ | Schnittstellen-Artefakte (API-Schemas, geteilte Typen, Versionierung) | OFFEN |
+| <!-- <name> | apps/<name>/ | <zweck> | OFFEN --> |
+
+Jede neue Komponente wird ueber `node scripts/add-component.mjs <name> --purpose "<text>"` angelegt (legt Agenten-Paar aus `docs/templates/` an, registriert sie in `.codex/config.toml`, ergaenzt `tasks/state.json.components`, Matrix- und `docs/agent-context.md`-Zeile sowie `apps/<name>/`). Konsistenz prueft `node scripts/verify.mjs`.
+
+## Stack je Komponente
+
+<!-- Pro Komponente einen Abschnitt nach diesem Muster:
+
+### <komponente>
+
+| Bereich | Aktueller Stack | Freigegebenes Ziel |
+| --- | --- | --- |
+| Runtime/Sprache | | |
+| Framework | | |
+| Kommunikation | | |
+| Persistenz | | |
+| Tests | | |
+| Lint/Statik-Analyse | | |
+
+Status: OFFEN | FREIGEGEBEN
+
+`Lint/Statik-Analyse` ist optional: Bleibt die Zeile leer, entfaellt der
+Lint-Schritt fuer diese Komponente; ist sie gefuellt, wird Lint-Evidence zum
+harten DONE-Kriterium.
+-->
+
+### contracts
+
+Schnittstellenartefakte werden versioniert und sind die einzige verbindliche Kopplungsstelle zwischen Komponenten. Format und Versionsregeln werden mit der ersten Komponenten-Schnittstelle festgelegt.
+
+## Geltungsbereich und Migration
+
+- Eine freigegebene Zielarchitektur ist der architektonische Nordstern, aber keine automatische Umbauanweisung für bestehenden Code.
+- Bei einem Greenfield gibt es noch keinen bestehenden Stack: Der erste freigegebene Stack einer Komponente gilt ab Scaffolding automatisch als ihr "Aktueller Stack"; `CURRENT_STACK_ONLY` bezieht sich auf alle Aenderungen danach.
+- **Stack-Vielfalt zwischen Komponenten ist intendiert.** Innerhalb einer Komponente ist Mischung unterschiedlicher Framework-, Kommunikations- oder Persistenzansaetze ohne freigegebenen Migrations-Task untersagt.
+- Jeder relevante Change Request wird vor der technischen Planung **je betroffener Komponente** als `CURRENT_STACK_ONLY`, `TARGET_ALIGNED` oder `REQUIRES_MIGRATION` klassifiziert.
+- Aenderungen an `contracts/` sind `CONTRACT_CHANGE`: eigener Task (Praefix `TECH-`), betrifft mindestens zwei Komponenten, Pflicht-Review durch `code_reviewer`, nie Beiläufigkeit in einem Feature-Task.
+- Neue Runtime-, Framework-, Kommunikations-, Persistenz- oder Dependency-Entscheidungen außerhalb dieser Datei benötigen eine freigegebene Stack-Entscheidung.
+- Neue Dependencies müssen reproduzierbar über die Lock-Datei der jeweiligen Komponente eingeführt werden und bleiben freigabepflichtig.
+
+## Architecture Challenge und Nutzer-Gate
+
+Der Software Architect soll den freigegebenen Stack kritisch prüfen, darf ihn aber nicht eigenmächtig ersetzen. Jede Stack-Bewertung endet mit einer expliziten Empfehlung:
+
+- `KEEP`: Der freigegebene Stack passt; keine Abweichung.
+- `ADJUST`: Eine begrenzte Änderung wird empfohlen; Nutzerentscheidung erforderlich.
+- `REPLACE`: Der Stack wird als ungeeignet bewertet; Nutzerentscheidung erforderlich.
+- `BLOCKED - USER DECISION REQUIRED`: Planung oder Umsetzung darf erst nach Entscheidung fortgesetzt werden.
+
+Alternativen müssen Nutzen, Risiken, Komplexität, Migrationsaufwand, Testbarkeit, Sicherheitsfolgen und Auswirkungen auf das spätere Deployment begründen. Eine vom Nutzer abgelehnte Alternative wird nicht erneut vorgeschlagen, solange sich Anforderungen oder Rahmenbedingungen nicht geändert haben.
+
+## Verantwortlichkeiten der Agents
+
+- Der Orchestrator stellt sicher, dass diese Datei bei Requirements-, Architektur-, Planungs-, Implementierungs- und Reviewaufträgen berücksichtigt wird und benennt je Delegation Komponente und freigegebenen Stack.
+- Requirements Agents erfassen Stack-Annahmen und Konflikte als nichtfunktionale Anforderungen oder offene Entscheidungen.
+- Der Software Architect dokumentiert die Stack-Bewertung je Komponente und markiert erforderliche Nutzerentscheidungen.
+- Der Technical Planner plant ausschließlich gegen den zuletzt freigegebenen Stack der betroffenen Komponente; bei ausstehender Stackentscheidung bleibt die Planung blockiert.
+- Komponenten-Developer und Komponenten-Test-Agents arbeiten nur im Verzeichnis und mit dem Stack ihrer Komponente; `contracts/` und fremde Komponenten sind tabu.
+- `integration_engineer` besitzt die Vertragskohaerenz ueber Komponentengrenzen hinweg.
+- Code Reviewer und Security Reviewer behandeln nicht freigegebene Stack-Abweichungen, Dependency-Änderungen und ungeplante `CONTRACT_CHANGE`s als Blocker.
+- Der Documentation Agent beschreibt den tatsächlich implementierten Stack je Komponente getrennt von der Zielarchitektur.
+
+Kein Punkt dieses Dokuments erlaubt ein Deployment, einen Push oder die Einführung produktiver Dienste.

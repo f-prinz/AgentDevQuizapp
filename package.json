@@ -1,0 +1,26 @@
+{
+  "name": "neues-projekt",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "check": "node scripts/check-state.mjs && node scripts/check-inventory.mjs",
+    "check:state": "node scripts/check-state.mjs",
+    "check:inventory": "node scripts/check-inventory.mjs",
+    "verify": "node scripts/verify.mjs",
+    "task:add": "node scripts/add-task.mjs",
+    "task:branch": "node scripts/branch-task.mjs",
+    "task:merge": "node scripts/merge-task.mjs",
+    "task:push": "node scripts/push-task.mjs",
+    "main:sync": "node scripts/sync-main.mjs",
+    "test": "node scripts/selftest.mjs",
+    "selftest": "node scripts/selftest.mjs",
+    "backlog:render": "node scripts/render-backlog.mjs",
+    "inventory:render": "node scripts/render-inventory.mjs",
+    "tasks:archive": "node scripts/archive-tasks.mjs",
+    "hooks:install": "node scripts/install-hooks.mjs"
+  }
+}
