@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-13",
+  "command": "npm --prefix apps/server test -- test/reconnect.test.ts",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 test\n> vitest run test/reconnect.test.ts\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/apps/server\n\n ❯ test/reconnect.test.ts (4 tests | 1 failed) 1741ms\n   ❯ session reconnect and WebSocket heartbeat (4)\n     × pings live clients, keeps auto-pong clients open, and closes silent clients by the next interval 1519ms\n\n Test Files  1 failed (1)\n      Tests  1 failed | 3 passed (4)\n   Start at  16:27:17\n   Duration  2.08s (tests 89%, import 8%, transform 3%)\n\n",
+  "stderr_tail": "\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  test/reconnect.test.ts > session reconnect and WebSocket heartbeat > pings live clients, keeps auto-pong clients open, and closes silent clients by the next interval\nError: Timed out waiting for a server ping.\n ❯ Timeout._onTimeout test/reconnect.test.ts:185:43\n    183| function waitForPing(socket: WebSocket, timeoutMs = 1_500): Promise<vo…\n    184|   return new Promise((resolve, reject) => {\n    185|     const timer = setTimeout(() => reject(new Error('Timed out waiting…\n       |                                           ^\n    186|     socket.once('ping', () => {\n    187|       clearTimeout(timer);\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n",
+  "started": "2026-10-26T15:27:16.383Z",
+  "finished": "2026-10-26T15:27:19.135Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

@@ -52,12 +52,18 @@ const maxWebSocketPayload = 16 * 1024;
 const authTimeoutMs = 10_000;
 const rateLimitWindowMs = 10_000;
 const maxMessagesPerWindow = 60;
+const defaultHeartbeatIntervalMs = 30_000;
+
+export interface BuildServerOptions {
+  heartbeatIntervalMs?: number;
+}
 
 interface ConnectionState {
   session?: AuthenticatedSession;
   authTimer: ReturnType<typeof setTimeout>;
   windowStartedAt: number;
   messageCount: number;
+  isAlive: boolean;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -93,7 +99,12 @@ function decodeMessage(raw: RawData): string {
   return Buffer.from(raw).toString('utf8');
 }
 
-export function buildServer(config: ServerConfig): FastifyInstance {
+export function buildServer(config: ServerConfig, options: BuildServerOptions = {}): FastifyInstance {
+  const heartbeatIntervalMs = options.heartbeatIntervalMs ?? defaultHeartbeatIntervalMs;
+  if (!Number.isSafeInteger(heartbeatIntervalMs) || heartbeatIntervalMs <= 0) {
+    throw new Error('heartbeatIntervalMs must be a positive safe integer.');
+  }
+
   const app = Fastify({ logger: false });
   const registry = new LobbyRegistry();
   const websocketServer = new WebSocketServer({ noServer: true, maxPayload: maxWebSocketPayload });
@@ -101,6 +112,20 @@ export function buildServer(config: ServerConfig): FastifyInstance {
   const sessionConnectionCounts = new Map<string, number>();
   const allowedOrigins = new Set(config.allowedOrigins ?? defaultAllowedOrigins);
   let closing = false;
+
+  const heartbeatTimer = setInterval(() => {
+    for (const socket of websocketServer.clients) {
+      const state = connections.get(socket);
+      if (!state || socket.readyState !== WebSocket.OPEN) continue;
+      if (!state.isAlive) {
+        socket.terminate();
+        continue;
+      }
+      state.isAlive = false;
+      socket.ping();
+    }
+  }, heartbeatIntervalMs);
+  heartbeatTimer.unref();
 
   const getCatalog = (): unknown => (app as FastifyInstance & { catalog?: unknown }).catalog ?? [];
 
@@ -272,8 +297,12 @@ export function buildServer(config: ServerConfig): FastifyInstance {
         }, authTimeoutMs),
         windowStartedAt: Date.now(),
         messageCount: 0,
+        isAlive: true,
       };
       connections.set(websocket, state);
+      websocket.on('pong', () => {
+        state.isAlive = true;
+      });
       websocket.on('message', (raw, isBinary) => {
         const now = Date.now();
         if (now - state.windowStartedAt >= rateLimitWindowMs) {
@@ -312,6 +341,7 @@ export function buildServer(config: ServerConfig): FastifyInstance {
   app.server.on('upgrade', onUpgrade);
   app.addHook('preClose', async () => {
     closing = true;
+    clearInterval(heartbeatTimer);
     app.server.off('upgrade', onUpgrade);
     for (const [socket, state] of connections) {
       clearTimeout(state.authTimer);
