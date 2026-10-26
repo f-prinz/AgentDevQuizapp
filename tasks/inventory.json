@@ -1,5 +1,30 @@
 {
   "schema_version": 2,
-  "entries": [],
-  "last_updated_utc": null
+  "entries": [
+    {
+      "id": "INV-1",
+      "capability": "Lokalen Serverzustand via GET /health abfragen",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "route",
+          "file": "apps/server/src/app.ts",
+          "ref": "GET /health"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/app.test.ts"
+        },
+        {
+          "type": "file",
+          "ref": "apps/server/scripts/smoke.ts"
+        }
+      ],
+      "introduced_by": "TECH-1",
+      "removed_by": null,
+      "notes": "Betriebsfaehigkeit: HTTP200 mit Protokollversion1; realer HTTP-Smoke und Shutdown belegt; keine Gameplayfunktion"
+    }
+  ],
+  "last_updated_utc": "2026-10-26T13:53:32.084Z"
 }
