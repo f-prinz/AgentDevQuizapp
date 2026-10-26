@@ -58,6 +58,14 @@ const multiQuestionQuiz = GameSeedSchema.parse({
     },
   ],
 });
+const estimate100Game = GameSeedSchema.parse({
+  id: 'estimate_game', kind: 'estimation', title: 'Estimate', rules: 'Estimate the value.',
+  question: 'How many?', target: 100,
+});
+const estimateMaxGame = GameSeedSchema.parse({
+  id: 'estimate_game', kind: 'estimation', title: 'Estimate', rules: 'Estimate the value.',
+  question: 'How many?', target: Number.MAX_VALUE,
+});
 
 type BuildServerOptions = { now?: () => number };
 type Predicate = (message: ServerMessage) => boolean;
@@ -642,6 +650,251 @@ describe('server game state and round timers', () => {
           gameId: 'sorting_game', points,
         });
       }
+    }
+  });
+
+  it('scores valid estimates by six-player rank groups and carries them into completed ranking', async () => {
+    const clock = makeClock();
+    const server = await startServer({ now: clock.now }, [estimate100Game]);
+    const lobby = await createLobby(server);
+    const playerSessions: Session[] = [];
+    for (const name of ['Estimate one', 'Estimate two', 'Estimate three', 'Estimate four', 'Estimate five', 'Estimate six', 'No estimate']) {
+      playerSessions.push(await joinPlayer(server, lobby.lobbyId, name));
+    }
+    const host = await connect(server, lobby.host);
+    const projector = await connect(server, lobby.projector);
+    const players = await Promise.all(playerSessions.map(session => connect(server, session)));
+    const playerIds = players.map(player => {
+      if (player.snapshot.role !== 'player') throw new Error('Expected a player session.');
+      return player.snapshot.playerId;
+    });
+
+    expect((await command(host, 'lobby.start')).type).toBe('ack');
+    await snapshot(host, value => value.phase === 'overview');
+    expect((await command(host, 'game.select', { gameId: 'estimate_game' })).type).toBe('ack');
+    expect((await command(host, 'game.prepare')).type).toBe('ack');
+    const prepared = await snapshot(host, value => value.phase === 'start');
+    if (prepared.role !== 'host' || prepared.round?.phase !== 'start') {
+      throw new Error('Expected an estimation round to be prepared.');
+    }
+    const roundId = prepared.round.roundId;
+    expect((await command(host, 'game.start', { roundId })).type).toBe('ack');
+    const [playingHost, playingProjector, ...playingPlayers] = await Promise.all([
+      snapshot(host, value => value.phase === 'playing'),
+      snapshot(projector, value => value.phase === 'playing'),
+      ...players.map(player => snapshot(player, value => value.phase === 'playing')),
+    ]);
+    if (playingHost?.role !== 'host' || playingHost.round?.phase !== 'playing'
+      || playingProjector?.role !== 'projector' || playingProjector.round?.phase !== 'playing') {
+      throw new Error('Expected host and projector estimation rounds to be playing.');
+    }
+    expect(playingHost.round.timer.deadline - playingHost.round.timer.serverTime).toBe(30_000);
+    expect(playingProjector.round.timer.deadline - playingProjector.round.timer.serverTime).toBe(30_000);
+    for (const playerView of playingPlayers) {
+      if (playerView.role !== 'player' || playerView.round?.phase !== 'playing'
+        || playerView.round.task.kind !== 'estimation') {
+        throw new Error('Expected each player to receive the estimation question.');
+      }
+      expect(playerView.round.timer.deadline - playerView.round.timer.serverTime).toBe(30_000);
+    }
+    expect(JSON.stringify([playingHost, playingProjector, ...playingPlayers])).not.toContain('"target"');
+
+    const firstPlayer = players[0];
+    const firstSession = playerSessions[0];
+    if (!firstPlayer || !firstSession) throw new Error('Expected the first estimate player.');
+    expect((await command(firstPlayer, 'answer.set', {
+      roundId, answer: { kind: 'estimation', value: 99 },
+    })).type).toBe('ack');
+    expect((await command(firstPlayer, 'answer.set', {
+      roundId, answer: { kind: 'estimation', value: 100 },
+    })).type).toBe('ack');
+    expect(ErrorEventSchema.parse(await command(firstPlayer, 'answer.submit', {
+      roundId, answer: { kind: 'estimation', value: Number.NaN },
+    }))).toMatchObject({ code: 'INVALID_MESSAGE' });
+    await closeSocket(firstPlayer.socket);
+    const reconnectedFirst = await connect(server, firstSession);
+    if (reconnectedFirst.snapshot.role !== 'player') throw new Error('Expected the same player session.');
+    expect(reconnectedFirst.snapshot.input).toMatchObject({
+      answer: { kind: 'estimation', value: 100 }, final: false, participating: true,
+    });
+
+    const estimates = [100, 99, 101, 98, 102, 90];
+    const validPlayers = [reconnectedFirst, ...players.slice(1, 6)];
+    for (const [index, player] of validPlayers.entries()) {
+      expect((await command(player, 'answer.submit', {
+        roundId, answer: { kind: 'estimation', value: estimates[index]! },
+      })).type).toBe('ack');
+    }
+    const timer = playingHost.round.timer;
+    clock.set(timer.acceptUntil + 1);
+    await snapshot(host, value => value.phase === 'playing' && value.round?.phase === 'playing'
+      && value.round.timer.inputClosed);
+    expect((await command(host, 'game.reveal', { roundId })).type).toBe('ack');
+    const [hostEvaluation, projectorEvaluation, ...playerEvaluations] = await Promise.all([
+      snapshot(host, value => value.phase === 'evaluation' && value.round?.roundId === roundId),
+      snapshot(projector, value => value.phase === 'evaluation' && value.round?.roundId === roundId),
+      ...[reconnectedFirst, ...players.slice(1)].map(player => snapshot(player,
+        value => value.phase === 'evaluation' && value.round?.roundId === roundId)),
+    ]);
+    if (hostEvaluation?.role !== 'host' || hostEvaluation.round?.phase !== 'evaluation'
+      || hostEvaluation.round.solution.kind !== 'estimation'
+      || projectorEvaluation?.role !== 'projector' || projectorEvaluation.round?.phase !== 'evaluation'
+      || projectorEvaluation.round.solution.kind !== 'estimation') {
+      throw new Error('Expected value-backed estimation evaluation views.');
+    }
+    expect(hostEvaluation.round.solution.target).toBe(100);
+    expect(projectorEvaluation.round.solution).toEqual(hostEvaluation.round.solution);
+    const expected = [
+      { distance: 0, rank: 1, points: 5 },
+      { distance: 1, rank: 2, points: 3 },
+      { distance: 1, rank: 2, points: 3 },
+      { distance: 2, rank: 4, points: 1 },
+      { distance: 2, rank: 4, points: 1 },
+      { distance: 10, rank: 6, points: 0 },
+      { distance: null, rank: null, points: 0 },
+    ];
+    for (const evaluation of [hostEvaluation.round, projectorEvaluation.round]) {
+      expect(evaluation.results).toHaveLength(expected.length);
+      for (const [index, expectedResult] of expected.entries()) {
+        expect(evaluation.results.find(result => result.playerId === playerIds[index])).toMatchObject({
+          ...expectedResult, playerId: playerIds[index],
+        });
+      }
+    }
+    for (const [index, playerEvaluation] of playerEvaluations.entries()) {
+      if (playerEvaluation?.role !== 'player' || playerEvaluation.round?.phase !== 'evaluation'
+        || playerEvaluation.round.solution.kind !== 'estimation') {
+        throw new Error('Expected each estimate player evaluation.');
+      }
+      expect(playerEvaluation.round.ownEvaluation).toMatchObject({
+        points: expected[index]?.points,
+        distance: expected[index]?.distance,
+      });
+    }
+
+    expect((await command(host, 'game.finish', { roundId })).type).toBe('ack');
+    const completed = await snapshot(host, value => value.phase === 'overview'
+      && value.revision > hostEvaluation.revision);
+    if (completed.role !== 'host') throw new Error('Expected the completed estimation ranking.');
+    for (const [index, expectedResult] of expected.entries()) {
+      expect(completed.ranking.find(entry => entry.playerId === playerIds[index])).toMatchObject({
+        total: expectedResult.points,
+        games: [{ gameId: 'estimate_game', points: expectedResult.points }],
+      });
+    }
+  });
+
+  it('awards every equally closest estimate the five-point maximum', async () => {
+    const round = await beginRound('estimation', makeClock(), [estimate100Game]);
+    for (const player of round.players) {
+      expect((await command(player, 'answer.submit', {
+        roundId: round.roundId, answer: { kind: 'estimation', value: 100 },
+      })).type).toBe('ack');
+    }
+    expect((await command(round.host, 'game.reveal', { roundId: round.roundId })).type).toBe('ack');
+    const [hostEvaluation, ...playerEvaluations] = await Promise.all([
+      snapshot(round.host, value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+      ...round.players.map(player => snapshot(player,
+        value => value.phase === 'evaluation' && value.round?.roundId === round.roundId)),
+    ]);
+    if (hostEvaluation?.role !== 'host' || hostEvaluation.round?.phase !== 'evaluation'
+      || hostEvaluation.round.solution.kind !== 'estimation') {
+      throw new Error('Expected host estimate results.');
+    }
+    expect(hostEvaluation.round.results.map(result => ({ rank: result.rank, distance: result.distance, points: result.points })))
+      .toEqual([
+        { rank: 1, distance: 0, points: 5 },
+        { rank: 1, distance: 0, points: 5 },
+      ]);
+    for (const playerEvaluation of playerEvaluations) {
+      if (playerEvaluation?.role !== 'player' || playerEvaluation.round?.phase !== 'evaluation'
+        || playerEvaluation.round.solution.kind !== 'estimation') {
+        throw new Error('Expected player estimate evaluation.');
+      }
+      expect(playerEvaluation.round.ownEvaluation).toMatchObject({
+        answer: { kind: 'estimation', value: 100 }, points: 5, distance: 0,
+      });
+    }
+  });
+
+  it('keeps extreme finite estimate distances serializable and finite after reveal', async () => {
+    const round = await beginRound('estimation', makeClock(), [estimateMaxGame]);
+    expect((await command(round.players[0], 'answer.submit', {
+      roundId: round.roundId, answer: { kind: 'estimation', value: Number.MAX_VALUE },
+    })).type).toBe('ack');
+    expect((await command(round.players[1], 'answer.submit', {
+      roundId: round.roundId, answer: { kind: 'estimation', value: -Number.MAX_VALUE },
+    })).type).toBe('ack');
+    expect((await command(round.host, 'game.reveal', { roundId: round.roundId })).type).toBe('ack');
+    const [hostEvaluation, projectorEvaluation] = await Promise.all([
+      snapshot(round.host, value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+      snapshot(round.projector, value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+    ]);
+    if (hostEvaluation.role !== 'host' || hostEvaluation.round?.phase !== 'evaluation'
+      || hostEvaluation.round.solution.kind !== 'estimation'
+      || projectorEvaluation.role !== 'projector' || projectorEvaluation.round?.phase !== 'evaluation'
+      || projectorEvaluation.round.solution.kind !== 'estimation') {
+      throw new Error('Expected valid host and projector estimate snapshots.');
+    }
+    expect(hostEvaluation.round.solution.target).toBe(Number.MAX_VALUE);
+    expect(projectorEvaluation.round.solution.target).toBe(Number.MAX_VALUE);
+
+    const firstPlayerSnapshot = round.playing[2];
+    const secondPlayerSnapshot = round.players[1].snapshot;
+    if (firstPlayerSnapshot.role !== 'player' || secondPlayerSnapshot.role !== 'player') {
+      throw new Error('Expected both estimate player identities.');
+    }
+    const exactMatch = hostEvaluation.round.results.find(result => result.playerId === firstPlayerSnapshot.playerId);
+    const farEstimate = hostEvaluation.round.results.find(result => result.playerId === secondPlayerSnapshot.playerId);
+    expect(exactMatch).toMatchObject({ rank: 1, distance: 0, points: 5 });
+    expect(farEstimate).toMatchObject({ rank: 2, points: 1 });
+    expect(typeof farEstimate?.distance).toBe('number');
+    expect(Number.isFinite(farEstimate?.distance)).toBe(true);
+    expect(projectorEvaluation.round.results).toEqual(hostEvaluation.round.results);
+  });
+
+  it('gives unanswered estimates zero points and no rank or bonus when N is zero', async () => {
+    const clock = makeClock();
+    const round = await beginRound('estimation', clock, [estimate100Game]);
+    const [hostPlaying] = round.playing;
+    if (hostPlaying.role !== 'host' || hostPlaying.round?.phase !== 'playing'
+      || hostPlaying.round.task.kind !== 'estimation') {
+      throw new Error('Expected an active estimation timer.');
+    }
+    expect(hostPlaying.round.timer.deadline - hostPlaying.round.timer.serverTime).toBe(30_000);
+    clock.set(hostPlaying.round.timer.acceptUntil + 1);
+    await snapshot(round.host, value => value.phase === 'playing' && value.round?.phase === 'playing'
+      && value.round.timer.inputClosed);
+    expect((await command(round.host, 'game.reveal', { roundId: round.roundId })).type).toBe('ack');
+    const [hostEvaluation, projectorEvaluation, firstPlayerEvaluation, secondPlayerEvaluation] = await Promise.all([
+      snapshot(round.host, value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+      snapshot(round.projector, value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+      snapshot(round.players[0], value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+      snapshot(round.players[1], value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+    ]);
+    for (const evaluation of [hostEvaluation, projectorEvaluation]) {
+      if (evaluation.role !== 'host' && evaluation.role !== 'projector') {
+        throw new Error('Expected host/projector evaluation results.');
+      }
+      if (evaluation.round?.phase !== 'evaluation' || evaluation.round.solution.kind !== 'estimation') {
+        throw new Error('Expected an estimation solution.');
+      }
+      expect(evaluation.round.solution.target).toBe(100);
+      expect(evaluation.round.results).toHaveLength(2);
+      expect(evaluation.round.results.map(result => ({ points: result.points, rank: result.rank, distance: result.distance })))
+        .toEqual([
+          { points: 0, rank: null, distance: null },
+          { points: 0, rank: null, distance: null },
+        ]);
+    }
+    for (const playerEvaluation of [firstPlayerEvaluation, secondPlayerEvaluation]) {
+      if (playerEvaluation.role !== 'player' || playerEvaluation.round?.phase !== 'evaluation'
+        || playerEvaluation.round.solution.kind !== 'estimation') {
+        throw new Error('Expected player estimate evaluation.');
+      }
+      expect(playerEvaluation.round.ownEvaluation).toMatchObject({
+        answer: null, points: 0, distance: null,
+      });
     }
   });
 

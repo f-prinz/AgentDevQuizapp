@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-11",
+  "command": "npm --prefix apps/server test -- test/game-state.test.ts -t estimates",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 test\n> vitest run test/game-state.test.ts -t estimates\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/apps/server\n\n ❯ test/game-state.test.ts (14 tests | 1 failed | 12 skipped) 1033ms\n   ❯ server game state and round timers (14)\n     × scores valid estimates by six-player rank groups and carries them into completed ranking 919ms\n\n Test Files  1 failed (1)\n      Tests  1 failed | 1 passed | 12 skipped (14)\n   Start at  19:10:56\n   Duration  2.17s (tests 58%, import 38%, transform 4%)\n\n",
+  "stderr_tail": "\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  test/game-state.test.ts > server game state and round timers > scores valid estimates by six-player rank groups and carries them into completed ranking\nAssertionError: expected { …(6) } to match object { distance: +0, rank: 1, …(2) }\n(2 matching properties omitted from actual)\n\n- Expected\n+ Received\n\n  {\n-   \"distance\": 0,\n+   \"distance\": null,\n    \"playerId\": \"52bfce30-03d0-4425-a3d8-e2c4332fb9d6\",\n-   \"points\": 5,\n-   \"rank\": 1,\n+   \"points\": 0,\n+   \"rank\": null,\n  }\n\n ❯ test/game-state.test.ts:755:89\n    753|       expect(evaluation.results).toHaveLength(expected.length);\n    754|       for (const [index, expectedResult] of expected.entries()) {\n    755|         expect(evaluation.results.find(result => result.playerId === p…\n       |                                                                                         ^\n    756|           ...expectedResult, playerId: playerIds[index],\n    757|         });\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n",
+  "started": "2026-10-26T18:10:54.393Z",
+  "finished": "2026-10-26T18:10:58.547Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
