@@ -1,0 +1,28 @@
+@import "./theme.css";
+
+:root { font-family: system-ui, sans-serif; color: var(--color-turquoise); background: var(--color-bg); }
+* { box-sizing: border-box; }
+body { min-width: 20rem; min-height: 100vh; margin: 0; background: var(--color-bg); }
+a { color: var(--color-turquoise); text-underline-offset: 0.2em; }
+a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem; }
+.app-shell { min-height: 100vh; }
+.site-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--color-grey); }
+.brand { font-size: 1.25rem; font-weight: 700; text-decoration: none; }
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; }
+.page { width: min(100% - 2rem, 48rem); margin-inline: auto; padding-block: clamp(2rem, 8vw, 5rem); }
+.page h1 { margin-top: 0; font-size: clamp(2rem, 8vw, 3.5rem); }
+.page p, .projector-layout p { max-width: 65ch; color: var(--color-grey); line-height: 1.6; }
+.role-links { display: grid; gap: 0.75rem; margin: 2rem 0 0; padding: 0; list-style: none; }
+.role-links a { display: block; padding: 1rem; border: 1px solid var(--color-grey); border-radius: 0.5rem; text-decoration: none; }
+.role-links a:hover, .role-links a:focus-visible { border-color: var(--color-turquoise); }
+.placeholder { width: fit-content; padding-left: 0.65rem; border-left: 0.25rem solid var(--color-red); }
+.projector { width: min(100% - 2rem, 100rem); min-height: calc(100vh - 5rem); margin-inline: auto; padding-block: clamp(1.5rem, 4vw, 4rem); }
+.projector h1 { margin-top: 0; font-size: clamp(2.5rem, 7vw, 5rem); }
+.projector-layout { display: grid; min-height: 55vh; gap: 1rem; }
+.projector-layout section { display: grid; align-content: center; min-height: 12rem; padding: clamp(1rem, 3vw, 2rem); border: 1px solid var(--color-grey); border-radius: 0.75rem; }
+.projector-layout h2 { margin-top: 0; }
+@media (min-width: 48rem) { .role-links { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 64rem) {
+  .site-header { padding-inline: 2rem; }
+  .projector-layout { grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); gap: 1.5rem; }
+}
