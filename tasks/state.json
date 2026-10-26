@@ -292,7 +292,7 @@
       "lint_command": null,
       "red_evidence_required": false,
       "dependencies": [],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
@@ -302,7 +302,10 @@
         "docs/feature-mvp-plan.md",
         "docs/feature-mvp-requirements-validation.md"
       ],
-      "implemented_by": "analyst"
+      "implemented_by": "analyst",
+      "review_result": "Planungsdokumente unabhaengig geprueft, keine Blocker; zwei Minor korrigiert",
+      "test_evidence": "tasks/evidence/TECH-5-2026-10-26T12-43-32-468Z.json",
+      "reviewed_by": "code_reviewer"
     },
     {
       "id": "TECH-6",
@@ -313,15 +316,16 @@
       "lint_command": null,
       "red_evidence_required": true,
       "dependencies": [],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
         "scripts/",
         "test/"
-      ]
+      ],
+      "implemented_by": "integration_engineer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-26T12:34:40.591Z"
+  "last_updated_utc": "2026-10-26T12:43:37.793Z"
 }
