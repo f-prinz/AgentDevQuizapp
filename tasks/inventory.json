@@ -128,8 +128,27 @@
       ],
       "introduced_by": "FEAT-13",
       "removed_by": null,
-      "notes": "Gleiche Rolle/Spieler-ID/Name/Lobbyphase, mehrere Verbindungen korrekt; Ping/Pong erkennt stille Verbindung, Sitzung bleibt; nach Serverneustart ungueltig. Aktive Rundendaten werden mit FEAT-3 erweitert."
+      "notes": "Reconnect restores active game phase, own draft/final state, participation status, and unchanged deadline; covered by FEAT-3 game-state tests."
+    },
+    {
+      "id": "INV-7",
+      "capability": "Serverseitige Spielrunde mit Rollen- und Fristkontrolle steuern",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "file",
+          "ref": "apps/server/src/game.ts"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/game-state.test.ts"
+        }
+      ],
+      "introduced_by": "FEAT-3",
+      "removed_by": null,
+      "notes": "Host kontrolliert Auswahl, Start, Aufloesung, Fragewechsel und Abschluss. 30/60/30-Sekundenfrist plus 2s inklusiv; alle-final schliesst Eingaben ohne automatische Aufloesung. Loesungen erscheinen erst in evaluation. Spaetbeitretende warten und bleiben bis zur naechsten Spielauswahl nicht teilnahmeberechtigt. Keine Punkte- oder Rankingbehauptung."
     }
   ],
-  "last_updated_utc": "2026-10-26T15:33:08.370Z"
+  "last_updated_utc": "2026-10-26T16:53:38.977Z"
 }

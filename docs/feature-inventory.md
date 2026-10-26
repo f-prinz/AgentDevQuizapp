@@ -10,5 +10,6 @@
 | INV-4 | Spieler mit Namen beitreten und Teilnehmer live aktualisieren | server | aktiv | route: `POST /lobbies/:lobbyId/players` in `apps/server/src/app.ts`<br>test: `apps/server/test/lobby.test.ts` | FEAT-1 | - |
 | INV-5 | Lobby autorisiert ab zwei Spielern starten | server | aktiv | file: `apps/server/src/lobby.ts`<br>test: `apps/server/test/lobby.test.ts` | FEAT-1 | - |
 | INV-6 | Lobbysitzung nach Verbindungsverlust ohne Doppelbeitritt fortsetzen | server | aktiv | file: `apps/server/src/app.ts`<br>test: `apps/server/test/reconnect.test.ts` | FEAT-13 | - |
+| INV-7 | Serverseitige Spielrunde mit Rollen- und Fristkontrolle steuern | server | aktiv | file: `apps/server/src/game.ts`<br>test: `apps/server/test/game-state.test.ts` | FEAT-3 | - |
 
-Stand: 2026-10-26T15:33:08.370Z
+Stand: 2026-10-26T16:53:38.977Z

@@ -171,12 +171,22 @@
         "FEAT-13",
         "TECH-4"
       ],
-      "status": "IN_PROGRESS",
-      "fix_retries": 0,
-      "inventory_refs": [],
+      "status": "DONE",
+      "fix_retries": 2,
+      "inventory_refs": [
+        "INV-6",
+        "INV-7"
+      ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P0",
-      "implemented_by": "server_developer"
+      "implemented_by": "server_developer",
+      "test_result": "Server suite 46/46 green on main; FEAT-3 regression includes late-player ordering and reauth.",
+      "review_result": "Independent code and security reviews approved without findings.",
+      "test_evidence": "tasks/evidence/FEAT-3-2026-10-26T16-52-38-224Z.json",
+      "red_evidence": "tasks/evidence/FEAT-3-2026-10-26T16-17-34-487Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-3-2026-10-26T16-53-02-448Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/FEAT-3.md"
     },
     {
       "id": "FEAT-4",
@@ -619,5 +629,5 @@
       "reason": "Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen."
     }
   ],
-  "last_updated_utc": "2026-10-26T15:54:16.639Z"
+  "last_updated_utc": "2026-10-26T16:54:01.004Z"
 }
