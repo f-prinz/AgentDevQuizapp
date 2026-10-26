@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import WebSocket from 'ws';
 import {
   CreateLobbyResponseSchema,
@@ -243,6 +243,7 @@ async function closeSocket(socket: WebSocket): Promise<void> {
 }
 
 afterEach(async () => {
+  vi.restoreAllMocks();
   for (const socket of sockets.splice(0)) socket.terminate();
   for (const server of servers.splice(0)) await server.app.close();
 });
@@ -275,6 +276,54 @@ describe('server game state and round timers', () => {
       expect(JSON.stringify([host, projector, player])).not.toContain('"value":');
     }
     if (kind === 'estimation') expect(JSON.stringify([host, projector, player])).not.toContain('"target":');
+  });
+
+  it('keeps sorting solutions hidden from late players and preserves their shuffled task on reauth', async () => {
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0);
+    const round = await beginRound('sorting');
+    const lateSession = await joinPlayer(round.server, round.lobby.lobbyId, 'Late player');
+    const latePlayer = await connect(round.server, lateSession);
+    const firstSnapshot = latePlayer.snapshot;
+    if (firstSnapshot.role !== 'player' || firstSnapshot.round?.phase !== 'playing'
+      || firstSnapshot.round.task.kind !== 'sorting') {
+      throw new Error('Expected the late player to receive a sorting round.');
+    }
+    const firstTermIds = firstSnapshot.round.task.terms.map(term => term.id);
+    expect(firstTermIds).toEqual(['term_b', 'term_a']);
+    expect(firstTermIds).not.toEqual(['term_a', 'term_b']);
+    expect(firstSnapshot.round.task.terms.every(term => !('value' in term))).toBe(true);
+    expect(firstSnapshot.input.participating).toBe(false);
+    expect(firstSnapshot.participants.find(participant => participant.name === 'Late player')?.waiting).toBe(true);
+
+    await closeSocket(latePlayer.socket);
+    random.mockReturnValue(0.999);
+    const reauthenticated = await connect(round.server, lateSession);
+    const restored = reauthenticated.snapshot;
+    if (restored.role !== 'player' || restored.round?.phase !== 'playing' || restored.round.task.kind !== 'sorting') {
+      throw new Error('Expected the late player sorting round to be restored.');
+    }
+    expect(restored.round.task.terms.map(term => term.id)).toEqual(firstTermIds);
+    expect(restored.input.participating).toBe(false);
+    expect(restored.participants.find(participant => participant.name === 'Late player')?.waiting).toBe(true);
+
+    const lateAnswer = { kind: 'sorting', termIds: ['term_b', 'term_a'] };
+    expect(ErrorEventSchema.parse(await command(reauthenticated, 'answer.set', {
+      roundId: round.roundId, answer: lateAnswer,
+    }))).toMatchObject({ code: 'NOT_PARTICIPATING' });
+    expect(ErrorEventSchema.parse(await command(reauthenticated, 'answer.submit', {
+      roundId: round.roundId, answer: lateAnswer,
+    }))).toMatchObject({ code: 'NOT_PARTICIPATING' });
+
+    for (const player of round.players) {
+      expect((await command(player, 'answer.submit', {
+        roundId: round.roundId,
+        answer: { kind: 'sorting', termIds: ['term_a', 'term_b'] },
+      })).type).toBe('ack');
+    }
+    const allFrozenPlayersFinished = await snapshot(round.host, value => value.phase === 'playing'
+      && value.round?.phase === 'playing' && value.round.timer.inputClosed);
+    expect(allFrozenPlayersFinished.round?.phase === 'playing' && allFrozenPlayersFinished.round.timer.canReveal)
+      .toBe(true);
   });
 
   it('deselects and reselects in overview, advances a two-question quiz, and returns waiting players after finish', async () => {

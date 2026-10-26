@@ -79,6 +79,15 @@ function shuffled(ids: string[]): string[] {
   return result;
 }
 
+function sortingOrderForPlayer(round: ActiveGameRound, playerId: string, termIds: string[]): string[] {
+  const cachedOrder = round.sortingOrders.get(playerId);
+  if (cachedOrder) return cachedOrder;
+
+  const order = shuffled(termIds);
+  round.sortingOrders.set(playerId, order);
+  return order;
+}
+
 function resetInputs(lobby: GameLobbyState, round: ActiveGameRound): void {
   for (const player of lobby.players) {
     player.final = false;
@@ -342,7 +351,9 @@ export function projectRound(
         : { kind: 'quiz', question, options: quizQuestion?.options ?? [] };
     } else if (round.seed.kind === 'sorting') {
       if (role === 'player') {
-        const order = round.sortingOrders.get(playerId ?? '') ?? round.seed.terms.map(term => term.id);
+        const order = playerId
+          ? sortingOrderForPlayer(round, playerId, round.seed.terms.map(term => term.id))
+          : [];
         const byId = new Map(round.seed.terms.map(term => [term.id, term]));
         task = {
           kind: 'sorting',

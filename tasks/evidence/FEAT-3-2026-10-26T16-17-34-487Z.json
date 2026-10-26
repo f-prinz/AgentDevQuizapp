@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-3",
+  "command": "npm --prefix apps/server test -- test/game-state.test.ts",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 test\n> vitest run test/game-state.test.ts\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/apps/server\n\n ❯ test/game-state.test.ts (8 tests | 1 failed) 2920ms\n   ❯ server game state and round timers (8)\n     × keeps sorting solutions hidden from late players and preserves their shuffled task on reauth 31ms\n\n Test Files  1 failed (1)\n      Tests  1 failed | 7 passed (8)\n   Start at  17:17:38\n   Duration  6.82s (tests 49%, import 46%, transform 5%, worker 1%)\n\n",
+  "stderr_tail": "\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  test/game-state.test.ts > server game state and round timers > keeps sorting solutions hidden from late players and preserves their shuffled task on reauth\nAssertionError: expected [ 'term_a', 'term_b' ] to deeply equal [ 'term_b', 'term_a' ]\n\n- Expected\n+ Received\n\n  [\n-   \"term_b\",\n    \"term_a\",\n+   \"term_b\",\n  ]\n\n ❯ test/game-state.test.ts:292:26\n    290|     }\n    291|     const firstTermIds = firstSnapshot.round.task.terms.map(term => te…\n    292|     expect(firstTermIds).toEqual(['term_b', 'term_a']);\n       |                          ^\n    293|     expect(firstTermIds).not.toEqual(['term_a', 'term_b']);\n    294|     expect(firstSnapshot.round.task.terms.every(term => !('value' in t…\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n",
+  "started": "2026-10-26T16:17:34.487Z",
+  "finished": "2026-10-26T16:17:45.267Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
