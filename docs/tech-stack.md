@@ -41,12 +41,12 @@ harten DONE-Kriterium.
 
 | Bereich | Aktueller Stack | Freigegebenes Ziel |
 | --- | --- | --- |
-| Runtime/Sprache | | Node.js (>=24, TypeScript, ESM) |
-| Framework | | Fastify (HTTP) + `ws` (WebSocket) — Alternative: Socket.IO |
-| Kommunikation | | WebSocket (Lobby-/Spiel-Events) + REST (Lobby-Setup, Health) |
-| Persistenz | | PostgreSQL via `pg` + SQL-Migrationen — Alternative: Prisma/Drizzle |
-| Tests | | Vitest (Unit + Integration, in-memory WS) |
-| Lint/Statik-Analyse | | ESLint + `tsc --noEmit` |
+| Runtime/Sprache | Node.js >=24, TypeScript, ESM (TypeScript 5.9.3) | Node.js (>=24, TypeScript, ESM) |
+| Framework | Fastify 5 (HTTP) + `ws` 8 (WebSocket) | Fastify (HTTP) + `ws` (WebSocket) — Alternative: Socket.IO |
+| Kommunikation | REST fuer Health/Lobby-Erstellung/Spielerbeitritt und WebSocket fuer Authentifizierung, Lobbystart, Spielernamen und Zeitabgleich; Spielzustandsbefehle sind noch nicht umgesetzt | WebSocket (Lobby-/Spiel-Events) + REST (Lobby-Setup, Health) |
+| Persistenz | PostgreSQL via `pg` mit SQL-Migration und Seeds fuer den Spielkatalog; Lobbysitzungen und Spielzustand liegen in-memory | PostgreSQL via `pg` + SQL-Migrationen — Alternative: Prisma/Drizzle |
+| Tests | Vitest 5 (Unit/Integration; PostgreSQL-Tests vorhanden) | Vitest (Unit + Integration, in-memory WS) |
+| Lint/Statik-Analyse | ESLint 10 + `tsc --noEmit` | ESLint + `tsc --noEmit` |
 
 Status: FREIGEGEBEN (2026-10-26, Entscheid: `ws` statt Socket.IO,
 `pg` + SQL-Migrationen statt ORM).
@@ -61,12 +61,12 @@ gemaess Entscheidung O6 nur in-memory gehalten.
 
 | Bereich | Aktueller Stack | Freigegebenes Ziel |
 | --- | --- | --- |
-| Runtime/Sprache | | TypeScript, ESM |
-| Framework | | React (Vite) + react-router |
-| Kommunikation | | nativer WebSocket-Client gegen `server` (+ REST fuer Lobby-Setup) |
-| Persistenz | | keine (Session-Token im localStorage fuer Reconnect) |
-| Tests | | Vitest + React Testing Library; Drag-and-Drop/Timer via jsdom |
-| Lint/Statik-Analyse | | ESLint + `tsc --noEmit` |
+| Runtime/Sprache | Node.js >=24, TypeScript, ESM (TypeScript 6.0.3) | TypeScript, ESM |
+| Framework | React 19 + Vite 8 + react-router 8 | React (Vite) + react-router |
+| Kommunikation | Vite-Entwicklungsserver mit REST-/WebSocket-Proxy-Konfiguration; native WebSocket- und REST-Clients fuer Lobbyfunktionen sind noch nicht umgesetzt | nativer WebSocket-Client gegen `server` (+ REST fuer Lobby-Setup) |
+| Persistenz | Keine; Session-Verwaltung und localStorage-Reconnect sind noch nicht umgesetzt | keine (Session-Token im localStorage fuer Reconnect) |
+| Tests | Vitest 5 + React Testing Library 16 in jsdom 30 | Vitest + React Testing Library; Drag-and-Drop/Timer via jsdom |
+| Lint/Statik-Analyse | ESLint 10 + `tsc --noEmit` | ESLint + `tsc --noEmit` |
 
 Status: FREIGEGEBEN (2026-10-26).
 
@@ -84,6 +84,23 @@ sowohl `server` validiert als auch `web` typisiert, ein Schema je
 Event-Familie (`lobby`, `game`, `timer`); Dateien
 `contracts/<familie>.schema.ts` + `contracts/README.md` mit
 Versionsregeln (additive Aenderungen frei, Breaking nur mit CONTRACT_CHANGE-Task).
+
+Ist-Stand: `contracts` ist als TypeScript-/`zod`-Paket mit Protokollversion 1
+implementiert. TypeScript-Versionen unterscheiden sich in den Paketmanifests:
+server 5.9.3, web 6.0.3 und contracts 7.0.2.
+
+## Implementierungsstand
+
+Die Angaben in "Aktueller Stack" beschreiben den vorhandenen Code. Die
+Webanwendung besteht derzeit aus Routing, Layout und Platzhalterseiten; ein
+Lobby-Client mit nativer WebSocket-Verbindung, REST-Aufrufen und
+Session-Speicherung ist noch nicht implementiert (FEAT-2 und FEAT-15 stehen
+noch aus). Serverseitige REST-/WebSocket-Lobbyfunktionen und der persistente
+Spielkatalog sind vorhanden, weitergehende Spielzustandsfunktionen noch nicht.
+
+Die in TECH-2 festgehaltene Browserabnahme ist BLOCKED, weil in der Umgebung
+keine Browseranbindung verfuegbar war. Es gibt daher keine Aussage ueber eine
+erfolgreiche manuelle UI-Pruefung im Browser.
 
 ## Geltungsbereich und Migration
 
