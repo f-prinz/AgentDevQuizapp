@@ -14,11 +14,16 @@
       "test_command": "npm --prefix apps/server test",
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": false,
-      "dependencies": [],
+      "dependencies": [
+        "TECH-5",
+        "TECH-3"
+      ],
       "status": "TODO",
       "fix_retries": 0,
       "inventory_refs": [],
-      "allows_dep_change": true
+      "allows_dep_change": true,
+      "classification": "TARGET_ALIGNED",
+      "priority": "P0"
     },
     {
       "id": "TECH-2",
@@ -28,27 +33,39 @@
       "test_command": "npm --prefix apps/web test",
       "lint_command": "npm --prefix apps/web run lint",
       "red_evidence_required": false,
-      "dependencies": [],
+      "dependencies": [
+        "TECH-5",
+        "TECH-3"
+      ],
       "status": "TODO",
       "fix_retries": 0,
       "inventory_refs": [],
-      "allows_dep_change": true
+      "allows_dep_change": true,
+      "classification": "TARGET_ALIGNED",
+      "priority": "P0"
     },
     {
       "id": "TECH-3",
-      "component": "server",
-      "title": "contracts/: WS/REST-Event-Schemas (lobby, game, timer) als zod/TS",
+      "component": "contracts",
+      "title": "CONTRACT_CHANGE: versionierte REST- und WS-Schemas",
       "acceptance_criteria": "Schemas fuer Lobby-, Spiel- und Timer-Events vorhanden; contracts/README.md dokumentiert Versionsregeln; tsc-Check gruen",
-      "test_command": "npx tsc --noEmit -p contracts/tsconfig.json",
+      "test_command": "npm --prefix contracts test",
       "lint_command": null,
       "red_evidence_required": false,
-      "dependencies": [],
-      "status": "TODO",
+      "dependencies": [
+        "TECH-5",
+        "TECH-6"
+      ],
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
         "contracts/"
-      ]
+      ],
+      "allows_dep_change": true,
+      "classification": "TARGET_ALIGNED",
+      "priority": "P0",
+      "implemented_by": "integration_engineer"
     },
     {
       "id": "TECH-4",
@@ -59,11 +76,14 @@
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": false,
       "dependencies": [
-        "TECH-1"
+        "TECH-1",
+        "TECH-3"
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P0"
     },
     {
       "id": "FEAT-1",
@@ -79,7 +99,9 @@
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P0"
     },
     {
       "id": "FEAT-2",
@@ -91,26 +113,33 @@
       "red_evidence_required": true,
       "dependencies": [
         "TECH-2",
-        "TECH-3"
+        "TECH-3",
+        "FEAT-1"
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P0"
     },
     {
       "id": "FEAT-3",
       "component": "server",
       "title": "F3/F7 Spielstate-Maschine + Timer (Start-/Spiel-/Auswertungsphase, Deadline+2s, Abgeben-alle=Ende)",
-      "acceptance_criteria": "Phasenwechsel per Host-Event; serverseitige Deadline synchronisiert; Antworten bis Deadline+2000ms akzeptiert; Runde endet wenn alle abgegeben",
+      "acceptance_criteria": "Hostphasen mit eingefrorenen Teilnehmern; neue Spieler warten bis naechste Spielauswahl; deadline+2000ms inklusiv; atomare Finalabgabe und Finalsperre; alle-final Fruehschluss; rollenbereinigte Snapshots ohne Loesungen vor Auswertung",
       "test_command": "npm --prefix apps/server test",
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": true,
       "dependencies": [
-        "FEAT-1"
+        "FEAT-1",
+        "FEAT-13",
+        "TECH-4"
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P0"
     },
     {
       "id": "FEAT-4",
@@ -122,11 +151,14 @@
       "red_evidence_required": true,
       "dependencies": [
         "FEAT-2",
-        "TECH-3"
+        "FEAT-3",
+        "FEAT-15"
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P0"
     },
     {
       "id": "FEAT-5",
@@ -137,12 +169,13 @@
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": true,
       "dependencies": [
-        "FEAT-3",
-        "TECH-4"
+        "FEAT-3"
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1"
     },
     {
       "id": "FEAT-6",
@@ -154,17 +187,20 @@
       "red_evidence_required": true,
       "dependencies": [
         "FEAT-4",
-        "FEAT-5"
+        "FEAT-5",
+        "FEAT-14"
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1"
     },
     {
       "id": "FEAT-7",
       "component": "server",
       "title": "F4 Spielart Quiz: Fragen, 30s, Antwortwahl aenderbar, 1 Punkt je richtiger Antwort",
-      "acceptance_criteria": "Fragen mit 4 Optionen aus Katalog; Auswahl bis Deadline+2s aenderbar, letzte zaehlt; richtige Antwort = 1 Punkt",
+      "acceptance_criteria": "Quiz in Seed-Reihenfolge mit vier Optionen, einer richtigen und 30s pro Frage; letzte gueltige Antwort zaehlt; 1 Punkt richtig; jede Frage einzeln auswerten, Host startet naechste, Uebersicht erst nach letzter; Wertung genau einmal",
       "test_command": "npm --prefix apps/server test",
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": true,
@@ -173,7 +209,9 @@
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P0"
     },
     {
       "id": "FEAT-8",
@@ -189,7 +227,9 @@
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P0"
     },
     {
       "id": "FEAT-9",
@@ -204,7 +244,9 @@
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1"
     },
     {
       "id": "FEAT-10",
@@ -216,17 +258,20 @@
       "red_evidence_required": true,
       "dependencies": [
         "FEAT-4",
-        "FEAT-9"
+        "FEAT-9",
+        "FEAT-14"
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1"
     },
     {
       "id": "FEAT-11",
       "component": "server",
       "title": "F6 Spielart Schaetzen: Zahleneingabe, 30s, Drittel-Punkte + Bonus",
-      "acceptance_criteria": "Schaetzung je Spieler; oberes Drittel 3, mittleres 1, unteres 0 Punkte; beste Schaetzung +2 (max 5); Auswertung mit Abstand und Platzierung",
+      "acceptance_criteria": "30s; letzte gueltige endliche Zahl; N nur gueltige Eingaben; ceil(N/3) und ceil(2N/3) Grenzraenge; Grenzgleichstaende bessere Stufe; alle Besten +2; max5; fehlend0 ausserhalb Rang; N=0 ohne Bonus",
       "test_command": "npm --prefix apps/server test",
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": true,
@@ -235,7 +280,9 @@
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1"
     },
     {
       "id": "FEAT-12",
@@ -247,11 +294,14 @@
       "red_evidence_required": true,
       "dependencies": [
         "FEAT-4",
-        "FEAT-11"
+        "FEAT-11",
+        "FEAT-14"
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1"
     },
     {
       "id": "FEAT-13",
@@ -266,7 +316,9 @@
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P0"
     },
     {
       "id": "FEAT-14",
@@ -277,11 +329,15 @@
       "lint_command": "npm --prefix apps/web run lint",
       "red_evidence_required": true,
       "dependencies": [
-        "TECH-2"
+        "TECH-2",
+        "FEAT-4",
+        "FEAT-5"
       ],
       "status": "TODO",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1"
     },
     {
       "id": "TECH-5",
@@ -328,8 +384,165 @@
       "test_evidence": "tasks/evidence/TECH-6-2026-10-26T13-05-18-297Z.json",
       "red_evidence": "tasks/evidence/TECH-6-2026-10-26T12-45-41-060Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "FEAT-15",
+      "component": "web",
+      "title": "F8 Client-Sessionablage und Reconnect",
+      "acceptance_criteria": "Refresh oder Link stellt vorhandene Rolle, Spieler-ID, Draft, Finalsperre und Deadline wieder her; kein Doppelbeitritt; klare Meldung nach Serverneustart",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-2",
+        "FEAT-13"
+      ],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P0",
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "TECH-7",
+      "component": "server",
+      "title": "Lobby- und Reconnect-Integration mit Inventaraudit",
+      "acceptance_criteria": "Host und Projektor plus zwei Spieler real ueber REST/WS; unbefugte Moderation abgewiesen; Refresh ohne Duplikat; spaeter Spieler wartet; Scope-Audit und Browserbelege fuer diese Faehigkeiten",
+      "test_command": "npm --prefix apps/server test -- test/e2e/lobby.test.ts",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": false,
+      "dependencies": [
+        "FEAT-1",
+        "FEAT-2",
+        "FEAT-3",
+        "FEAT-13",
+        "FEAT-15"
+      ],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P0",
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/server/",
+        "docs/validation/lobby.md"
+      ]
+    },
+    {
+      "id": "TECH-8",
+      "component": "server",
+      "title": "Quiz-Integration mit Inventaraudit",
+      "acceptance_criteria": "Mehrere Quizfragen mit Einzelauswertung, frueher Abschluss, Timeout samt Nachfrist, Rollenfilter und Quizabschluss genau einmal; Browserbelege und Audit zu Quiz/Timer",
+      "test_command": "npm --prefix apps/server test -- test/e2e/quiz.test.ts",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": false,
+      "dependencies": [
+        "FEAT-7",
+        "FEAT-8"
+      ],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P0",
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/server/",
+        "docs/validation/quiz.md"
+      ]
+    },
+    {
+      "id": "TECH-9",
+      "component": "server",
+      "title": "Sortier-Integration mit Inventaraudit",
+      "acceptance_criteria": "Touch-/Drag-Browserablauf und reale WS-Wertung; stabile Reihenfolge nach Refresh; Timeout, Wertefilter und Positionspunkte; Inventaraudit zu Sortieren",
+      "test_command": "npm --prefix apps/server test -- test/e2e/sort.test.ts",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": false,
+      "dependencies": [
+        "FEAT-9",
+        "FEAT-10"
+      ],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1",
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/server/",
+        "docs/validation/sort.md"
+      ]
+    },
+    {
+      "id": "TECH-10",
+      "component": "server",
+      "title": "Schaetz-Integration mit Inventaraudit",
+      "acceptance_criteria": "Reale WS- und Browserablaeufe; Drittel fuer 2/4/5 gueltige Eingaben, Gleichstaende, alle besten, fehlend und N=0; Zielwertschutz; Inventaraudit zu Schaetzen",
+      "test_command": "npm --prefix apps/server test -- test/e2e/estimate.test.ts",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": false,
+      "dependencies": [
+        "FEAT-11",
+        "FEAT-12"
+      ],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1",
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/server/",
+        "docs/validation/estimate.md"
+      ]
+    },
+    {
+      "id": "TECH-11",
+      "component": "web",
+      "title": "Ranking- und Darstellungsabnahme mit Inventaraudit",
+      "acceptance_criteria": "Projektorlayout, abgeschlossene Spielspalten und vier Animationsschritte; Hostauswahl; mobile Statusleiste und Theme; Browserbelege und Audit fuer Ranking/Design",
+      "test_command": "npm --prefix apps/web test -- test/e2e/ranking.test.tsx",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": false,
+      "dependencies": [
+        "FEAT-5",
+        "FEAT-6",
+        "FEAT-14"
+      ],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1",
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/",
+        "docs/validation/ranking.md"
+      ]
+    },
+    {
+      "id": "TECH-12",
+      "component": "server",
+      "title": "Lokale Systemdokumentation und MVP-Abschlussbericht",
+      "acceptance_criteria": "Build/Start/Shutdown beider Apps und PostgreSQL-Anbindung real nachgewiesen; README und final-report mit echten Evidencepfaden und bekannten Problemen; Scope-Audit vor Bericht; erledigte Tasks archiviert",
+      "test_command": "node scripts/check-state.mjs",
+      "lint_command": null,
+      "red_evidence_required": false,
+      "dependencies": [
+        "TECH-7",
+        "TECH-8",
+        "TECH-9",
+        "TECH-10",
+        "TECH-11"
+      ],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P2",
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "README.md",
+        "docs/"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-26T13:05:26.731Z"
+  "last_updated_utc": "2026-10-26T13:09:25.852Z"
 }
