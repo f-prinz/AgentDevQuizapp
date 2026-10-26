@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "planning",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -282,8 +282,46 @@
       "status": "TODO",
       "fix_retries": 0,
       "inventory_refs": []
+    },
+    {
+      "id": "TECH-5",
+      "component": "server",
+      "title": "TARGET_ALIGNED: MVP Requirements, Validierung, Architektur und priorisierter Plan",
+      "acceptance_criteria": "F1-F9 und O1-O9 dokumentiert; adversariale Validierung ohne Blocker; Stackbewertung je Komponente; priorisierter Plan mit Abhaengigkeiten und Klassen",
+      "test_command": "node scripts/check-state.mjs",
+      "lint_command": null,
+      "red_evidence_required": false,
+      "dependencies": [],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "docs/feature-mvp-requirements.md",
+        "docs/feature-mvp-validation.md",
+        "docs/feature-mvp-architecture.md",
+        "docs/feature-mvp-plan.md",
+        "docs/feature-mvp-requirements-validation.md"
+      ],
+      "implemented_by": "analyst"
+    },
+    {
+      "id": "TECH-6",
+      "component": "server",
+      "title": "Task-Werkzeuge: Vertragskomponente und validierte Planungsmetadaten",
+      "acceptance_criteria": "contracts als Artefakt-Komponente ohne App registrierbar; add/update unterstuetzen validierte Klassifikation, Prioritaet und Metadaten; ungueltige Flags, Komponenten, Dependencies und Zyklen werden ohne Zustandsaenderung abgewiesen",
+      "test_command": "node --test test/task-metadata.test.mjs",
+      "lint_command": null,
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "scripts/",
+        "test/"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-26T12:16:53.987Z"
+  "last_updated_utc": "2026-10-26T12:34:40.591Z"
 }
