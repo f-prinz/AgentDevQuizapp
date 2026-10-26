@@ -38,12 +38,13 @@
         "TECH-5",
         "TECH-3"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allows_dep_change": true,
       "classification": "TARGET_ALIGNED",
-      "priority": "P0"
+      "priority": "P0",
+      "implemented_by": "web_developer"
     },
     {
       "id": "TECH-3",
@@ -549,5 +550,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-26T13:34:46.113Z"
+  "last_updated_utc": "2026-10-26T13:37:50.686Z"
 }
