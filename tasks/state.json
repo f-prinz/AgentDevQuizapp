@@ -586,6 +586,28 @@
         "README.md",
         "docs/"
       ]
+    },
+    {
+      "id": "TECH-13",
+      "component": "server",
+      "title": "Ist-Stack nach lokalem Scaffolding dokumentieren",
+      "acceptance_criteria": "Aktueller Stack fuer server und web entspricht dem tatsaechlich implementierten Stand; freigegebene Ziele bleiben gleich; offene Client-Funktionen und Browserabnahme nicht als fertig behaupten",
+      "test_command": "node scripts/verify.mjs",
+      "lint_command": null,
+      "red_evidence_required": false,
+      "dependencies": [
+        "TECH-1",
+        "TECH-3"
+      ],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1",
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "docs/tech-stack.md"
+      ],
+      "implemented_by": "documentation_agent"
     }
   ],
   "blockers": [
@@ -594,5 +616,5 @@
       "reason": "Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen."
     }
   ],
-  "last_updated_utc": "2026-10-26T15:33:28.581Z"
+  "last_updated_utc": "2026-10-26T15:42:30.507Z"
 }
