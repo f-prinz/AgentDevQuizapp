@@ -77,3 +77,17 @@ Aktueller Stand: TECH-1 DONE; TECH-2 BLOCKED; TECH-3 DONE; TECH-4 DONE; FEAT-1 I
 2026-10-26T14:36:17.698Z: TECH-2 BLOCKED.  Keine offenen Code-Findings; Browserabnahme als Umgebungsblocker offen Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen.
 
 2026-10-26T14:36:18.410Z: FEAT-1 IN_PROGRESS.   
+
+2026-10-26T15:13:22.963Z: FEAT-1 aktualisiert.   
+
+2026-10-26T15:13:23.431Z: FEAT-1 aktualisiert.   
+
+2026-10-26T15:13:23.893Z: FEAT-1 aktualisiert.   
+
+2026-10-26T15:13:24.355Z: FEAT-13 aktualisiert.   
+
+2026-10-26T15:13:24.828Z: FEAT-3 aktualisiert.   
+
+2026-10-26T15:13:25.297Z: FEAT-15 aktualisiert.   
+
+2026-10-26T15:13:25.762Z: FEAT-4 aktualisiert.   

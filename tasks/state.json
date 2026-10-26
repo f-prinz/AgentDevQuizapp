@@ -125,7 +125,11 @@
       ],
       "status": "IN_PROGRESS",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-3",
+        "INV-4",
+        "INV-5"
+      ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P0",
       "implemented_by": "server_developer"
@@ -153,7 +157,7 @@
       "id": "FEAT-3",
       "component": "server",
       "title": "F3/F7 Spielstate-Maschine + Timer (Start-/Spiel-/Auswertungsphase, Deadline+2s, Abgeben-alle=Ende)",
-      "acceptance_criteria": "Hostphasen mit eingefrorenen Teilnehmern; neue Spieler warten bis naechste Spielauswahl; deadline+2000ms inklusiv; atomare Finalabgabe und Finalsperre; alle-final Fruehschluss; rollenbereinigte Snapshots ohne Loesungen vor Auswertung",
+      "acceptance_criteria": "Hostphasen mit eingefrorenen Teilnehmern; neue Spieler warten bis naechste Spielauswahl; deadline+2000ms inklusiv; atomare Finalabgabe und Finalsperre, alle-final Fruehschluss; rollenbereinigte Snapshots ohne Loesungen vor Auswertung; Reauth stellt aktuelle Spielphase, eigene Eingabe, Finalstatus, Teilnahme und unveraenderte Deadline wieder her ohne Neueintritt/Timerneustart.",
       "test_command": "npm --prefix apps/server test",
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": true,
@@ -172,7 +176,7 @@
       "id": "FEAT-4",
       "component": "web",
       "title": "F3/F7 Spielphasen-Grundgeruest + Timeranzeige (Spieler klein, Projektor gross, Abgeben-Button)",
-      "acceptance_criteria": "Start-/Spiel-/Auswertungsphasen gerendert je Rolle; Timer in allen Ansichten (Spieler klein, Projektor gross); Abgeben-Button sperrt Antwort",
+      "acceptance_criteria": "Start-/Spiel-/Auswertungsphasen je Rolle; Startanimation; Timer Spieler klein Projektor gross; atomare Finalabgabe sperrt Eingabe; Host-Aufloesen nach Eingabeschluss inkl Fruehschluss; wartende neue Spieler; nach Refresh korrekte Phase, Draft, Finalsperre und unveraenderte Deadline aus Serverzustand.",
       "test_command": "npm --prefix apps/web test",
       "lint_command": "npm --prefix apps/web run lint",
       "red_evidence_required": true,
@@ -334,7 +338,7 @@
       "id": "FEAT-13",
       "component": "server",
       "title": "F8 Reconnect: Session-Token, Wiederbeitritt nach Verbindungsverlust",
-      "acceptance_criteria": "Refresh oder erneuter Link-Aufruf stellt Rolle/Spielerzustand wieder her; laufender Spielstand bleibt erhalten",
+      "acceptance_criteria": "Vorhandene Rollen und Spieleridentitaet per Reauth ohne Doppelbeitritt wiederherstellen; Name und aktuelle Lobbyphase erhalten; mehrere Verbindungen derselben Sitzung halten connected solange mindestens eine lebt; alte Sitzung nach Serverneustart abweisen; Ping/Pong alle30s beendet stille Verbindungen spaetestens im Folgezyklus ohne Sitzungs-/Teilnehmerverlust; kurzer intern injizierter Testtakt, Shutdown raeumt Timer auf. Aktive Rundendaten werden mit FEAT-3 integriert.",
       "test_command": "npm --prefix apps/server test",
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": true,
@@ -416,7 +420,7 @@
       "id": "FEAT-15",
       "component": "web",
       "title": "F8 Client-Sessionablage und Reconnect",
-      "acceptance_criteria": "Refresh oder Link stellt vorhandene Rolle, Spieler-ID, Draft, Finalsperre und Deadline wieder her; kein Doppelbeitritt; klare Meldung nach Serverneustart",
+      "acceptance_criteria": "Session-Token sicher pro Lobby und Rolle ablegen; Refresh und erneuter Link stellt dieselbe Rolle und Spieler-ID ohne Doppelbeitritt her; klare Meldung nach Serverneustart. Anzeige und Abnahme aktiver Drafts/Finalstatus/Deadline werden mit FEAT-4 integriert.",
       "test_command": "npm --prefix apps/web test",
       "lint_command": "npm --prefix apps/web run lint",
       "red_evidence_required": true,
@@ -576,5 +580,5 @@
       "reason": "Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen."
     }
   ],
-  "last_updated_utc": "2026-10-26T14:36:18.410Z"
+  "last_updated_utc": "2026-10-26T15:13:25.762Z"
 }

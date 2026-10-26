@@ -51,7 +51,66 @@
       "introduced_by": "TECH-4",
       "removed_by": null,
       "notes": "Nur Katalog persistent; Seed-Upserts idempotent, vorhandene Fremdeintraege erhalten; echte isolierte PostgreSQL-Tests, keine Loesungsroute"
+    },
+    {
+      "id": "INV-3",
+      "capability": "Lobby mit getrennten Rollenlinks und Sitzungen erstellen",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "route",
+          "file": "apps/server/src/app.ts",
+          "ref": "POST /lobbies"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/lobby.test.ts"
+        }
+      ],
+      "introduced_by": "FEAT-1",
+      "removed_by": null,
+      "notes": "Host und Projektor getrennte Sitzungen; kryptografische Tokens, nur Hashes gespeichert; keine Browseransicht behauptet"
+    },
+    {
+      "id": "INV-4",
+      "capability": "Spieler mit Namen beitreten und Teilnehmer live aktualisieren",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "route",
+          "file": "apps/server/src/app.ts",
+          "ref": "POST /lobbies/:lobbyId/players"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/lobby.test.ts"
+        }
+      ],
+      "introduced_by": "FEAT-1",
+      "removed_by": null,
+      "notes": "Max20 Zeichen, Default Spieler N, unbegrenzte Anzahl, Host nicht Teilnehmer; echte HTTP/WS-Tests"
+    },
+    {
+      "id": "INV-5",
+      "capability": "Lobby autorisiert ab zwei Spielern starten",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "file",
+          "ref": "apps/server/src/lobby.ts"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/lobby.test.ts"
+        }
+      ],
+      "introduced_by": "FEAT-1",
+      "removed_by": null,
+      "notes": "lobby.start nur Host; unter2 abgewiesen, ab2 Uebersicht; keine Spielrunden behauptet"
     }
   ],
-  "last_updated_utc": "2026-10-26T14:31:08.835Z"
+  "last_updated_utc": "2026-10-26T15:13:22.536Z"
 }
