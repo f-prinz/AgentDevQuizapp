@@ -189,8 +189,27 @@
       ],
       "introduced_by": "FEAT-5",
       "removed_by": null,
-      "notes": "Quizpunkte werden je Frage einmal kumuliert und erst beim finalen Abschluss als Spielspalte in Host-/Projektorranking veröffentlicht; Gleichstandsränge und Beitrittsreihenfolge. Andere Spielarten erscheinen ebenfalls als abgeschlossen, ihre Punktelogik bleibt bis FEAT-9/FEAT-11 null und ist hier nicht als fertig bewertet."
+      "notes": "Quiz- und Sortierpunkte werden je Auswertung einmal kumuliert und erst beim finalen Abschluss als Spielspalte im Host-/Projektorranking veröffentlicht; Gleichstandsränge und Beitrittsreihenfolge. Schaetzpunkte bleiben bis FEAT-11 offen."
+    },
+    {
+      "id": "INV-10",
+      "capability": "Sortierbegriffe nach Wert ordnen und Punkte je Position werten",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "file",
+          "ref": "apps/server/src/game.ts"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/game-state.test.ts"
+        }
+      ],
+      "introduced_by": "FEAT-9",
+      "removed_by": null,
+      "notes": "Spieler sehen zufaellig angeordnete Begriffe ohne Werte; nach Aufloesung erscheinen Werte in aufsteigender Sollreihenfolge. Je richtige Position ein Punkt, Fehlerzahl = Anzahl Begriffe minus Punkte. Das abgeschlossene Ergebnis fliesst ins Ranking."
     }
   ],
-  "last_updated_utc": "2026-10-26T17:36:56.587Z"
+  "last_updated_utc": "2026-10-26T17:49:42.058Z"
 }

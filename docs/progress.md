@@ -1,6 +1,6 @@
 # Fortschritt
 
-Aktueller Stand: TECH-1 DONE; TECH-2 BLOCKED; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE; FEAT-2 TODO; FEAT-3 DONE; FEAT-4 TODO; FEAT-5 IN_PROGRESS; FEAT-6 TODO; FEAT-7 DONE; FEAT-8 TODO; FEAT-9 IN_PROGRESS; FEAT-10 TODO; FEAT-11 TODO; FEAT-12 TODO; FEAT-13 DONE; FEAT-14 TODO; TECH-5 DONE; TECH-6 DONE; FEAT-15 TODO; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO; TECH-13 DONE. Historische Meldungen unten bleiben erhalten.
+Aktueller Stand: TECH-1 DONE; TECH-2 BLOCKED; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE; FEAT-2 TODO; FEAT-3 DONE; FEAT-4 TODO; FEAT-5 IN_PROGRESS; FEAT-6 TODO; FEAT-7 DONE; FEAT-8 TODO; FEAT-9 DONE; FEAT-10 TODO; FEAT-11 TODO; FEAT-12 TODO; FEAT-13 DONE; FEAT-14 TODO; TECH-5 DONE; TECH-6 DONE; FEAT-15 TODO; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO; TECH-13 DONE. Historische Meldungen unten bleiben erhalten.
 
 2026-10-26T12:27:54.828Z: TECH-5 IN_PROGRESS.   
 
@@ -131,3 +131,11 @@ Aktueller Stand: TECH-1 DONE; TECH-2 BLOCKED; TECH-3 DONE; TECH-4 DONE; FEAT-1 D
 2026-10-26T17:36:57.145Z: FEAT-5 aktualisiert. 49/49 server tests green on main; ranking totals, competition ties and completed-game catalog verified. Ranking infrastructure approved; sorting/estimation scoring remains in FEAT-9/FEAT-11. 
 
 2026-10-26T17:37:29.488Z: FEAT-9 IN_PROGRESS.   
+
+2026-10-26T17:48:37.090Z: FEAT-9 Fix-Retry 1/3. Lint found missing role/phase/task narrowing in the new sorting test; guards were added without changing assertions
+
+2026-10-26T17:49:42.683Z: FEAT-9 aktualisiert.   
+
+2026-10-26T17:49:43.275Z: FEAT-5 aktualisiert.  Ranking foundation approved; quiz and sorting scores now integrated; estimation scoring remains pending FEAT-11. 
+
+2026-10-26T17:49:45.047Z: FEAT-9 DONE. 50/50 server tests green on main; sorting correctness, errors, secrecy and ranking covered. Independent code and security review approved without blockers. 

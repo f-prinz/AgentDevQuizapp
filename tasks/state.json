@@ -226,7 +226,7 @@
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P1",
       "test_result": "49/49 server tests green on main; ranking totals, competition ties and completed-game catalog verified.",
-      "review_result": "Ranking infrastructure approved; sorting/estimation scoring remains in FEAT-9/FEAT-11.",
+      "review_result": "Ranking foundation approved; quiz and sorting scores now integrated; estimation scoring remains pending FEAT-11.",
       "test_evidence": "tasks/evidence/FEAT-5-2026-10-26T17-36-04-382Z.json",
       "red_evidence": "tasks/evidence/FEAT-5-2026-10-26T17-19-43-950Z.json",
       "lint_evidence": "tasks/evidence/FEAT-5-2026-10-26T17-36-27-890Z.json",
@@ -307,11 +307,20 @@
       "dependencies": [
         "FEAT-3"
       ],
-      "status": "IN_PROGRESS",
-      "fix_retries": 0,
-      "inventory_refs": [],
+      "status": "DONE",
+      "fix_retries": 1,
+      "inventory_refs": [
+        "INV-10"
+      ],
       "classification": "CURRENT_STACK_ONLY",
-      "priority": "P1"
+      "priority": "P1",
+      "test_result": "50/50 server tests green on main; sorting correctness, errors, secrecy and ranking covered.",
+      "review_result": "Independent code and security review approved without blockers.",
+      "test_evidence": "tasks/evidence/FEAT-9-2026-10-26T17-48-37-299Z.json",
+      "red_evidence": "tasks/evidence/FEAT-9-2026-10-26T17-40-34-017Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-9-2026-10-26T17-49-01-805Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/FEAT-9.md"
     },
     {
       "id": "FEAT-10",
@@ -647,5 +656,5 @@
       "reason": "Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen."
     }
   ],
-  "last_updated_utc": "2026-10-26T17:37:29.488Z"
+  "last_updated_utc": "2026-10-26T17:49:45.047Z"
 }
