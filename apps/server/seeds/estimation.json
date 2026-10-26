@@ -1,0 +1,8 @@
+{
+  "id": "sample-estimation-eiffel-tower",
+  "kind": "estimation",
+  "title": "Der Eiffelturm",
+  "rules": "Schätzt möglichst genau. Die Punkte richten sich nach dem Abstand.",
+  "question": "Wie hoch ist der Eiffelturm in Metern?",
+  "target": 330
+}
