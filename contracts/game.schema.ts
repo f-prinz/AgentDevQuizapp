@@ -18,7 +18,7 @@ export const PlayerInputSchema = z.strictObject({ answer: AnswerSchema.nullable(
 export const GameSelectCommandSchema = z.strictObject({ ...CommandBase, type: z.literal('game.select'), gameId: IdSchema.nullable() });
 export const GameActionCommandSchema = z.discriminatedUnion('type', [
   z.strictObject({ ...CommandBase, type: z.literal('game.prepare') }),
-  z.strictObject({ ...CommandBase, type: z.literal('game.start') }),
+  z.strictObject({ ...CommandBase, type: z.literal('game.start'), roundId: IdSchema }),
   z.strictObject({ ...CommandBase, type: z.literal('game.reveal'), roundId: IdSchema }),
   z.strictObject({ ...CommandBase, type: z.literal('game.next'), roundId: IdSchema }),
   z.strictObject({ ...CommandBase, type: z.literal('game.finish'), roundId: IdSchema }),

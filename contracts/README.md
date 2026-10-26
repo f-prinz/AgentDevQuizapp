@@ -53,7 +53,7 @@ payload size, origin, rate limits, and domain-state checks in addition to schema
 | lobby.start | host; lobby -> overview after >=2 players |
 | game.select {gameId|null} | host; select/deselect unplayed game in overview |
 | game.prepare | host; selected game -> start, freeze participants |
-| game.start | host; start -> playing, assign deadline |
+| game.start {roundId} | host; start -> playing for the matching round, assign deadline |
 | game.reveal {roundId} | host; closed playing -> evaluation |
 | game.next {roundId} | host; quiz evaluation with next question -> playing |
 | game.finish {roundId} | host; final evaluation -> overview, score once |

@@ -11,7 +11,7 @@ const player = {...base,role:'player',playerId:'p1',input:{answer:null,final:fal
 test('all protocol commands have valid round/session envelopes and reject unknown payload fields', () => {
   const commands = [
     {type:'auth',lobbyId:'l1',sessionId:'s1',token:'x'.repeat(43)}, {type:'lobby.start'},
-    {type:'player.name',name:''}, {type:'game.select',gameId:null}, {type:'game.prepare'}, {type:'game.start'},
+    {type:'player.name',name:''}, {type:'game.select',gameId:null}, {type:'game.prepare'}, {type:'game.start',roundId:'r1'},
     {type:'game.reveal',roundId:'r1'}, {type:'game.next',roundId:'r1'}, {type:'game.finish',roundId:'r1'},
     {type:'answer.set',roundId:'r1',answer:{kind:'quiz',optionId:'a'}},
     {type:'answer.submit',roundId:'r1',answer:{kind:'sorting',termIds:['a','b']}},
@@ -24,6 +24,12 @@ test('all protocol commands have valid round/session envelopes and reject unknow
   }
   assert.equal(ClientMessageSchema.safeParse({version:2,requestId:'x',type:'lobby.start'}).success,false);
   assert.equal(ClientMessageSchema.safeParse({version:1,requestId:'x',type:'answer.submit',answer:{kind:'quiz',optionId:'a'}}).success,false);
+});
+
+test('game.start must identify the round being started so a delayed command cannot start another round', () => {
+  const command = {version:1,requestId:'start1',type:'game.start'};
+  assert.equal(ClientMessageSchema.safeParse({...command,roundId:'r1'}).success,true);
+  assert.equal(ClientMessageSchema.safeParse(command).success,false);
 });
 
 test('wire snapshots validate each role and reject solution/private field leakage', () => {
