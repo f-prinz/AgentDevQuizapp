@@ -148,7 +148,26 @@
       "introduced_by": "FEAT-3",
       "removed_by": null,
       "notes": "Host kontrolliert Auswahl, Start, Aufloesung, Fragewechsel und Abschluss. 30/60/30-Sekundenfrist plus 2s inklusiv; alle-final schliesst Eingaben ohne automatische Aufloesung. Loesungen erscheinen erst in evaluation. Spaetbeitretende warten und bleiben bis zur naechsten Spielauswahl nicht teilnahmeberechtigt. Keine Punkte- oder Rankingbehauptung."
+    },
+    {
+      "id": "INV-8",
+      "capability": "Quizfragen einzeln mit einem Punkt je richtiger Antwort auswerten",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "file",
+          "ref": "apps/server/src/game.ts"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/game-state.test.ts"
+        }
+      ],
+      "introduced_by": "FEAT-7",
+      "removed_by": null,
+      "notes": "Eine korrekte Antwort zaehlt je Frage einen Punkt; falsche oder fehlende Antworten null. Die letzte gueltige Auswahl wird ausgewertet. Fragen bleiben einzeln, der Host startet die Folgefrage, und die Uebersicht erscheint erst nach der letzten Frage. Gesamtpunkte/Ranking folgen FEAT-5."
     }
   ],
-  "last_updated_utc": "2026-10-26T16:53:38.977Z"
+  "last_updated_utc": "2026-10-26T17:15:16.256Z"
 }

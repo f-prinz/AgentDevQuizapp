@@ -11,5 +11,6 @@
 | INV-5 | Lobby autorisiert ab zwei Spielern starten | server | aktiv | file: `apps/server/src/lobby.ts`<br>test: `apps/server/test/lobby.test.ts` | FEAT-1 | - |
 | INV-6 | Lobbysitzung nach Verbindungsverlust ohne Doppelbeitritt fortsetzen | server | aktiv | file: `apps/server/src/app.ts`<br>test: `apps/server/test/reconnect.test.ts` | FEAT-13 | - |
 | INV-7 | Serverseitige Spielrunde mit Rollen- und Fristkontrolle steuern | server | aktiv | file: `apps/server/src/game.ts`<br>test: `apps/server/test/game-state.test.ts` | FEAT-3 | - |
+| INV-8 | Quizfragen einzeln mit einem Punkt je richtiger Antwort auswerten | server | aktiv | file: `apps/server/src/game.ts`<br>test: `apps/server/test/game-state.test.ts` | FEAT-7 | - |
 
-Stand: 2026-10-26T16:53:38.977Z
+Stand: 2026-10-26T17:15:16.256Z
