@@ -19,6 +19,7 @@ import {
   finishGame,
   nextQuestion,
   prepareGame,
+  projectRanking,
   projectRound,
   revealGame,
   saveAnswer,
@@ -109,6 +110,8 @@ export class LobbyRegistry {
       players: [],
       selectedGameId: null,
       playedGameIds: new Set(),
+      completedGames: new Map(),
+      rankingTransition: null,
       round: null,
       sessions: new Map(),
     };
@@ -283,8 +286,8 @@ export class LobbyRegistry {
       })),
       catalog: publicCatalog(catalog, lobby.playedGameIds),
       selectedGameId: lobby.selectedGameId,
-      ranking: [],
-      rankingTransition: null,
+      ranking: session.role === 'player' ? [] : projectRanking(lobby),
+      rankingTransition: session.role === 'player' ? null : lobby.rankingTransition,
     };
 
     switch (session.role) {

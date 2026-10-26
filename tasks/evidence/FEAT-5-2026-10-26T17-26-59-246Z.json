@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-5",
+  "command": "npm --prefix apps/server test -- test/game-state.test.ts -t publishes a completed sorting game",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 test\n> vitest run test/game-state.test.ts -t publishes a completed sorting game\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/apps/server\n\n ❯ test/game-state.test.ts (11 tests | 1 failed | 9 skipped) 2649ms\n   ❯ server game state and round timers (11)\n     × publishes a completed sorting game to the catalog and ranking transition 141ms\n\n Test Files  1 failed | 4 skipped (5)\n      Tests  1 failed | 1 passed | 23 skipped (25)\n   Start at  18:27:03\n   Duration  4.77s (import 69%, tests 26%, transform 5%, worker 1%)\n\n",
+  "stderr_tail": "\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  test/game-state.test.ts > server game state and round timers > publishes a completed sorting game to the catalog and ranking transition\nAssertionError: expected [] to have a length of 2 but got +0\n\n- Expected\n+ Received\n\n- 2\n+ 0\n\n ❯ test/game-state.test.ts:520:35\n    518|     expect(completedHost.catalog.find(game => game.id === 'sorting_gam…\n    519|     expect(completedProjector.catalog.find(game => game.id === 'sortin…\n    520|     expect(completedHost.ranking).toHaveLength(2);\n       |                                   ^\n    521|     expect(completedProjector.ranking).toEqual(completedHost.ranking);\n    522|     expect(completedHost.rankingTransition).not.toBeNull();\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n",
+  "started": "2026-10-26T17:26:59.246Z",
+  "finished": "2026-10-26T17:27:08.321Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

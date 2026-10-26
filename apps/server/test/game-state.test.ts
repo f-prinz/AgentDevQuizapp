@@ -381,6 +381,157 @@ describe('server game state and round timers', () => {
     });
   });
 
+  it('publishes completed quiz totals, tied competition ranks, and played status to host and projector', async () => {
+    const clock = makeClock();
+    const catalog = [multiQuestionQuiz, games[1], games[2]];
+    const server = await startServer({ now: clock.now }, catalog);
+    const lobby = await createLobby(server);
+    const playerSessions = [
+      await joinPlayer(server, lobby.lobbyId, 'Player one'),
+      await joinPlayer(server, lobby.lobbyId, 'Player two'),
+      await joinPlayer(server, lobby.lobbyId, 'Player three'),
+    ] as [Session, Session, Session];
+    const host = await connect(server, lobby.host);
+    const projector = await connect(server, lobby.projector);
+    const players = await Promise.all(playerSessions.map(session => connect(server, session)));
+    const playerIds = players.map(player => {
+      if (player.snapshot.role !== 'player') throw new Error('Expected a player session.');
+      return player.snapshot.playerId;
+    });
+
+    expect((await command(host, 'lobby.start')).type).toBe('ack');
+    const initialOverview = await snapshot(host, value => value.phase === 'overview');
+    expect(initialOverview.ranking).toEqual([]);
+    expect(initialOverview.catalog.find(game => game.id === 'quiz_game')?.played).toBe(false);
+    expect(initialOverview.catalog.find(game => game.id === 'sorting_game')?.played).toBe(false);
+    expect(initialOverview.catalog.find(game => game.id === 'estimate_game')?.played).toBe(false);
+    expect((await command(host, 'game.select', { gameId: 'quiz_game' })).type).toBe('ack');
+    expect((await command(host, 'game.prepare')).type).toBe('ack');
+    const firstStart = await snapshot(host, value => value.phase === 'start');
+    if (firstStart.role !== 'host' || firstStart.round?.phase !== 'start') {
+      throw new Error('Expected the first quiz question to be prepared.');
+    }
+    const firstRoundId = firstStart.round.roundId;
+    expect((await command(host, 'game.start', { roundId: firstRoundId })).type).toBe('ack');
+    await snapshot(host, value => value.phase === 'playing' && value.round?.questionIndex === 0);
+
+    const submitQuestion = async (roundId: string, choices: [string, string, string]) => {
+      const answers = await Promise.all(players.map((player, index) => command(player, 'answer.submit', {
+        roundId,
+        answer: { kind: 'quiz', optionId: choices[index]! },
+      })));
+      expect(answers.map(answer => answer.type)).toEqual(['ack', 'ack', 'ack']);
+    };
+    await submitQuestion(firstRoundId, ['c', 'c', 'a']);
+    expect((await command(host, 'game.reveal', { roundId: firstRoundId })).type).toBe('ack');
+    const firstEvaluation = await snapshot(host, value => value.phase === 'evaluation'
+      && value.round?.roundId === firstRoundId);
+    expect(firstEvaluation.ranking).toEqual([]);
+    expect(firstEvaluation.rankingTransition).toBeNull();
+    expect(firstEvaluation.catalog.find(game => game.id === 'quiz_game')?.played).toBe(false);
+
+    clock.set(clock.now() + 1_000);
+    expect((await command(host, 'game.next', { roundId: firstRoundId })).type).toBe('ack');
+    const secondPlaying = await snapshot(host, value => value.phase === 'playing'
+      && value.round?.questionIndex === 1);
+    if (secondPlaying.role !== 'host' || secondPlaying.round?.phase !== 'playing') {
+      throw new Error('Expected the second quiz question to be playing.');
+    }
+    const secondRoundId = secondPlaying.round.roundId;
+    await submitQuestion(secondRoundId, ['b2', 'b2', 'a2']);
+    expect((await command(host, 'game.reveal', { roundId: secondRoundId })).type).toBe('ack');
+    const finalEvaluation = await snapshot(host, value => value.phase === 'evaluation'
+      && value.round?.roundId === secondRoundId);
+    expect(finalEvaluation.ranking).toEqual([]);
+    expect(finalEvaluation.rankingTransition).toBeNull();
+    expect(finalEvaluation.catalog.find(game => game.id === 'quiz_game')?.played).toBe(false);
+
+    expect((await command(host, 'game.finish', { roundId: secondRoundId })).type).toBe('ack');
+    const [completedHost, completedProjector] = await Promise.all([
+      snapshot(host, value => value.phase === 'overview' && value.revision > finalEvaluation.revision),
+      snapshot(projector, value => value.phase === 'overview' && value.revision > finalEvaluation.revision),
+    ]);
+    if (completedHost.role !== 'host' || completedProjector.role !== 'projector') {
+      throw new Error('Expected completed ranking snapshots for host and projector.');
+    }
+
+    const expectedRanking = [
+      { playerId: playerIds[0], name: 'Player one', rank: 1, total: 2, games: [{ gameId: 'quiz_game', points: 2 }] },
+      { playerId: playerIds[1], name: 'Player two', rank: 1, total: 2, games: [{ gameId: 'quiz_game', points: 2 }] },
+      { playerId: playerIds[2], name: 'Player three', rank: 3, total: 0, games: [{ gameId: 'quiz_game', points: 0 }] },
+    ];
+    expect(completedHost.ranking).toEqual(expectedRanking);
+    expect(completedProjector.ranking).toEqual(expectedRanking);
+    expect(completedHost.rankingTransition).not.toBeNull();
+    expect(completedProjector.rankingTransition).not.toBeNull();
+    expect(completedHost.rankingTransition?.previous).toEqual([]);
+    expect(completedProjector.rankingTransition?.previous).toEqual([]);
+    expect(completedHost.rankingTransition?.current).toEqual(expectedRanking);
+    expect(completedProjector.rankingTransition?.current).toEqual(expectedRanking);
+    expect(completedHost.rankingTransition?.resultId).toBe(completedProjector.rankingTransition?.resultId);
+    expect(completedHost.catalog.find(game => game.id === 'quiz_game')?.played).toBe(true);
+    expect(completedProjector.catalog.find(game => game.id === 'quiz_game')?.played).toBe(true);
+    expect(completedHost.catalog.find(game => game.id === 'sorting_game')?.played).toBe(false);
+    expect(completedHost.catalog.find(game => game.id === 'estimate_game')?.played).toBe(false);
+  });
+
+  it('publishes a completed sorting game to the catalog and ranking transition', async () => {
+    const round = await beginRound('sorting');
+    const [playingHost, , firstPlayerPlaying] = round.playing;
+    if (playingHost.role !== 'host' || playingHost.round?.phase !== 'playing'
+      || firstPlayerPlaying.role !== 'player' || firstPlayerPlaying.round?.phase !== 'playing'
+      || firstPlayerPlaying.input.answer?.kind !== 'sorting') {
+      throw new Error('Expected the sorting round and initial player order.');
+    }
+    const secondPlayerPlaying = await snapshot(round.players[1], value => value.phase === 'playing');
+    if (secondPlayerPlaying.role !== 'player' || secondPlayerPlaying.input.answer?.kind !== 'sorting') {
+      throw new Error('Expected the second player initial sorting order.');
+    }
+    expect(playingHost.catalog.find(game => game.id === 'sorting_game')?.played).toBe(false);
+    expect(playingHost.rankingTransition).toBeNull();
+
+    for (const [player, answer] of [
+      [round.players[0], firstPlayerPlaying.input.answer],
+      [round.players[1], secondPlayerPlaying.input.answer],
+    ] as const) {
+      expect((await command(player, 'answer.submit', { roundId: round.roundId, answer })).type).toBe('ack');
+    }
+    expect((await command(round.host, 'game.reveal', { roundId: round.roundId })).type).toBe('ack');
+    const [hostEvaluation, projectorEvaluation] = await Promise.all([
+      snapshot(round.host, value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+      snapshot(round.projector, value => value.phase === 'evaluation' && value.round?.roundId === round.roundId),
+    ]);
+    expect(hostEvaluation.catalog.find(game => game.id === 'sorting_game')?.played).toBe(false);
+    expect(projectorEvaluation.catalog.find(game => game.id === 'sorting_game')?.played).toBe(false);
+    expect(hostEvaluation.rankingTransition).toBeNull();
+    expect(projectorEvaluation.rankingTransition).toBeNull();
+
+    expect((await command(round.host, 'game.finish', { roundId: round.roundId })).type).toBe('ack');
+    const [completedHost, completedProjector] = await Promise.all([
+      snapshot(round.host, value => value.phase === 'overview' && value.revision > hostEvaluation.revision),
+      snapshot(round.projector, value => value.phase === 'overview' && value.revision > hostEvaluation.revision),
+    ]);
+    if (completedHost.role !== 'host' || completedProjector.role !== 'projector') {
+      throw new Error('Expected completed sorting ranking snapshots for host and projector.');
+    }
+
+    expect(completedHost.catalog.find(game => game.id === 'sorting_game')?.played).toBe(true);
+    expect(completedProjector.catalog.find(game => game.id === 'sorting_game')?.played).toBe(true);
+    expect(completedHost.ranking).toHaveLength(2);
+    expect(completedProjector.ranking).toEqual(completedHost.ranking);
+    expect(completedHost.rankingTransition).not.toBeNull();
+    expect(completedProjector.rankingTransition).not.toBeNull();
+    expect(completedHost.rankingTransition?.previous).toEqual([]);
+    expect(completedProjector.rankingTransition?.previous).toEqual([]);
+    expect(completedHost.rankingTransition?.current).toEqual(completedHost.ranking);
+    expect(completedProjector.rankingTransition?.current).toEqual(completedProjector.ranking);
+    expect(completedHost.rankingTransition?.resultId).toBe(completedProjector.rankingTransition?.resultId);
+    for (const entry of completedHost.ranking) {
+      expect(entry.games.map(game => game.gameId)).toEqual(['sorting_game']);
+      expect(entry.total).toBe(entry.games[0]?.points);
+    }
+  });
+
   it('keeps sorting solutions hidden from late players and preserves their shuffled task on reauth', async () => {
     const random = vi.spyOn(Math, 'random').mockReturnValue(0);
     const round = await beginRound('sorting');
