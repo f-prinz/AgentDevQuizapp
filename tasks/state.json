@@ -218,7 +218,7 @@
       "dependencies": [
         "FEAT-3"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "classification": "CURRENT_STACK_ONLY",
@@ -638,5 +638,5 @@
       "reason": "Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen."
     }
   ],
-  "last_updated_utc": "2026-10-26T17:15:18.331Z"
+  "last_updated_utc": "2026-10-26T17:15:49.439Z"
 }
