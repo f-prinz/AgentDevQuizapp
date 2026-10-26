@@ -167,7 +167,30 @@
       "introduced_by": "FEAT-7",
       "removed_by": null,
       "notes": "Eine korrekte Antwort zaehlt je Frage einen Punkt; falsche oder fehlende Antworten null. Die letzte gueltige Auswahl wird ausgewertet. Fragen bleiben einzeln, der Host startet die Folgefrage, und die Uebersicht erscheint erst nach der letzten Frage. Gesamtpunkte/Ranking folgen FEAT-5."
+    },
+    {
+      "id": "INV-9",
+      "capability": "Abgeschlossene Quizpunkte als Ranking und Spielkatalogstatus bereitstellen",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "file",
+          "ref": "apps/server/src/game.ts"
+        },
+        {
+          "type": "file",
+          "ref": "apps/server/src/lobby.ts"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/game-state.test.ts"
+        }
+      ],
+      "introduced_by": "FEAT-5",
+      "removed_by": null,
+      "notes": "Quizpunkte werden je Frage einmal kumuliert und erst beim finalen Abschluss als Spielspalte in Host-/Projektorranking veröffentlicht; Gleichstandsränge und Beitrittsreihenfolge. Andere Spielarten erscheinen ebenfalls als abgeschlossen, ihre Punktelogik bleibt bis FEAT-9/FEAT-11 null und ist hier nicht als fertig bewertet."
     }
   ],
-  "last_updated_utc": "2026-10-26T17:15:16.256Z"
+  "last_updated_utc": "2026-10-26T17:36:56.587Z"
 }

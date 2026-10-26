@@ -219,10 +219,19 @@
         "FEAT-3"
       ],
       "status": "IN_PROGRESS",
-      "fix_retries": 0,
-      "inventory_refs": [],
+      "fix_retries": 1,
+      "inventory_refs": [
+        "INV-9"
+      ],
       "classification": "CURRENT_STACK_ONLY",
-      "priority": "P1"
+      "priority": "P1",
+      "test_result": "49/49 server tests green on main; ranking totals, competition ties and completed-game catalog verified.",
+      "review_result": "Ranking infrastructure approved; sorting/estimation scoring remains in FEAT-9/FEAT-11.",
+      "test_evidence": "tasks/evidence/FEAT-5-2026-10-26T17-36-04-382Z.json",
+      "red_evidence": "tasks/evidence/FEAT-5-2026-10-26T17-19-43-950Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-5-2026-10-26T17-36-27-890Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/FEAT-5.md"
     },
     {
       "id": "FEAT-6",
@@ -638,5 +647,5 @@
       "reason": "Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen."
     }
   ],
-  "last_updated_utc": "2026-10-26T17:15:49.439Z"
+  "last_updated_utc": "2026-10-26T17:36:57.145Z"
 }

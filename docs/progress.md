@@ -125,3 +125,7 @@ Aktueller Stand: TECH-1 DONE; TECH-2 BLOCKED; TECH-3 DONE; TECH-4 DONE; FEAT-1 D
 2026-10-26T17:15:18.331Z: FEAT-7 DONE. 47/47 server tests green on main; quiz regression covers both per-question scores. Independent code review approved without blockers. 
 
 2026-10-26T17:15:49.439Z: FEAT-5 IN_PROGRESS.   
+
+2026-10-26T17:36:04.188Z: FEAT-5 Fix-Retry 1/3. Completed sorting and estimation games were marked played without a ranking transition; generalized result recording to all game kinds
+
+2026-10-26T17:36:57.145Z: FEAT-5 aktualisiert. 49/49 server tests green on main; ranking totals, competition ties and completed-game catalog verified. Ranking infrastructure approved; sorting/estimation scoring remains in FEAT-9/FEAT-11. 
