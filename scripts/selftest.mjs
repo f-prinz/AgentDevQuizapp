@@ -63,6 +63,19 @@ try {
     filter: src =>
       !/\.git([\\/]|$)|node_modules|tasks[\\/]evidence|tasks[\\/]reviews/.test(src),
   });
+  // Keep the workflow fixture independent of the project's live task IDs and
+  // metadata. The selftest creates FEAT-1/FEAT-2 and must remain repeatable.
+  write('tasks/state.json', `${JSON.stringify({
+    schema_version: 3,
+    phase: 'planning',
+    components: ['server', 'web'],
+    tasks: [],
+    blockers: [],
+    last_updated_utc: null,
+  }, null, 2)}\n`);
+  write('tasks/inventory.json', `${JSON.stringify({ schema_version: 2, entries: [], last_updated_utc: null }, null, 2)}\n`);
+  write('tasks/archive.json', `${JSON.stringify({ schema_version: 1, tasks: [] }, null, 2)}\n`);
+  write('docs/progress.md', '# Fortschritt\n\nAktueller Stand: Keine Tasks. Historische Meldungen unten bleiben erhalten.\n');
   git('init', '-q', '-b', 'main');
   git('config', 'user.email', 't@t');
   git('config', 'user.name', 't');
@@ -72,6 +85,7 @@ try {
 
   console.log('== Basis-Checks ==');
   nodeTest('verify pristine', 'verify.mjs');
+  nodeTest('render-backlog fixture', 'render-backlog.mjs');
   nodeTest('check-state pristine', 'check-state.mjs');
   nodeTest('check-inventory pristine', 'check-inventory.mjs');
   nodeTest('sync-main ohne Remote', 'sync-main.mjs');

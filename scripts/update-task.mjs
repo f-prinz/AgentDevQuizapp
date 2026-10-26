@@ -3,6 +3,7 @@ import { loadState, loadInventory, loadArchive, allTasksIndex, writeState, PROGR
 import { writeBacklog } from './lib/backlog.mjs';
 import { scopeForTask, branchScope, changedFiles, taskDiffFiles, scopeViolations, isGitRepo } from './lib/scope.mjs';
 import { currentBranch } from './lib/gitflow.mjs';
+import { parseDependencies, validateTaskDefinition } from './lib/task-metadata.mjs';
 
 const usage =
   'Usage: update-task.mjs <TASK-ID> [TODO|IN_PROGRESS|DONE|BLOCKED] [--by <agent>] [--reason <text>] [--test-evidence <file>] [--red-evidence <file>] [--lint-evidence <file>] [--reviewed-by <agent>] [--review-file <path>] [--test-result <text>] [--review-result <text>] [--add-inv INV-x] [--scope <path>]* [--deps-change]';
@@ -14,6 +15,12 @@ const transitions = {
   DONE: [],
 };
 const reviewers = new Set(['code_reviewer', 'security_reviewer']);
+const valueFlags = new Set([
+  'by', 'reason', 'test-evidence', 'red-evidence', 'lint-evidence',
+  'reviewed-by', 'review-file', 'test-result', 'review-result', 'add-inv',
+  'component', 'title', 'ak', 'test', 'lint', 'deps', 'classification', 'priority',
+]);
+const metadataFlags = new Set(['component', 'title', 'ak', 'test', 'lint', 'deps', 'classification', 'priority']);
 
 const [id, ...rest] = process.argv.slice(2);
 if (isGitRepo() && currentBranch() === id) {
@@ -37,12 +44,28 @@ for (let i = 0; i < rest.length; i++) {
   } else if (arg === '--deps-change') {
     task.allows_dep_change = true;
   } else if (arg.startsWith('--')) {
-    if (!rest[++i]) throw Error(`Missing value for ${arg}`);
-    opts[arg.slice(2)] = rest[i];
+    const key = arg.slice(2);
+    if (!valueFlags.has(key)) throw Error(`Unknown flag ${arg}\n${usage}`);
+    if (i + 1 >= rest.length || rest[i + 1].startsWith('--')) throw Error(`Missing value for ${arg}`);
+    opts[key] = rest[++i];
   } else {
     throw Error(`Unexpected argument ${arg}\n${usage}`);
   }
 }
+
+const requestedMetadata = [...metadataFlags].filter(key => Object.hasOwn(opts, key));
+if (requestedMetadata.length && task.status !== 'TODO') {
+  throw Error(`Planungsmetadaten duerfen nur bei TODO-Tasks geaendert werden (${id}: ${task.status})`);
+}
+if (Object.hasOwn(opts, 'component')) task.component = opts.component;
+if (Object.hasOwn(opts, 'title')) task.title = opts.title;
+if (Object.hasOwn(opts, 'ak')) task.acceptance_criteria = opts.ak;
+if (Object.hasOwn(opts, 'test')) task.test_command = opts.test;
+if (Object.hasOwn(opts, 'lint')) task.lint_command = opts.lint || null;
+if (Object.hasOwn(opts, 'deps')) task.dependencies = parseDependencies(opts.deps);
+if (Object.hasOwn(opts, 'classification')) task.classification = opts.classification;
+if (Object.hasOwn(opts, 'priority')) task.priority = opts.priority;
+validateTaskDefinition(task, state, archive.tasks ?? []);
 
 if (status && status !== task.status && !transitions[task.status].includes(status)) {
   throw Error(`Invalid transition ${task.status} -> ${status} (${id})`);
