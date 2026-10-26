@@ -24,7 +24,7 @@ const expect = (name, res, predicate) => {
     console.log(`  ok  ${name}`);
   } else {
     failures.push(name);
-    const out = `${res.stdout ?? ''}${res.stderr ?? ''}`.trim().split('\n').slice(-10).join('\n      ');
+    const out = `${res.stdout ?? ''}${res.stderr ?? ''}`.trim().split('\n').slice(-30).join('\n      ');
     console.log(`FAIL  ${name} (exit ${code})\n      ${out}`);
   }
 };
@@ -63,6 +63,19 @@ try {
     filter: src =>
       !/\.git([\\/]|$)|node_modules|tasks[\\/]evidence|tasks[\\/]reviews/.test(src),
   });
+  // Keep the workflow fixture independent of the project's live task IDs and
+  // metadata. The selftest creates FEAT-1/FEAT-2 and must remain repeatable.
+  write('tasks/state.json', `${JSON.stringify({
+    schema_version: 3,
+    phase: 'planning',
+    components: ['server', 'web'],
+    tasks: [],
+    blockers: [],
+    last_updated_utc: null,
+  }, null, 2)}\n`);
+  write('tasks/inventory.json', `${JSON.stringify({ schema_version: 2, entries: [], last_updated_utc: null }, null, 2)}\n`);
+  write('tasks/archive.json', `${JSON.stringify({ schema_version: 1, tasks: [] }, null, 2)}\n`);
+  write('docs/progress.md', '# Fortschritt\n\nAktueller Stand: Keine Tasks. Historische Meldungen unten bleiben erhalten.\n');
   git('init', '-q', '-b', 'main');
   git('config', 'user.email', 't@t');
   git('config', 'user.name', 't');
@@ -72,6 +85,7 @@ try {
 
   console.log('== Basis-Checks ==');
   nodeTest('verify pristine', 'verify.mjs');
+  nodeTest('render-backlog fixture', 'render-backlog.mjs');
   nodeTest('check-state pristine', 'check-state.mjs');
   nodeTest('check-inventory pristine', 'check-inventory.mjs');
   nodeTest('sync-main ohne Remote', 'sync-main.mjs');
@@ -227,10 +241,19 @@ try {
   nodeTest('archive-tasks CHG-2', 'archive-tasks.mjs', ['CHG-2']);
   nodeTest('check-state final', 'check-state.mjs');
   nodeTest('check-inventory final', 'check-inventory.mjs');
+} catch (error) {
+  failures.push(`Unexpected exception: ${error?.stack ?? error}`);
+  console.error(`FAIL  Unexpected exception\n      ${error?.stack ?? error}`);
 } finally {
+  for (const target of [T, R]) {
+    try {
+      fs.rmSync(target, { recursive: true, force: true });
+    } catch (error) {
+      failures.push(`Cleanup failed for ${target}: ${error?.stack ?? error}`);
+      console.error(`FAIL  Cleanup failed for ${target}\n      ${error?.stack ?? error}`);
+    }
+  }
   console.log(`\n${passed} Tests bestanden, ${failures.length} fehlgeschlagen`);
   if (failures.length) console.log(`Fehlgeschlagen: ${failures.join(', ')}`);
-  fs.rmSync(T, { recursive: true, force: true });
-  fs.rmSync(R, { recursive: true, force: true });
-  process.exit(failures.length ? 1 : 0);
+  process.exitCode = failures.length ? 1 : 0;
 }

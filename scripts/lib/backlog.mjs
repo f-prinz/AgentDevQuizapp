@@ -8,18 +8,25 @@ const esc = s =>
     .replaceAll('\n', ' ');
 
 export function renderBacklog(state) {
+  const showPlanningMetadata = (state.tasks ?? []).some(
+    task => task.classification !== undefined || task.priority !== undefined
+  );
   const lines = [
     '# Task Backlog',
     '',
     '<!-- Generiert aus tasks/state.json via node scripts/render-backlog.mjs. Nicht von Hand editieren. -->',
     '',
-    '| ID | Komponente | Aufgabe | Abhaengigkeiten | Akzeptanzkriterien | Testbefehl / Pruefung | Status |',
-    '|---|---|---|---|---|---|---|',
+    showPlanningMetadata
+      ? '| ID | Komponente | Klasse | Prioritaet | Aufgabe | Abhaengigkeiten | Akzeptanzkriterien | Testbefehl / Pruefung | Status |'
+      : '| ID | Komponente | Aufgabe | Abhaengigkeiten | Akzeptanzkriterien | Testbefehl / Pruefung | Status |',
+    showPlanningMetadata ? '|---|---|---|---|---|---|---|---|---|' : '|---|---|---|---|---|---|---|',
   ];
   for (const t of state.tasks ?? []) {
     const deps = (t.dependencies ?? []).join(', ') || 'keine';
     lines.push(
-      `| ${t.id} | ${esc(t.component)} | ${esc(t.title)} | ${esc(deps)} | ${esc(t.acceptance_criteria)} | ${esc(t.test_command)} | ${t.status} |`
+      showPlanningMetadata
+        ? `| ${t.id} | ${esc(t.component)} | ${esc(t.classification ?? '')} | ${esc(t.priority ?? '')} | ${esc(t.title)} | ${esc(deps)} | ${esc(t.acceptance_criteria)} | ${esc(t.test_command)} | ${t.status} |`
+        : `| ${t.id} | ${esc(t.component)} | ${esc(t.title)} | ${esc(deps)} | ${esc(t.acceptance_criteria)} | ${esc(t.test_command)} | ${t.status} |`
     );
   }
   lines.push(

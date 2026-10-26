@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import { loadState, loadArchive, allTasksIndex, BACKLOG_FILE } from './lib/state-io.mjs';
 import { renderBacklog } from './lib/backlog.mjs';
+import { TASK_CLASSIFICATIONS, TASK_PRIORITIES } from './lib/task-metadata.mjs';
 
 const state = loadState();
 const archive = loadArchive();
@@ -30,7 +31,9 @@ assert.equal(
 
 for (const task of state.tasks) {
   assert.ok(task.id && allowed.includes(task.status), `Invalid task/status ${task.id}`);
-  assert.ok(task.component && components.has(task.component), `Unknown component ${task.component} (${task.id})`);
+  assert.ok(task.component && (components.has(task.component) || task.component === 'contracts'), `Unknown component ${task.component} (${task.id})`);
+  if (task.classification !== undefined) assert.ok(TASK_CLASSIFICATIONS.has(task.classification), `${task.id}: invalid classification ${task.classification}`);
+  if (task.priority !== undefined) assert.ok(TASK_PRIORITIES.has(task.priority), `${task.id}: invalid priority ${task.priority}`);
   assert.ok(task.title, `${task.id}: missing title`);
   assert.ok(Array.isArray(task.dependencies), `${task.id}: dependencies must be an array`);
   assert.ok(Array.isArray(task.inventory_refs) && task.inventory_refs.every(r => /^INV-\d+$/.test(r)), `${task.id}: invalid inventory_refs`);
