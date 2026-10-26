@@ -8,6 +8,7 @@ import {
   type Answer,
   type GameKindSchema,
   type GameSeed,
+  type RankingEntry,
   type Session,
 } from '@raccoons/contracts';
 
@@ -33,6 +34,14 @@ export interface ActiveGameRound {
   acceptUntil: number | null;
   inputClosed: boolean;
   sortingOrders: Map<string, string[]>;
+  totalPoints: Map<string, number>;
+}
+
+export interface RankingTransitionState {
+  resultId: string;
+  gameId: string;
+  previous: RankingEntry[];
+  current: RankingEntry[];
 }
 
 export interface GameLobbyState {
@@ -42,6 +51,8 @@ export interface GameLobbyState {
   players: GamePlayerState[];
   selectedGameId: string | null;
   playedGameIds: Set<string>;
+  completedGames: Map<string, Map<string, number>>;
+  rankingTransition: RankingTransitionState | null;
   round: ActiveGameRound | null;
 }
 
@@ -143,6 +154,7 @@ export function prepareGame(
     acceptUntil: null,
     inputClosed: false,
     sortingOrders: new Map(),
+    totalPoints: new Map(lobby.players.map(player => [player.id, 0] as const)),
   };
   resetInputs(lobby, round);
   lobby.round = round;
@@ -257,6 +269,13 @@ export function revealGame(
   const round = lobby.round;
   if (!round || round.roundId !== roundId) return error('STALE_ROUND');
   if (lobby.phase !== 'playing' || !round.inputClosed) return error('INVALID_PHASE');
+  if (round.seed.kind === 'quiz') {
+    for (const playerId of round.participantIds) {
+      const player = lobby.players.find(item => item.id === playerId);
+      const points = questionPoints(round, player?.answer ?? null);
+      round.totalPoints.set(playerId, (round.totalPoints.get(playerId) ?? 0) + points);
+    }
+  }
   lobby.phase = 'evaluation';
   lobby.revision += 1;
   return undefined;
@@ -286,6 +305,7 @@ export function nextQuestion(
     acceptUntil,
     inputClosed: false,
     sortingOrders: new Map(),
+    totalPoints: current.totalPoints,
   };
   resetInputs(lobby, next);
   lobby.round = next;
@@ -304,7 +324,19 @@ export function finishGame(
   if (!round || round.roundId !== roundId) return error('STALE_ROUND');
   if (lobby.phase !== 'evaluation' || hasNextQuestion(round)) return error('INVALID_PHASE');
 
-  if (lobby.selectedGameId) lobby.playedGameIds.add(lobby.selectedGameId);
+  if (lobby.selectedGameId) {
+    lobby.playedGameIds.add(lobby.selectedGameId);
+    const previous = projectRanking(lobby);
+    const scores = new Map(lobby.players.map(player => [player.id, round.totalPoints.get(player.id) ?? 0] as const));
+    lobby.completedGames.set(lobby.selectedGameId, scores);
+    const current = projectRanking(lobby);
+    lobby.rankingTransition = {
+      resultId: randomUUID(),
+      gameId: lobby.selectedGameId,
+      previous,
+      current,
+    };
+  }
   lobby.selectedGameId = null;
   lobby.round = null;
   lobby.phase = 'overview';
@@ -314,6 +346,27 @@ export function finishGame(
   }
   lobby.revision += 1;
   return undefined;
+}
+
+export function projectRanking(lobby: GameLobbyState): RankingEntry[] {
+  if (lobby.completedGames.size === 0) return [];
+
+  const totals = lobby.players.map(player => {
+    const games = [...lobby.completedGames].map(([gameId, scores]) => ({
+      gameId,
+      points: scores.get(player.id) ?? 0,
+    }));
+    return {
+      playerId: player.id,
+      name: player.name || `Spieler ${player.number}`,
+      total: games.reduce((sum, game) => sum + game.points, 0),
+      games,
+    };
+  });
+  return totals.map(entry => ({
+    ...entry,
+    rank: 1 + totals.filter(other => other.total > entry.total).length,
+  }));
 }
 
 export function projectRound(
