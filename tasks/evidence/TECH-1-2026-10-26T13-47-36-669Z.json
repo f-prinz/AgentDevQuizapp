@@ -1,0 +1,10 @@
+{
+  "task_id": "TECH-1",
+  "command": "npm --prefix apps/server run smoke",
+  "exit_code": 0,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 smoke\n> node --env-file-if-exists=.env scripts/smoke.ts\n\nGET /health returned 200; server closed cleanly.\n",
+  "stderr_tail": ".env not found. Continuing without it.\r\n",
+  "started": "2026-10-26T13:47:36.669Z",
+  "finished": "2026-10-26T13:47:37.376Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
