@@ -1,8 +1,289 @@
 {
   "schema_version": 3,
   "phase": "planning",
-  "components": [],
-  "tasks": [],
+  "components": [
+    "server",
+    "web"
+  ],
+  "tasks": [
+    {
+      "id": "TECH-1",
+      "component": "server",
+      "title": "Scaffolding apps/server (Fastify+ws+pg, TS, Vitest, ESLint)",
+      "acceptance_criteria": "npm test und lint laufen gruen; Server startet lokal und beantwortet /health",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": false,
+      "dependencies": [],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allows_dep_change": true
+    },
+    {
+      "id": "TECH-2",
+      "component": "web",
+      "title": "Scaffolding apps/web (Vite+React+TS, Vitest+RTL, ESLint)",
+      "acceptance_criteria": "npm test, lint und build laufen gruen; Dev-Server startet lokal",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": false,
+      "dependencies": [],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allows_dep_change": true
+    },
+    {
+      "id": "TECH-3",
+      "component": "server",
+      "title": "contracts/: WS/REST-Event-Schemas (lobby, game, timer) als zod/TS",
+      "acceptance_criteria": "Schemas fuer Lobby-, Spiel- und Timer-Events vorhanden; contracts/README.md dokumentiert Versionsregeln; tsc-Check gruen",
+      "test_command": "npx tsc --noEmit -p contracts/tsconfig.json",
+      "lint_command": null,
+      "red_evidence_required": false,
+      "dependencies": [],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "contracts/"
+      ]
+    },
+    {
+      "id": "TECH-4",
+      "component": "server",
+      "title": "DB-Schema Spielinhalte + Seed-Loader (Quiz/Sortieren/Schaetzen)",
+      "acceptance_criteria": "Migrationen erzeugen Katalog-Tabellen; Seed-Dateien laden Beispielsets je Spielart beim Start; Katalog-Abfrage liefert alle Spiele",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": false,
+      "dependencies": [
+        "TECH-1"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-1",
+      "component": "server",
+      "title": "F1 Lobby-Backend: erstellen, beitreten (Spieler/Projektor), Namen, Start ab 2 Spielern",
+      "acceptance_criteria": "Lobby mit eindeutiger ID + Spieler-/Projektor-Link; unbegrenzte Spielerzahl; Namen max 20 Zeichen, Default 'Spieler N'; Start erst ab >=2 Spielern; Host ist kein Spieler",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "TECH-1",
+        "TECH-3"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-2",
+      "component": "web",
+      "title": "F1 Lobby-Ansichten: Host-Link-Anzeige, Beitritt+Name, Teilnehmerliste",
+      "acceptance_criteria": "Spieler- und Projektor-Link sichtbar; Beitritt via Link + Namenseingabe (max 20); Teilnehmerliste mit 'Spieler N'-Platzhaltern",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "TECH-2",
+        "TECH-3"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-3",
+      "component": "server",
+      "title": "F3/F7 Spielstate-Maschine + Timer (Start-/Spiel-/Auswertungsphase, Deadline+2s, Abgeben-alle=Ende)",
+      "acceptance_criteria": "Phasenwechsel per Host-Event; serverseitige Deadline synchronisiert; Antworten bis Deadline+2000ms akzeptiert; Runde endet wenn alle abgegeben",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-1"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-4",
+      "component": "web",
+      "title": "F3/F7 Spielphasen-Grundgeruest + Timeranzeige (Spieler klein, Projektor gross, Abgeben-Button)",
+      "acceptance_criteria": "Start-/Spiel-/Auswertungsphasen gerendert je Rolle; Timer in allen Ansichten (Spieler klein, Projektor gross); Abgeben-Button sperrt Antwort",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-2",
+        "TECH-3"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-5",
+      "component": "server",
+      "title": "F2 Ranking-Berechnung + Spielekatalog (gespielt/verfuegbar, Punkte je Spiel)",
+      "acceptance_criteria": "Ranking-Event liefert Platzierung, Gesamtpunkte, Punkte je gespieltem Spiel; Katalog markiert gespielte/verfuegbare Spiele",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-3",
+        "TECH-4"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-6",
+      "component": "web",
+      "title": "F2 Uebersicht: Projektor-Rankingtabelle + Animations-Uebergang, Host-Spielauswahl",
+      "acceptance_criteria": "Projektor: links ungespielt, rechts gespielt, zentral Ranking (nur gespielte Spiele); animierter Uebergang altes->neues Ranking; Host: Auswahl/Abwahl + Starten-Button + Regeln",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-4",
+        "FEAT-5"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-7",
+      "component": "server",
+      "title": "F4 Spielart Quiz: Fragen, 30s, Antwortwahl aenderbar, 1 Punkt je richtiger Antwort",
+      "acceptance_criteria": "Fragen mit 4 Optionen aus Katalog; Auswahl bis Deadline+2s aenderbar, letzte zaehlt; richtige Antwort = 1 Punkt",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-3"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-8",
+      "component": "web",
+      "title": "F4 Quiz-Ansichten: Spieler waehlt Antwort, Aufloesung mit Markierung",
+      "acceptance_criteria": "Spieler: 4 Antwortoptionen waehlbar/aenderbar; Projektor sieht Frage; Host sieht Frage+Optionen; Auswertung markiert eigene/richtige Antwort",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-4",
+        "FEAT-7"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-9",
+      "component": "server",
+      "title": "F5 Spielart Sortieren: Begriffe+Werte, 60s, 1 Punkt je korrekt eingeordnetem Begriff",
+      "acceptance_criteria": "Begriffe in zufaelliger Reihenfolge an Spieler; Werte erst bei Auswertung; Fehlerzahl je Spieler an Projektor",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-3"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-10",
+      "component": "web",
+      "title": "F5 Sortieren-Ansichten: Drag-and-Drop, farbige Auswertung",
+      "acceptance_criteria": "Spieler sortieren Begriffe per Drag-and-Drop; Projektor zeigt richtige Reihenfolge mit Werten + Fehler je Spieler; Spieler sehen richtig/falsch markiert; Host-Button 'beenden'",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-4",
+        "FEAT-9"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-11",
+      "component": "server",
+      "title": "F6 Spielart Schaetzen: Zahleneingabe, 30s, Drittel-Punkte + Bonus",
+      "acceptance_criteria": "Schaetzung je Spieler; oberes Drittel 3, mittleres 1, unteres 0 Punkte; beste Schaetzung +2 (max 5); Auswertung mit Abstand und Platzierung",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-3"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-12",
+      "component": "web",
+      "title": "F6 Schaetzen-Ansichten: Zahleneingabe, Auswertung mit Abstand",
+      "acceptance_criteria": "Spieler: Zahleneingabefeld; Projektor: Spieler sortiert nach Platzierung mit Abstand; Spieler: eigene Eingabe + Abstand; Host-Button 'weiter'",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-4",
+        "FEAT-11"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-13",
+      "component": "server",
+      "title": "F8 Reconnect: Session-Token, Wiederbeitritt nach Verbindungsverlust",
+      "acceptance_criteria": "Refresh oder erneuter Link-Aufruf stellt Rolle/Spielerzustand wieder her; laufender Spielstand bleibt erhalten",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-1"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "FEAT-14",
+      "component": "web",
+      "title": "F9 Design-System: Theme-CSS-Variablen, Statusleiste (Name/Punkte/Platzierung), Antwort-Farbmarkierung",
+      "acceptance_criteria": "Zentrales Theme-File mit 4 freigegebenen Farben; Statusleiste oben in Spieler-Ansichten; neutrale/richtige/falsche Antwort-Farbung",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "TECH-2"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    }
+  ],
   "blockers": [],
-  "last_updated_utc": null
+  "last_updated_utc": "2026-10-26T12:16:53.987Z"
 }

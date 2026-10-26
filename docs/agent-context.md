@@ -27,6 +27,8 @@ freigegebene Zielarchitektur stehen verbindlich in `docs/tech-stack.md`.
 | Komponente | Verzeichnis | Build | Test | Lint | Run | Dev-Agent | Test-Agent |
 |---|---|---|---|---|---|---|---|
 | <!-- <name> | apps/<name>/ | <build> | <test> | <lint> | <run> | <name>_developer | <name>_test_engineer --> |
+| web | apps/web/ | `npm --prefix apps/web run build` | `npm --prefix apps/web test` | `npm --prefix apps/web run lint` | `npm --prefix apps/web run dev` | web_developer | web_test_engineer |
+| server | apps/server/ | `npm --prefix apps/server run build` | `npm --prefix apps/server test` | `npm --prefix apps/server run lint` | `npm --prefix apps/server run dev` | server_developer | server_test_engineer |
 
 Deklariert sind Komponenten in `docs/tech-stack.md`, `tasks/state.json` und
 `.codex/config.toml`; alle drei Stellen muessen uebereinstimmen (Pruefung:
@@ -143,7 +145,13 @@ Global:
   den Task-Scope (`check-scope.mjs`, pre-commit `check-commit-scope.mjs`).
 
 Pro Komponente:
-- <!-- Invarianten je Komponente mit der Architektur ergaenzen. -->
-- Beispiel UI-Komponenten: Farben nur als CSS Custom Properties aus dem
-  zentralen Theme-File; Rohwerte (Hex/RGB) ausserhalb des Themes sind
-  Review-Findings.
+- server: Lobbysitzungen/Spielstaende nur in-memory (keine Persistenz ueber
+  Neustart, Entscheidung O6); persistent sind ausschliesslich
+  Spielinhalte/Katalog (Seed). Timer-Endzeitpunkte werden serverseitig
+  authoritative gefuehrt; Clients rechnen nur mit uebermittelter Deadline.
+  Antwortannahme bis `deadline + 2000ms` (Latenzausgleich).
+- web: Farben nur als CSS Custom Properties aus dem zentralen Theme-File
+  (`--color-turquoise: #48A3AE`, `--color-red: #FE0000`,
+  `--color-grey: #706A6A`, `--color-bg: #1D1D1B`); Rohwerte (Hex/RGB)
+  ausserhalb des Themes sind Review-Findings. Mobile First fuer
+  Spieler-/Host-Ansichten; Projektor-Route ist Desktop-Layout.

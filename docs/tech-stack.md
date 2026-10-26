@@ -1,6 +1,6 @@
 # Tech-Stack-Entscheidung
 
-Status: **OFFEN**. Solange hier keine Komponente und kein Stack freigegeben ist, duerfen Architektur- und Implementierungsentscheidungen nur als Vorschlag dokumentiert werden; Umsetzung erst nach Nutzerfreigabe.
+Status: **FREIGEGEBEN** (Nutzerfreigabe 2026-10-26: Komponenten `server` + `web`, Stacks wie unten; `contracts`-Format wie unten vorgeschlagen).
 
 ## Komponenten
 
@@ -8,9 +8,10 @@ Das Projekt besteht aus mehreren Anwendungsteilen (Komponenten) mit jeweils eige
 
 | Komponente | Verzeichnis | Zweck | Status |
 |---|---|---|---|
-| contracts | contracts/ | Schnittstellen-Artefakte (WS-Events, REST-Schemas, geteilte Typen, Versionierung) | OFFEN |
-| server | apps/server/ | Backend: Lobby-/Spielverwaltung, Echtzeit-Events, Persistenz, Spielinhalte | VORSCHLAG |
-| web | apps/web/ | Frontend: Ansichten fuer Spieler, Host und Projektor (Mobile First) | VORSCHLAG |
+| contracts | contracts/ | Schnittstellen-Artefakte (WS-Events, REST-Schemas, geteilte Typen, Versionierung) | FREIGEGEBEN |
+| <!-- <name> | apps/<name>/ | <zweck> | OFFEN --> |
+| web | apps/web/ | Frontend: Ansichten fuer Spieler, Host und Projektor (Mobile First) | FREIGEGEBEN |
+| server | apps/server/ | Backend: Lobby-/Spielverwaltung, Echtzeit-Events, Persistenz, Spielinhalte | FREIGEGEBEN |
 
 Jede neue Komponente wird ueber `node scripts/add-component.mjs <name> --purpose "<text>"` angelegt (legt Agenten-Paar aus `docs/templates/` an, registriert sie in `.codex/config.toml`, ergaenzt `tasks/state.json.components`, Matrix- und `docs/agent-context.md`-Zeile sowie `apps/<name>/`). Konsistenz prueft `node scripts/verify.mjs`.
 
@@ -47,13 +48,14 @@ harten DONE-Kriterium.
 | Tests | | Vitest (Unit + Integration, in-memory WS) |
 | Lint/Statik-Analyse | | ESLint + `tsc --noEmit` |
 
-Status: VORSCHLAG — wartet auf Nutzerfreigabe (siehe offene Fragen in
-`docs/project-idea.md`, insb. Wahl ws vs. Socket.IO und pg vs. ORM).
+Status: FREIGEGEBEN (2026-10-26, Entscheid: `ws` statt Socket.IO,
+`pg` + SQL-Migrationen statt ORM).
 
 Begruendung: Echtzeit-Mehrspieler mit 3 Rollen und synchronisierten Timern
 braucht Push-Kommunikation — WebSocket ist die naheliegende Wahl;
-PostgreSQL deckt die persistenten Spieldaten (Katalog, Lobbies, Punkte) ab
-und entspricht der Nutzerangabe in `Prinzgame.md`.
+PostgreSQL deckt die persistenten Spielinhalte (Katalog/Seed) ab und
+entspricht der Nutzerangabe in `Prinzgame.md`. Lobbysitzungen werden
+gemaess Entscheidung O6 nur in-memory gehalten.
 
 ### web
 
@@ -66,7 +68,7 @@ und entspricht der Nutzerangabe in `Prinzgame.md`.
 | Tests | | Vitest + React Testing Library; Drag-and-Drop/Timer via jsdom |
 | Lint/Statik-Analyse | | ESLint + `tsc --noEmit` |
 
-Status: VORSCHLAG — wartet auf Nutzerfreigabe.
+Status: FREIGEGEBEN (2026-10-26).
 
 Begruendung: React entspricht der Nutzerangabe ("Frontend moeglichst
 reactJS"); Vite liefert lokalen Dev-Server + Build ohne zusaetzliche
@@ -77,11 +79,11 @@ festes, schlankes Farbsystem — CSS Custom Properties reichen.
 
 Schnittstellenartefakte werden versioniert und sind die einzige verbindliche Kopplungsstelle zwischen Komponenten. Format und Versionsregeln werden mit der ersten Komponenten-Schnittstelle festgelegt.
 
-Vorschlag fuer das Format: TypeScript-Typen/Schemas (z. B. `zod`-Schemas,
-die sowohl `server` validiert als auch `web` typisiert), ein Schema je
+Format (freigegeben 2026-10-26): TypeScript-Typen/`zod`-Schemas, die
+sowohl `server` validiert als auch `web` typisiert, ein Schema je
 Event-Familie (`lobby`, `game`, `timer`); Dateien
 `contracts/<familie>.schema.ts` + `contracts/README.md` mit
-Versionsregeln (additive Aenderungen frei, Breaking nur mit Migration).
+Versionsregeln (additive Aenderungen frei, Breaking nur mit CONTRACT_CHANGE-Task).
 
 ## Geltungsbereich und Migration
 

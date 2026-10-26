@@ -2,17 +2,18 @@
 
 Quelle: `Prinzgame.md` (Original-Spezifikation, gilt ergaenzend).
 
-Mehrspieler-Quiz-Webanwendung (MVP). Ein Host eroeffnet eine Lobby, 2-4
-Spieler treten per Link bei, ein "Projektor" zeigt das Geschehen auf einem
-Desktop-Bildschirm an. Gespielt werden mehrere Spiele verschiedener
+Mehrspieler-Quiz-Webanwendung (MVP). Ein Host eroeffnet eine Lobby,
+beliebig viele Spieler treten per Link bei, ein "Projektor" zeigt das
+Geschehen auf einem Desktop-Bildschirm an. Gespielt werden mehrere Spiele verschiedener
 Spielarten (Quiz, Sortieren, Schaetzen); zwischen den Spielen zeigt eine
 Uebersicht das Ranking.
 
 ## Rollen
 
-- **Host** — eroeffnet die Lobby, konfiguriert die Spielerzahl (2-4),
-  waehlt Spiele aus, startet Spielphasen, loest Auswertungen auf, fuehrt
-  zurueck zur Uebersicht. Smartphone-Ansicht.
+- **Host** — eroeffnet die Lobby, waehlt Spiele aus, startet
+  Spielphasen, loest Auswertungen auf, fuehrt zurueck zur Uebersicht.
+  Smartphone-Ansicht. Der Host ist KEIN Spieler (reine Moderationsrolle,
+  nicht in der Teilnehmerliste).
 - **Spieler** — tritt per Lobby-Link bei, vergibt sich einen Namen
   (max. 20 Zeichen; ohne Namen Anzeige als "Spieler <lfd. Nr.>"),
   beantwortet Fragen. Smartphone-Ansicht (Mobile First).
@@ -23,7 +24,10 @@ Uebersicht das Ranking.
 
 ### F1 Lobby
 
-- Host eroeffnet Lobby mit eindeutiger ID; Spielerzahl 2-4 konfigurierbar.
+- Host eroeffnet Lobby mit eindeutiger ID; die Spielerzahl ist
+  unbegrenzt (kein Limit, keine Konfiguration der Maximalzahl).
+- Der Host kann das Spiel jederzeit starten, sobald mindestens 2 Spieler
+  beigetreten sind.
 - Anzeige eines Beitritts-Links (mit ID); Oeffnen des Links fuehrt in die
   Lobby; dort Namenseingabe (max. 20 Zeichen).
 - Separater Beitritts-Link fuer den Projektor.
@@ -80,7 +84,7 @@ Uebersicht das Ranking.
 
 - Regeln: Schaetzwert (Zahl) zum Titel abgeben; Punkte relativ zu den
   anderen: oberes Drittel 3, mittleres 1, unteres 0; beste Schaetzung
-  zusaetzlich +2 (max. 5). Zeitlimit: siehe offene Frage O1.
+  zusaetzlich +2 (max. 5). Zeitlimit: 30s (Entscheidung O1).
 - Daten: Fragetext + richtiger Wert (Zahl).
 - Spielphase: Projektor/Host sehen die Frage; Spieler haben ein
   Zahleneingabefeld.
@@ -115,26 +119,32 @@ Uebersicht das Ranking.
 
 ## Technische Rahmenbedingungen (Vorschlag des Nutzers)
 
-- Frontend: moeglichst React; Backend: Node-Server; DB: PostgreSQL.
-- Mehrspieler-Echtzeit erfordert bidirektionale Kommunikation
-  (WebSocket); REST allein reicht nicht.
+- Frontend: React + Vite + TypeScript; Backend: Node-Server
+  (Fastify + ws); DB: PostgreSQL via pg (freigegebener Stack, siehe
+  `docs/tech-stack.md`).
+- Mehrspieler-Echtzeit via WebSocket + REST fuer Lobby-Setup.
+- Spielinhalte (Quiz-/Sortier-/Schaetzdaten) als Seed-Datei(en) beim
+  Serverstart in die DB laden (Entscheidung O2); alle vorhandenen Spiele
+  stehen jeder Lobby zur Verfuegung (O5).
+- Persistenz: nur Spielinhalte/Katalog persistent; Lobbysitzungen und
+  Ergebnisse werden NICHT ueber den Serverneustart hinaus gespeichert
+  (Entscheidung O6 — keine Historie, kein Login).
 - Lokal laufend, kein Deployment.
 
 ## MVP-Scope
 
 Alles oben Genannte ist MVP. Explizit NICHT im MVP (aufzunehmen in
 `docs/changes.md`, falls gewuenscht): Accounts/Login, Inhalts-Editor,
-weitere Spielarten, Sound.
+Spielhistorie ueber Serverneustart hinaus, weitere Spielarten, Sound.
 
-## Offene Fragen (vor Planung klaeren)
+## Geklaerte Fragen (Entscheidungen des Nutzers, 2026-10-26)
 
-- O1 Schaetzen-Zeitlimit: Regeltext sagt 30s, Kurzform fuer Projektor
-  sagt 60s — Widerspruch.
-- O2 Spielinhalte: Woher kommen Fragen/Sortier-/Schaetzdaten?
-  (Optionen: Seed-Datenbank mit Beispielsets / Admin-Editor / Import-Datei)
-- O3 Zaehlt der Host zur Spielerzahl oder ist er reine Moderationsrolle?
-- O4 Start vor Erreichen der konfigurierten Spielerzahl moeglich?
-- O5 Spielauswahl: Woher stammt der Spiele-Katalog je Lobby
-  (alle vorhandenen Spiele / Auswahl beim Lobby-Setup)?
-- O6 Persistenz: Nur laufende Lobbies persistent oder auch
-  abgeschlossene Spiele/Historie?
+- O1 Schaetzen-Zeitlimit: 30s (Widerspruch in `Prinzgame.md` zugunsten
+  des Regeltextes aufgeloest; Projektor-Kurzform entsprechend anpassen).
+- O2 Spielinhalte: Seed-Datei(en) mit Beispielsets, beim Serverstart
+  geladen; kein Editor im MVP.
+- O3 Host zaehlt NICHT zur Spielerzahl (reine Moderationsrolle).
+- O4 GEaENDERT: Spielerzahl ist unbegrenzt; der Host darf jederzeit
+  starten, sobald mindestens 2 Spieler beigetreten sind.
+- O5 Alle vorhandenen Spiele stehen jeder Lobby als Katalog zur Verfuegung.
+- O6 Abgeschlossene Spiele/Lobbies werden nicht persistent gespeichert.

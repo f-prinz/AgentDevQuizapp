@@ -75,3 +75,19 @@ config_file = "agents/documentation-agent.toml"
 [agents.scope_auditor]
 description = "Prueft Funktionsinventar gegen den Ist-Zustand"
 config_file = "agents/scope-auditor.toml"
+
+[agents.server_developer]
+description = "Implementiert die Komponente server in apps/server/"
+config_file = "agents/server-developer.toml"
+
+[agents.server_test_engineer]
+description = "Testet die Komponente server in apps/server/"
+config_file = "agents/server-test-engineer.toml"
+
+[agents.web_developer]
+description = "Implementiert die Komponente web in apps/web/"
+config_file = "agents/web-developer.toml"
+
+[agents.web_test_engineer]
+description = "Testet die Komponente web in apps/web/"
+config_file = "agents/web-test-engineer.toml"
