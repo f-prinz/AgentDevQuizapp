@@ -1126,8 +1126,24 @@
       "lint_evidence": "tasks/evidence/CHG-7-2026-10-27T16-00-01-183Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/CHG-7.md"
+    },
+    {
+      "id": "FEAT-16",
+      "component": "server",
+      "title": "Spiel-Upload per JSON + Admin-UI, servergenerierte IDs, Token-Schutz, DELETE",
+      "acceptance_criteria": "POST /games akzeptiert GameSeed-JSON ohne ids (Game- und innere ids werden serverseitig als UUID generiert); Validierung via GameSeedSchema; Upload in games-Tabelle + live im Katalog; DELETE /games/:id entfernt Spiel; beide Endpunkte mit Bearer-Token ADMIN_TOKEN (Env, .env.example); Admin-UI im Web: JSON-Upload + Loeschen",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/server/"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T16:01:38.764Z"
+  "last_updated_utc": "2026-10-27T16:45:22.563Z"
 }
