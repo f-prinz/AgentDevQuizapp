@@ -4,7 +4,7 @@ Datum: 2026-10-27 · Task: TECH-9 · Komponente: server
 
 ## Nachgewiesene Faehigkeiten
 
-`apps/server/test/e2e/sorting.test.ts` (1/1 Test, Evidence
+`apps/server/test/e2e/sort.test.ts` (1/1 Test, Evidence
 `tasks/evidence/TECH-9-2026-10-27T10-24-09-429Z.json`).
 
 - **Kompletter Sortier-Durchlauf** — Lobby→Uebersicht→`game.start`→
@@ -31,5 +31,5 @@ pro Position, Projektor- und Host-Darstellung.
 
 ## Scope-Audit
 
-Diff: nur `apps/server/test/e2e/sorting.test.ts` + `docs/validation/sorting.md`
+Diff: nur `apps/server/test/e2e/sort.test.ts` + `docs/validation/sorting.md`
 + Evidence — innerhalb `allowed_paths`. Kein Produktivcode geaendert.
