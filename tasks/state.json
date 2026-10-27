@@ -145,7 +145,7 @@
       "id": "FEAT-2",
       "component": "web",
       "title": "F1 Lobby-Ansichten: Host-Link-Anzeige, Beitritt+Name, Teilnehmerliste",
-      "acceptance_criteria": "Spieler- und Projektor-Link sichtbar; Beitritt via Link + Namenseingabe (max 20); Teilnehmerliste mit 'Spieler N'-Platzhaltern",
+      "acceptance_criteria": "Host-Link mit nicht erratbarem Geheimnis sichtbar; Refresh im selben Browser stellt Hostzugriff wieder her. Spieler- und Projektor-Link sichtbar. Beitritt via Link + Namenseingabe (max. 20 Zeichen); erfolgreiche Registrierung speichert die Spielersitzung. Host-, Spieler- und Projektoransicht zeigen die Live-Teilnehmerliste mit Spieler-N-Platzhaltern; REST und WebSocket nutzen die vorhandenen Contracts ohne Aenderung.",
       "test_command": "npm --prefix apps/web test",
       "lint_command": "npm --prefix apps/web run lint",
       "red_evidence_required": true,
@@ -154,11 +154,13 @@
         "TECH-3",
         "FEAT-1"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "classification": "CURRENT_STACK_ONLY",
-      "priority": "P0"
+      "priority": "P0",
+      "implemented_by": "web_developer",
+      "review_result": "Requirements adversarial geprueft; Akzeptanzkriterium um Host-Secret/Refresh ergaenzt. Architektur KEEP, CURRENT_STACK_ONLY; vorhandene Contracts ausreichend; lokaler /lobbies-Proxy erforderlich."
     },
     {
       "id": "FEAT-3",
@@ -663,5 +665,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T08:22:28.208Z"
+  "last_updated_utc": "2026-10-27T08:24:03.710Z"
 }

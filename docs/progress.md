@@ -1,6 +1,6 @@
 # Fortschritt
 
-Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE; FEAT-2 TODO; FEAT-3 DONE; FEAT-4 TODO; FEAT-5 DONE; FEAT-6 TODO; FEAT-7 DONE; FEAT-8 TODO; FEAT-9 DONE; FEAT-10 TODO; FEAT-11 DONE; FEAT-12 TODO; FEAT-13 DONE; FEAT-14 TODO; TECH-5 DONE; TECH-6 DONE; FEAT-15 TODO; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO; TECH-13 DONE. Historische Meldungen unten bleiben erhalten.
+Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE; FEAT-2 IN_PROGRESS; FEAT-3 DONE; FEAT-4 TODO; FEAT-5 DONE; FEAT-6 TODO; FEAT-7 DONE; FEAT-8 TODO; FEAT-9 DONE; FEAT-10 TODO; FEAT-11 DONE; FEAT-12 TODO; FEAT-13 DONE; FEAT-14 TODO; TECH-5 DONE; TECH-6 DONE; FEAT-15 TODO; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO; TECH-13 DONE. Historische Meldungen unten bleiben erhalten.
 
 2026-10-26T12:27:54.828Z: TECH-5 IN_PROGRESS.   
 
@@ -155,3 +155,5 @@ Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE
 2026-10-27T08:14:32.752Z: TECH-2 IN_PROGRESS.   Local in-app browser is available; resuming the previously blocked web scaffolding validation.
 
 2026-10-27T08:22:28.208Z: TECH-2 DONE. 9/9 web tests passed on main; local smoke and all five browser routes verified; build passed. Independent code review approved; browser blocker closed after orchestrator verified the five scaffold routes and layouts. Web scaffold is reviewed and its local routes are verified in the browser; tests, lint/typecheck and build all pass.
+
+2026-10-27T08:24:03.710Z: FEAT-2 IN_PROGRESS.  Requirements adversarial geprueft; Akzeptanzkriterium um Host-Secret/Refresh ergaenzt. Architektur KEEP, CURRENT_STACK_ONLY; vorhandene Contracts ausreichend; lokaler /lobbies-Proxy erforderlich. 
