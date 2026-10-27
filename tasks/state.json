@@ -319,12 +319,21 @@
         "FEAT-4",
         "FEAT-7"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-16"
+      ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P0",
-      "implemented_by": "web_developer"
+      "implemented_by": "web_developer",
+      "test_result": "43/43 Webtests gruen auf main",
+      "review_result": "APPROVED ohne Findings; Quiz-Aufloesung fuer Host/Projektor als markierte Optionsliste, Geheimhaltung vor Auswertung belegt",
+      "test_evidence": "tasks/evidence/FEAT-8-2026-10-27T09-54-01-216Z.json",
+      "red_evidence": "tasks/evidence/FEAT-8-2026-10-27T09-52-16-217Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-8-2026-10-27T09-54-18-423Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/FEAT-8.md"
     },
     {
       "id": "FEAT-9",
@@ -716,5 +725,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T09:51:00.248Z"
+  "last_updated_utc": "2026-10-27T09:55:19.374Z"
 }

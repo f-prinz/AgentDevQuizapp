@@ -1,6 +1,6 @@
 # Fortschritt
 
-Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE; FEAT-2 DONE; FEAT-3 DONE; FEAT-4 DONE; FEAT-5 DONE; FEAT-6 TODO; FEAT-7 DONE; FEAT-8 IN_PROGRESS; FEAT-9 DONE; FEAT-10 TODO; FEAT-11 DONE; FEAT-12 TODO; FEAT-13 DONE; FEAT-14 DONE; TECH-5 DONE; TECH-6 DONE; FEAT-15 DONE; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO; TECH-13 DONE. Historische Meldungen unten bleiben erhalten.
+Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE; FEAT-2 DONE; FEAT-3 DONE; FEAT-4 DONE; FEAT-5 DONE; FEAT-6 TODO; FEAT-7 DONE; FEAT-8 DONE; FEAT-9 DONE; FEAT-10 TODO; FEAT-11 DONE; FEAT-12 TODO; FEAT-13 DONE; FEAT-14 DONE; TECH-5 DONE; TECH-6 DONE; FEAT-15 DONE; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO; TECH-13 DONE. Historische Meldungen unten bleiben erhalten.
 
 2026-10-26T12:27:54.828Z: TECH-5 IN_PROGRESS.   
 
@@ -191,3 +191,7 @@ Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE
 2026-10-27T09:47:41.437Z: FEAT-14 DONE. 38/38 Webtests gruen auf main; Server 54/54; Build gruen APPROVED ohne Blocker; Quiz-Aufloesung zeigt authoritative richtige Antwort auch ohne eigene Abgabe (Timeout), Regressionstest vorhanden 
 
 2026-10-27T09:51:00.248Z: FEAT-8 IN_PROGRESS.   
+
+2026-10-27T09:55:14.014Z: FEAT-8 aktualisiert.   
+
+2026-10-27T09:55:19.374Z: FEAT-8 DONE. 43/43 Webtests gruen auf main APPROVED ohne Findings; Quiz-Aufloesung fuer Host/Projektor als markierte Optionsliste, Geheimhaltung vor Auswertung belegt 

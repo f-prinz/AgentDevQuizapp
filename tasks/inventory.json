@@ -320,7 +320,26 @@
       "introduced_by": "FEAT-14",
       "removed_by": null,
       "notes": ""
+    },
+    {
+      "id": "INV-16",
+      "capability": "Quiz im Web spielen und Aufloesung mit markierter Antwort sehen",
+      "component": "web",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "test",
+          "ref": "apps/web/src/game-views.test.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/GameViews.tsx"
+        }
+      ],
+      "introduced_by": "FEAT-8",
+      "removed_by": null,
+      "notes": ""
     }
   ],
-  "last_updated_utc": "2026-10-27T09:47:33.942Z"
+  "last_updated_utc": "2026-10-27T09:55:13.765Z"
 }
