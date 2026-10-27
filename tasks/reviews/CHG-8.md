@@ -34,4 +34,4 @@ Projektor-„Spielübersicht"-h2, `.player-identity`-Margin).
 
 - Rot: `tasks/evidence/CHG-8-2026-10-27T16-59-36-700Z.json` (exit 1)
 - Gruen: `tasks/evidence/CHG-8-2026-10-27T17-00-16-248Z.json` (70/70, exit 0)
-- Lint/Typecheck: `tasks/evidence/CHG-8-<lint>.json` (exit 0)
+- Lint/Typecheck: `tasks/evidence/CHG-8-2026-10-27T17-00-31-454Z.json` (exit 0)
