@@ -275,11 +275,12 @@
         "FEAT-5",
         "FEAT-14"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "classification": "CURRENT_STACK_ONLY",
-      "priority": "P1"
+      "priority": "P1",
+      "implemented_by": "web_developer"
     },
     {
       "id": "FEAT-7",
@@ -725,5 +726,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T09:55:19.374Z"
+  "last_updated_utc": "2026-10-27T09:56:46.423Z"
 }
