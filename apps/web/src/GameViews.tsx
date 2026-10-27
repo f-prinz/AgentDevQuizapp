@@ -151,6 +151,7 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
   const ownRanking = snapshot.ranking.find(entry => entry.playerId === snapshot.playerId);
   const ownName = ownRanking?.name ?? snapshot.participants.find(participant => participant.id === snapshot.playerId)?.name ?? "Spieler";
   const [draft, setDraft] = useState<Answer | null>(snapshot.input.answer);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
   useEffect(() => setDraft(snapshot.input.answer), [snapshot.revision, snapshot.input.answer]);
   if (!round) return <><PlayerStatus name={ownName} ranking={ownRanking} /><section className="game-view" aria-label="Spielphase"><h2>Warte auf die nächste Spielauswahl</h2></section></>;
   const canEdit = round.phase === "playing" && snapshot.input.participating && !snapshot.input.final && !round.timer.inputClosed;
@@ -177,7 +178,22 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
         </label>)}</fieldset>}
         {round.task.kind === "sorting" && <fieldset disabled={!canEdit}><legend>Ordne die Begriffe</legend><ol className="sortable-terms">{(draft?.kind === "sorting" ? draft.termIds : round.task.terms.map(term => term.id)).map((id, index, ids) => {
           const term = round.task.kind === "sorting" ? round.task.terms.find(item => item.id === id) : undefined;
-          return <li key={id}><span>{term?.text ?? "Begriff"}</span><button type="button" disabled={!canEdit || index === 0} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach oben`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index - 1 ? ids[index] : i === index ? ids[index - 1] : item) })}>↑</button><button type="button" disabled={!canEdit || index === ids.length - 1} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach unten`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index ? ids[index + 1] : i === index + 1 ? ids[index] : item) })}>↓</button></li>;
+          return <li key={id} draggable={canEdit} className={dragIndex === index ? "sortable-dragging" : undefined}
+            onDragStart={event => { setDragIndex(index); event.dataTransfer.setData("text/plain", String(index)); event.dataTransfer.effectAllowed = "move"; }}
+            onDragOver={event => { if (canEdit) { event.preventDefault(); event.dataTransfer.dropEffect = "move"; } }}
+            onDrop={event => {
+              if (!canEdit) return;
+              event.preventDefault();
+              const from = dragIndex ?? Number(event.dataTransfer.getData("text/plain"));
+              if (Number.isFinite(from) && from !== index) {
+                const next = [...ids];
+                const [moved] = next.splice(from, 1);
+                next.splice(index, 0, moved);
+                sendAnswer({ kind: "sorting", termIds: next });
+              }
+              setDragIndex(null);
+            }}
+            onDragEnd={() => setDragIndex(null)}><span>{term?.text ?? "Begriff"}</span><button type="button" disabled={!canEdit || index === 0} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach oben`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index - 1 ? ids[index] : i === index ? ids[index - 1] : item) })}>↑</button><button type="button" disabled={!canEdit || index === ids.length - 1} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach unten`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index ? ids[index + 1] : i === index + 1 ? ids[index] : item) })}>↓</button></li>;
         })}</ol></fieldset>}
         {round.task.kind === "estimation" && <label className="estimation-input">Deine Schätzung<input type="number" value={draft?.kind === "estimation" ? draft.value : ""} disabled={!canEdit} onChange={event => { const value = Number(event.target.value); if (event.target.value !== "" && Number.isFinite(value)) sendAnswer({ kind: "estimation", value }); }} /></label>}
         {snapshot.input.final ? <p role="status">Deine Antwort ist final abgegeben.</p> : round.timer.inputClosed ? <p role="status">Die Eingabezeit ist beendet.</p> : <button type="button" disabled={!canEdit || !draft} onClick={submit}>Abgeben</button>}

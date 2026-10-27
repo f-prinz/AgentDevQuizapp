@@ -310,6 +310,61 @@ describe("FEAT-14 player status and answer feedback", () => {
   });
 });
 
+describe("FEAT-10 sorting views", () => {
+  const sortingPlaying = {
+    roundId: "round-2", game: { id: "sort-1", kind: "sorting", title: "Jahre ordnen", rules: "Begriffe ordnen" },
+    questionIndex: 0, questionCount: 1, phase: "playing",
+    task: { kind: "sorting", question: "Ordne die Jahre", terms: [
+      { id: "a", text: "Mauerfall" }, { id: "b", text: "Mondlandung" }, { id: "c", text: "Internet" },
+    ] },
+    timer: { roundId: "round-2", serverTime: 1_000, deadline: 61_000, acceptUntil: 63_000, inputClosed: false, canReveal: false },
+  };
+  const sortingEval = {
+    roundId: "round-2", game: { id: "sort-1", kind: "sorting", title: "Jahre ordnen", rules: "Begriffe ordnen" },
+    questionIndex: 0, questionCount: 1, phase: "evaluation", hasNextQuestion: false,
+    solution: { kind: "sorting", question: "Ordne die Jahre", terms: [
+      { id: "b", text: "Mondlandung", value: 1969 }, { id: "a", text: "Mauerfall", value: 1989 }, { id: "c", text: "Internet", value: 1991 },
+    ] },
+  };
+
+  it("reorders terms via drag and drop and sends the new order", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing", { round: sortingPlaying }));
+    const items = screen.getAllByRole("listitem").filter(item => item.closest(".sortable-terms"));
+    expect(items).toHaveLength(3);
+    const dataTransfer = { data: new Map<string, string>(), setData(type: string, value: string) { this.data.set(type, value); }, getData(type: string) { return this.data.get(type) ?? ""; }, effectAllowed: "move", dropEffect: "move" };
+    fireEvent.dragStart(items[0], { dataTransfer });
+    fireEvent.dragOver(items[2], { dataTransfer });
+    fireEvent.drop(items[2], { dataTransfer });
+    await waitFor(() => expect(view.socket().commands().some(command =>
+      command.type === "answer.set" && JSON.stringify((command.answer as { termIds?: string[] }).termIds) === JSON.stringify(["b", "c", "a"]))).toBe(true));
+  });
+
+  it("shows the solution order with values and per-player errors on the projector", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "evaluation", {
+      round: { ...sortingEval, results: [
+        { playerId: "player-1", name: "Ada", points: 3, rank: 1, distance: null, errors: 0 },
+        { playerId: "player-2", name: "Bo", points: 1, rank: 2, distance: null, errors: 2 },
+      ] },
+    }));
+    const display = await screen.findByRole("region", { name: /spielanzeige/i });
+    const orderedTerms = Array.from(display.querySelectorAll(".solution ol li")).map(item => item.textContent);
+    expect(orderedTerms[0]).toContain("Mondlandung");
+    expect(orderedTerms[0]).toContain("1969");
+    expect(orderedTerms[2]).toContain("Internet");
+    expect(display.textContent).toMatch(/Ada.*0\s*Fehler|Ada.*\b0\b/i);
+    expect(display.textContent).toMatch(/Bo.*2\s*Fehler/i);
+  });
+
+  it("keeps the sorting terms secret from the projector during play", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "playing", { round: { ...sortingPlaying, task: { kind: "sorting", question: "Ordne die Jahre" } } }));
+    expect(screen.queryByText("Mauerfall")).toBeNull();
+    expect(await screen.findByText(/Ordne die Jahre/)).toBeTruthy();
+  });
+});
+
 describe("FEAT-8 quiz views", () => {
   it("renders the four answer options as selectable radio choices for the player", async () => {
     const view = renderRole("player");

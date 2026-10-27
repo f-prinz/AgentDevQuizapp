@@ -58,6 +58,8 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .answer-option input { width: 1.15rem; height: 1.15rem; min-height: auto; margin: 0; accent-color: var(--color-turquoise); }
 .sortable-terms { display: grid; gap: 0.5rem; padding-left: 2rem; }
 .sortable-terms li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 0.4rem; }
+.sortable-terms li[draggable="true"] { cursor: grab; }
+.sortable-dragging { opacity: 0.5; }
 .estimation-input { display: grid; gap: 0.4rem; max-width: 24rem; }
 .solution { padding: 0.85rem; border-inline-start: 0.25rem solid var(--color-turquoise); }
 .game-start-animation { animation: game-start 700ms ease-out both; }
