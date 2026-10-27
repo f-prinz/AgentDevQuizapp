@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -983,8 +983,27 @@
       "lint_evidence": "tasks/evidence/BUG-2-2026-10-27T13-02-01-875Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/BUG-2.md"
+    },
+    {
+      "id": "CHG-4",
+      "component": "web",
+      "title": "Projektor-Ranking auf Platz/Punkte/Name reduzieren; Antwortflaechen grau",
+      "acceptance_criteria": "Projektor-Ranking zeigt nur Platzierung, Punkte, Name; Quiz-/Sortier-Optionen und Schaetz-Container grau",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-3"
+      ],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T13:04:52.785Z"
+  "last_updated_utc": "2026-10-27T13:53:43.456Z"
 }
