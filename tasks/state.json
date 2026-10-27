@@ -937,14 +937,15 @@
       "dependencies": [],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P1",
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
         "apps/web/"
-      ]
+      ],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T12:43:06.339Z"
+  "last_updated_utc": "2026-10-27T12:43:56.575Z"
 }
