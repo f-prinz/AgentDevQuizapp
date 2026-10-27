@@ -74,7 +74,7 @@ describe("projector layout at narrow viewport widths", () => {
     renderAt("/projector");
 
     const projector = screen.getByRole("main", { name: "Projektor" });
-    const layout = screen.getByRole("region", { name: "Spielanzeige" }).parentElement;
+    const layout = projector.querySelector(".projector-layout");
 
     expect(window.innerWidth).toBeLessThan(desktopMinimumWidth);
     expect(minWidthInPixels(projector)).toBeGreaterThanOrEqual(desktopMinimumWidth);

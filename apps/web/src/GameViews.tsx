@@ -80,7 +80,9 @@ function RankingTable({ ranking, transition }: { ranking: RankingEntry[]; transi
     return () => window.clearInterval(interval);
   }, [stage]);
 
-  const shown = stage === "after" || !transition ? ranking : transition.previous;
+  // CHG-6: Rangliste immer nach Platz sortiert ausgeben.
+  const shown = [...(stage === "after" || !transition ? ranking : transition.previous)]
+    .sort((a, b) => a.rank - b.rank);
   const target = transition ? new Map(transition.current.map(entry => [entry.playerId, entry])) : null;
   const displayTotal = (entry: RankingEntry) => {
     if (stage !== "counting" || !target) return entry.total;
@@ -197,7 +199,11 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
   useEffect(() => setDraft(snapshot.input.answer), [snapshot.revision, snapshot.input.answer]);
-  if (!round) return <section className="game-view" aria-label="Spielbeginn"><h2>Das Spiel beginnt gleich …</h2></section>;
+  // CHG-6: Eigene Identitaet immer oben — Name, plus Punkte und Platz wenn vorhanden.
+  const mine = snapshot.ranking.find(entry => entry.playerId === snapshot.playerId);
+  const myName = mine?.name ?? snapshot.participants.find(player => player.id === snapshot.playerId)?.name ?? "Spieler";
+  const identity = <h2 className="player-identity">{myName}{mine ? ` - ${mine.total} (${mine.rank})` : ""}</h2>;
+  if (!round) return <section className="game-view" aria-label="Spielbeginn">{identity}<h3>Das Spiel beginnt gleich …</h3></section>;
   const canEdit = round.phase === "playing" && snapshot.input.participating && !snapshot.input.final && !round.timer.inputClosed;
   const sendAnswer = (answer: Answer) => {
     if (!canEdit || round.phase !== "playing") return;
@@ -215,8 +221,9 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
     sendAnswer({ kind: "sorting", termIds: next });
   };
   return <section className="game-view" aria-label="Spielphase">
-    {round.game.kind !== "sorting" && <h2>{round.game.title}</h2>}
-    {round.phase === "start" && <div className="game-start-animation" role="region" aria-label="Startanimation"><p>{round.game.rules}</p><p>Das Spiel beginnt gleich …</p></div>}
+    {identity}
+    {round.game.kind !== "sorting" && <h3>{round.game.title}</h3>}
+    {round.phase === "start" && <div className="game-start-animation" role="region" aria-label="Startanimation"><p>Das Spiel beginnt gleich …</p></div>}
     {round.phase === "playing" && <>
       <TimerDisplay timer={round.timer} size="compact" />
       {!snapshot.input.participating ? <><p role="status">Du steigst bei der nächsten Spielauswahl ein. In dieser Runde ist keine Antwort möglich.</p><button type="button" disabled>Abgeben</button></> : <>
@@ -226,20 +233,16 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
         })}</div>}
         {round.task.kind === "sorting" && (() => {
           const ids = draft?.kind === "sorting" ? draft.termIds : round.task.terms.map(term => term.id);
-          return <fieldset disabled={!canEdit}><legend>Ordne die Begriffe</legend>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onSortEnd(ids)}>
+          return <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onSortEnd(ids)}>
               <SortableContext items={ids} strategy={verticalListSortingStrategy}>
-                <ol className="sortable-terms">{ids.map((id, index) => {
+                <ol className="sortable-terms">{ids.map(id => {
                   const term = round.task.kind === "sorting" ? round.task.terms.find(item => item.id === id) : undefined;
                   return <SortableTerm key={id} id={id} canEdit={canEdit}>
                     <span>{term?.text ?? "Begriff"}</span>
-                    <button type="button" disabled={!canEdit || index === 0} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach oben`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index - 1 ? ids[index] : i === index ? ids[index - 1] : item) })}>↑</button>
-                    <button type="button" disabled={!canEdit || index === ids.length - 1} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach unten`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index ? ids[index + 1] : i === index + 1 ? ids[index] : item) })}>↓</button>
                   </SortableTerm>;
                 })}</ol>
               </SortableContext>
-            </DndContext>
-          </fieldset>;
+            </DndContext>;
         })()}
         {round.task.kind === "estimation" && <div className="answer-tile estimation-panel"><label className="estimation-input">Deine Schätzung<input type="number" value={draft?.kind === "estimation" ? draft.value : ""} disabled={!canEdit} onChange={event => { const value = Number(event.target.value); if (event.target.value !== "" && Number.isFinite(value)) sendAnswer({ kind: "estimation", value }); }} /></label></div>}
         {!snapshot.input.final && !round.timer.inputClosed && <button type="button" disabled={!canEdit || !draft} onClick={submit}>Abgeben</button>}

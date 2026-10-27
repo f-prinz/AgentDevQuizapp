@@ -273,7 +273,10 @@ describe("CHG-1 shell and player base", () => {
     expect(screen.queryByText(/du bist der lobby beigetreten/i)).toBeNull();
     expect(screen.queryByRole("region", { name: /teilnehmer/i })).toBeNull();
     expect(screen.queryByRole("region", { name: /dein spielstand/i })).toBeNull();
-    expect(screen.queryByText("Spieler 1")).toBeNull();
+    // CHG-6: Der Name steht nur noch in der Identitätszeile — keine Statuskarte.
+    const nameOccurrences = screen.queryAllByText("Spieler 1");
+    expect(nameOccurrences.every(el => el.classList.contains("player-identity"))).toBe(true);
+    expect(nameOccurrences).toHaveLength(1);
   });
 
   it("keeps connection errors visible on the player route", async () => {

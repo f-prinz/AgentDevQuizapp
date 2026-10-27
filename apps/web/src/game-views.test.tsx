@@ -101,6 +101,8 @@ describe("FEAT-4 game phase views", () => {
       expect(await screen.findByText(/Weltwissen/)).toBeTruthy();
       if (phase === "start" && role === "player") {
         expect(await screen.findByRole("region", { name: /startanimation/i })).toBeTruthy();
+        // CHG-6: Spieler sehen in der Startphase weder Regeln noch die Aufgabe.
+        expect(screen.queryByText(/Eine Antwort/)).toBeNull();
       }
       if (phase === "start" && role !== "player") {
         expect(await screen.findByText(/Eine Antwort/)).toBeTruthy();
@@ -197,7 +199,8 @@ describe("FEAT-4 game phase views", () => {
     expect(screen.queryByText("Paris")).toBeNull();
     expect(screen.queryByText("Lyon")).toBeNull();
     await deliver(view, snapshot("projector", "evaluation", { revision: 2 }));
-    const display = await screen.findByRole("region", { name: /spielanzeige/i });
+    await waitFor(() => expect(document.querySelector(".projector-game")).toBeTruthy());
+    const display = document.querySelector(".projector-game")!;
     await waitFor(() => {
       const correct = display.querySelector('[data-answer-state="correct"]');
       expect(correct?.textContent).toContain("Paris");
@@ -307,6 +310,40 @@ describe("CHG-3 game phase views", () => {
     expect(screen.getByRole("button", { name: /nächste frage|naechste frage/i })).toBeTruthy();
   });
 
+  it("shows the player name with points and rank as top heading", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing", {
+      ranking: [
+        { playerId: "player-2", name: "Bo", rank: 1, total: 12, games: [] },
+        { playerId: "player-1", name: "Ada", rank: 2, total: 9, games: [{ gameId: "quiz-1", points: 4 }] },
+      ],
+    }));
+    const identity = screen.getByRole("heading", { level: 2, name: /ada - 9 \(2\)/i });
+    expect(identity).toBeTruthy();
+  });
+
+  it("shows only the player name when no ranking entry exists", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing"));
+    expect(screen.getByRole("heading", { level: 2, name: "Ada" })).toBeTruthy();
+  });
+
+  it("always renders the projector ranking sorted by rank", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "playing", {
+      ranking: [
+        { playerId: "player-1", name: "Ada", rank: 3, total: 2, games: [] },
+        { playerId: "player-2", name: "Bo", rank: 1, total: 9, games: [] },
+        { playerId: "player-3", name: "Cyd", rank: 2, total: 5, games: [] },
+      ],
+    }));
+    const ranking = await screen.findByRole("region", { name: /rangliste/i });
+    const rows = Array.from(ranking.querySelectorAll("tbody tr")).map(row => row.textContent);
+    expect(rows[0]).toContain("Bo");
+    expect(rows[1]).toContain("Cyd");
+    expect(rows[2]).toContain("Ada");
+  });
+
   it("keeps the ranking on the right of the projector during play without participant status", async () => {
     const view = renderRole("projector");
     await deliver(view, snapshot("projector", "playing", {
@@ -391,7 +428,7 @@ describe("FEAT-10 sorting views", () => {
     ] },
   };
 
-  it("renders sortable terms wired for dnd-kit and reorders via controls", async () => {
+  it("renders sortable terms wired for dnd-kit", async () => {
     const view = renderRole("player");
     await deliver(view, snapshot("player", "playing", { round: sortingPlaying }));
     const items = Array.from(document.querySelectorAll(".sortable-terms li"));
@@ -403,14 +440,6 @@ describe("FEAT-10 sorting views", () => {
       // BUG-3: Ohne touch-action:none schluckt der Browser Touch-Gesten als Scroll.
       expect((item as HTMLElement).style.touchAction).toBe("none");
     }
-    const mauerfallDown = () => Array.from(document.querySelectorAll(".sortable-terms li"))
-      .find(item => item.textContent?.includes("Mauerfall"))
-      ?.querySelector('button[aria-label*="nach unten"]');
-    expect(mauerfallDown()).toBeTruthy();
-    fireEvent.click(mauerfallDown()!);
-    fireEvent.click(mauerfallDown()!);
-    await waitFor(() => expect(view.socket().commands().some(command =>
-      command.type === "answer.set" && JSON.stringify((command.answer as { termIds?: string[] }).termIds) === JSON.stringify(["b", "c", "a"]))).toBe(true));
   });
 
   it("hides the game title for the sorting game on player and projector", async () => {
@@ -432,7 +461,8 @@ describe("FEAT-10 sorting views", () => {
         { playerId: "player-2", name: "Bo", points: 1, rank: 2, distance: null, errors: 2 },
       ] },
     }));
-    const display = await screen.findByRole("region", { name: /spielanzeige/i });
+    await waitFor(() => expect(document.querySelector(".projector-game")).toBeTruthy());
+    const display = document.querySelector(".projector-game")!;
     const orderedTerms = Array.from(display.querySelectorAll(".solution ol li")).map(item => item.textContent);
     expect(orderedTerms[0]).toContain("Mondlandung");
     expect(orderedTerms[0]).toContain("1969");
@@ -490,7 +520,8 @@ describe("FEAT-12 estimation views", () => {
         { playerId: "player-2", name: "Bo", points: 1, rank: 2, distance: 42, errors: null },
       ] },
     }));
-    const display = await screen.findByRole("region", { name: /spielanzeige/i });
+    await waitFor(() => expect(document.querySelector(".projector-game")).toBeTruthy());
+    const display = document.querySelector(".projector-game")!;
     expect(display.textContent).toContain("330");
     const resultRows = display.querySelectorAll("ol li");
     expect(resultRows[0].textContent).toContain("Ada");

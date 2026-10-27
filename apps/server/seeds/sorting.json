@@ -8,6 +8,10 @@
     { "id": "mercury", "text": "Merkur", "value": 1 },
     { "id": "venus", "text": "Venus", "value": 2 },
     { "id": "earth", "text": "Erde", "value": 3 },
-    { "id": "mars", "text": "Mars", "value": 4 }
+    { "id": "mars", "text": "Mars", "value": 4 },
+    { "id": "Jupiter", "text": "Jupiter", "value": 5 },
+    { "id": "Saturn", "text": "Saturn", "value": 6 },
+    { "id": "uranus", "text": "Uranus", "value": 7 },
+    { "id": "neptun", "text": "Neptun", "value": 8 }
   ]
 }
