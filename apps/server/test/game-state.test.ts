@@ -410,6 +410,12 @@ describe('server game state and round timers', () => {
     expect((await command(host, 'lobby.start')).type).toBe('ack');
     const initialOverview = await snapshot(host, value => value.phase === 'overview');
     expect(initialOverview.ranking).toEqual([]);
+    const initialPlayerSnapshots = await Promise.all(players.map(player => snapshot(player,
+      value => value.phase === 'overview')));
+    for (const playerSnapshot of initialPlayerSnapshots) {
+      expect(playerSnapshot.role).toBe('player');
+      expect(playerSnapshot.ranking).toEqual([]);
+    }
     expect(initialOverview.catalog.find(game => game.id === 'quiz_game')?.played).toBe(false);
     expect(initialOverview.catalog.find(game => game.id === 'sorting_game')?.played).toBe(false);
     expect(initialOverview.catalog.find(game => game.id === 'estimate_game')?.played).toBe(false);
@@ -470,6 +476,13 @@ describe('server game state and round timers', () => {
     ];
     expect(completedHost.ranking).toEqual(expectedRanking);
     expect(completedProjector.ranking).toEqual(expectedRanking);
+    const completedPlayerSnapshots = await Promise.all(players.map(player => snapshot(player,
+      value => value.phase === 'overview' && value.revision >= completedHost.revision)));
+    for (const [index, playerSnapshot] of completedPlayerSnapshots.entries()) {
+      expect(playerSnapshot.role).toBe('player');
+      expect(playerSnapshot.ranking).toEqual([expectedRanking[index]]);
+      expect(playerSnapshot.ranking.every(entry => entry.playerId === playerIds[index])).toBe(true);
+    }
     expect(completedHost.rankingTransition).not.toBeNull();
     expect(completedProjector.rankingTransition).not.toBeNull();
     expect(completedHost.rankingTransition?.previous).toEqual([]);

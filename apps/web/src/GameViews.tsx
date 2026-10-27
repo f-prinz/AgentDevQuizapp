@@ -63,9 +63,11 @@ function SolutionContent({ solution }: { solution: { kind: "quiz"; question: str
 
 export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; send: Send }) {
   const round = snapshot.round;
+  const ownRanking = snapshot.ranking.find(entry => entry.playerId === snapshot.playerId);
+  const ownName = ownRanking?.name ?? snapshot.participants.find(participant => participant.id === snapshot.playerId)?.name ?? "Spieler";
   const [draft, setDraft] = useState<Answer | null>(snapshot.input.answer);
   useEffect(() => setDraft(snapshot.input.answer), [snapshot.revision, snapshot.input.answer]);
-  if (!round) return <section className="game-view" aria-label="Spielphase"><h2>Warte auf die nächste Spielauswahl</h2></section>;
+  if (!round) return <><PlayerStatus name={ownName} ranking={ownRanking} /><section className="game-view" aria-label="Spielphase"><h2>Warte auf die nächste Spielauswahl</h2></section></>;
   const canEdit = round.phase === "playing" && snapshot.input.participating && !snapshot.input.final && !round.timer.inputClosed;
   const sendAnswer = (answer: Answer) => {
     if (!canEdit || round.phase !== "playing") return;
@@ -76,7 +78,7 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
     if (!canEdit || !draft || round.phase !== "playing") return;
     send({ version: 1, type: "answer.submit", requestId: crypto.randomUUID(), roundId: round.roundId, answer: draft });
   };
-  return <section className="game-view" aria-label="Spielphase">
+  return <><PlayerStatus name={ownName} ranking={ownRanking} /><section className="game-view" aria-label="Spielphase">
     <h2>{round.game.title}</h2>
     <p className="phase-label">{round.phase === "start" ? "Startphase" : round.phase === "playing" ? "Spielphase" : "Auswertung"}</p>
     {round.phase === "start" && <div className="game-start-animation" role="region" aria-label="Startanimation"><p>{round.game.rules}</p><p>Das Spiel beginnt gleich …</p></div>}
@@ -84,8 +86,9 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
       <TimerDisplay timer={round.timer} size="compact" />
       <h3>Frage {round.questionIndex + 1} von {round.questionCount}</h3><p>{round.task.question}</p>
       {!snapshot.input.participating ? <><p role="status">Du steigst bei der nächsten Spielauswahl ein. In dieser Runde ist keine Antwort möglich.</p><button type="button" disabled>Abgeben</button></> : <>
-        {round.task.kind === "quiz" && <fieldset disabled={!canEdit}><legend>Wähle eine Antwort</legend>{round.task.options.map(option => <label className="answer-option" key={option.id}>
+        {round.task.kind === "quiz" && <fieldset disabled={!canEdit}><legend>Wähle eine Antwort</legend>{round.task.options.map(option => <label className={`answer-option${draft?.kind === "quiz" && draft.optionId === option.id ? " answer-neutral" : ""}`} data-answer-state={draft?.kind === "quiz" && draft.optionId === option.id ? "neutral" : undefined} key={option.id}>
           <input type="radio" name="quiz-answer" value={option.id} checked={draft?.kind === "quiz" && draft.optionId === option.id} onChange={() => sendAnswer({ kind: "quiz", optionId: option.id })} />{option.text}
+          {draft?.kind === "quiz" && draft.optionId === option.id && <span className="answer-mark">Ausgewählt</span>}
         </label>)}</fieldset>}
         {round.task.kind === "sorting" && <fieldset disabled={!canEdit}><legend>Ordne die Begriffe</legend><ol className="sortable-terms">{(draft?.kind === "sorting" ? draft.termIds : round.task.terms.map(term => term.id)).map((id, index, ids) => {
           const term = round.task.kind === "sorting" ? round.task.terms.find(item => item.id === id) : undefined;
@@ -95,10 +98,33 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
         {snapshot.input.final ? <p role="status">Deine Antwort ist final abgegeben.</p> : round.timer.inputClosed ? <p role="status">Die Eingabezeit ist beendet.</p> : <button type="button" disabled={!canEdit || !draft} onClick={submit}>Abgeben</button>}
       </>}
     </>}
-    {round.phase === "evaluation" && <><SolutionContent solution={round.solution} />
-      {snapshot.input.answer && <p>Deine abgegebene Antwort: {answerLabel(snapshot.input.answer, round.solution.kind === "quiz" ? round.solution.options : [])}</p>}
+    {round.phase === "evaluation" && <>{round.solution.kind === "quiz"
+      ? <div className="solution"><h3>Auflösung</h3><p>{round.solution.question}</p></div>
+      : <SolutionContent solution={round.solution} />}
+      {round.solution.kind === "quiz" && <ul className="answer-feedback" aria-label={round.ownEvaluation.answer?.kind === "quiz" ? "Deine Antwort" : "Antworten"}>{round.solution.options.map(option => {
+        const ownAnswer = round.ownEvaluation.answer;
+        const selected = ownAnswer?.kind === "quiz" && ownAnswer.optionId === option.id;
+        const correct = round.solution.kind === "quiz" && round.solution.correctOptionId === option.id;
+        const state = selected ? (correct ? "correct" : "wrong") : (correct ? "correct" : "neutral");
+        return <li key={option.id} className={`answer-marked answer-${state}`} data-answer-state={state}>{option.text}<span className="answer-mark">{selected ? (correct ? "Deine Antwort · Richtig" : "Deine Antwort · Falsch") : correct ? "Richtig" : ""}</span></li>;
+      })}</ul>}
+      {round.solution.kind === "sorting" && round.ownEvaluation.answer?.kind === "sorting" && <ol className="answer-feedback" aria-label="Deine Antwort">{round.ownEvaluation.answer.termIds.map((termId, index) => {
+        const term = round.solution.kind === "sorting" ? round.solution.terms.find(item => item.id === termId) : undefined;
+        const correct = round.ownEvaluation.positionsCorrect?.[index] === true;
+        const state = correct ? "correct" : "wrong";
+        return <li key={termId} className={`answer-marked answer-${state}`} data-answer-state={state}>{term?.text ?? "Begriff"}<span className="answer-mark">{correct ? "Richtig" : "Falsch"}</span></li>;
+      })}</ol>}
+      {snapshot.input.answer && round.solution.kind !== "quiz" && <p>Deine abgegebene Antwort: {answerLabel(snapshot.input.answer, [])}</p>}
       <p>Deine Punkte: {round.ownEvaluation.points}</p>
     </>}
+  </section></>;
+}
+
+function PlayerStatus({ name, ranking }: { name: string; ranking: PlayerSnapshot["ranking"][number] | undefined }) {
+  return <section className="player-status-card" aria-label="Dein Spielstand">
+    <h2>Dein Spielstand</h2><p>Name: {name}</p>
+    <p>{ranking?.total ?? 0} Punkte gesamt</p>
+    <p>{ranking ? `Rang ${ranking.rank}` : "Rang noch nicht verfügbar"}</p>
   </section>;
 }
 

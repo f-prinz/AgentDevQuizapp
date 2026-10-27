@@ -269,6 +269,7 @@ export class LobbyRegistry {
   snapshot(session: AuthenticatedSession, catalog: unknown, now = Date.now()): Snapshot | undefined {
     const lobby = this.lobbies.get(session.lobbyId);
     if (!lobby) return undefined;
+    const ranking = projectRanking(lobby);
 
     const common = {
       version: 1 as const,
@@ -286,7 +287,9 @@ export class LobbyRegistry {
       })),
       catalog: publicCatalog(catalog, lobby.playedGameIds),
       selectedGameId: lobby.selectedGameId,
-      ranking: session.role === 'player' ? [] : projectRanking(lobby),
+      ranking: session.role === 'player'
+        ? ranking.filter(entry => entry.playerId === session.playerId)
+        : ranking,
       rankingTransition: session.role === 'player' ? null : lobby.rankingTransition,
     };
 
