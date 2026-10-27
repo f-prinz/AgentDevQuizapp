@@ -2,7 +2,7 @@
   "id": "sample-sorting-planets",
   "kind": "sorting",
   "title": "Planeten nach Sonnennähe",
-  "rules": "Ordnet die Planeten vom sonnennächsten bis zum sonnenfernsten.",
+  "rules": "Ordnet die Planeten vom sonnennächsten bis zum sonnenfernsten. Jede richtige Position: 1 Punkt.",
   "question": "Bringt diese Planeten in die richtige Reihenfolge.",
   "terms": [
     { "id": "mercury", "text": "Merkur", "value": 1 },

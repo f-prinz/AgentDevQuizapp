@@ -2,7 +2,7 @@
   "id": "sample-quiz-general-knowledge",
   "kind": "quiz",
   "title": "Allgemeinwissen",
-  "rules": "Beantwortet jede Frage. Eine richtige Antwort gibt einen Punkt.",
+  "rules": "Beantwortet jede Frage. Jede richtige Antwort gibt einen Punkt.",
   "questions": [
     {
       "id": "capital-france",

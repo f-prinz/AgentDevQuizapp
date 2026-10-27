@@ -2,7 +2,7 @@
   "id": "sample-estimation-eiffel-tower",
   "kind": "estimation",
   "title": "Der Eiffelturm",
-  "rules": "Schätzt möglichst genau. Die Punkte richten sich nach dem Abstand.",
+  "rules": "Schätzt möglichst genau. Die Punkte richten sich nach dem Abstand: beste Schätzung: 5 Punkte, oberes Drittel 3 Punkte, mittleres Drittel 1 Punkt, unteres Drittel 0 Punkte",
   "question": "Wie hoch ist der Eiffelturm in Metern?",
   "target": 330
 }
