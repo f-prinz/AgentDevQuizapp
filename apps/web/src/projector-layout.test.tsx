@@ -4,7 +4,7 @@ import { createMemoryRouter, RouterProvider } from "react-router";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { appRoutes } from "./app-routes";
 
-const narrowViewportWidth = 480;
+const narrowViewportWidth = 320;
 const desktopMinimumWidth = 1024;
 const originalInnerWidth = window.innerWidth;
 const styleElements: HTMLStyleElement[] = [];

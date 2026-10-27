@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-14",
+  "command": "npm --prefix apps/server test",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 test\n> vitest run\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/apps/server\n\n ❯ test/game-state.test.ts (16 tests | 1 failed) 4117ms\n   ❯ server game state and round timers (16)\n     × publishes completed quiz totals, tied competition ranks, and played status to host and projector 155ms\n\n Test Files  1 failed | 7 passed (8)\n      Tests  1 failed | 53 passed (54)\n   Start at  10:21:01\n   Duration  14.09s (tests 82%, import 16%, transform 1%)\n\n",
+  "stderr_tail": "\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  test/game-state.test.ts > server game state and round timers > publishes completed quiz totals, tied competition ranks, and played status to host and projector\nAssertionError: expected [] to deeply equal [ { …(5) } ]\n\n- Expected\n+ Received\n\n- [\n-   {\n-     \"games\": [\n-       {\n-         \"gameId\": \"quiz_game\",\n-         \"points\": 2,\n-       },\n-     ],\n-     \"name\": \"Player one\",\n-     \"playerId\": \"3d1b494c-a631-4889-b0c7-7b7e4c330c24\",\n-     \"rank\": 1,\n-     \"total\": 2,\n-   },\n- ]\n+ []\n\n ❯ test/game-state.test.ts:483:38\n    481|     for (const [index, playerSnapshot] of completedPlayerSnapshots.ent…\n    482|       expect(playerSnapshot.role).toBe('player');\n    483|       expect(playerSnapshot.ranking).toEqual([expectedRanking[index]]);\n       |                                      ^\n    484|       expect(playerSnapshot.ranking.every(entry => entry.playerId === …\n    485|     }\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n",
+  "started": "2026-10-27T09:20:59.479Z",
+  "finished": "2026-10-27T09:21:15.355Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

@@ -206,3 +206,102 @@ describe("FEAT-4 game phase views", () => {
     expect(screen.getByRole("region", { name: /spielanzeige/i }).textContent).not.toContain("Lyon");
   });
 });
+
+describe("FEAT-14 player status and answer feedback", () => {
+  it("keeps the player's name and fallback score visible while no round is active", async () => {
+    const view = renderRole("player");
+    await deliver(view, {
+      ...base("start"), phase: "lobby", role: "player", round: null,
+      playerId: "player-1", input: { answer: null, final: false, participating: true },
+    });
+    const status = await screen.findByRole("region", { name: /dein spielstand/i });
+    expect(status.textContent).toContain("Ada");
+    expect(status.textContent).toMatch(/0\s*Punkte gesamt/i);
+    expect(status.textContent).toMatch(/Rang noch nicht verfügbar/i);
+  });
+
+  it("shows the player's own name, points, and rank, with an unavailable zero-score fallback", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing"));
+    const status = await screen.findByRole("region", { name: /dein spielstand/i });
+    expect(status.textContent).toContain("Ada");
+    expect(status.textContent).toMatch(/0\s*(punkte|gesamtpunkte)/i);
+    expect(status.textContent).toMatch(/rang.*(noch nicht verf[uü]gbar|offen)/i);
+  });
+
+  it("updates the status values from the player's own ranking row on a later snapshot", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing"));
+    const status = await screen.findByRole("region", { name: /dein spielstand/i });
+    await deliver(view, snapshot("player", "playing", {
+      revision: 2,
+      ranking: [{ playerId: "player-1", name: "Ada", rank: 2, total: 5, games: [{ gameId: "quiz-1", points: 3 }] }],
+    }));
+    await waitFor(() => {
+      expect(status.textContent).toContain("Ada");
+      expect(status.textContent).toMatch(/5\s*(punkte|gesamtpunkte)/i);
+      expect(status.textContent).toMatch(/platz\s*2|rang\s*2/i);
+    });
+  });
+
+  it("labels quiz answers as neutral before evaluation and correct or wrong with text in evaluation", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing", {
+      input: { answer: { kind: "quiz", optionId: "b" }, final: true, participating: true },
+    }));
+    expect(screen.getByText("Lyon").closest("[data-answer-state]")?.getAttribute("data-answer-state")).toBe("neutral");
+    expect(screen.queryByText(/richtig|falsch/i)).toBeNull();
+
+    await deliver(view, snapshot("player", "evaluation", {
+      revision: 2,
+      round: { ownEvaluation: { answer: { kind: "quiz", optionId: "b" }, points: 0, distance: null, positionsCorrect: null } },
+    }));
+    const wrong = screen.getByText("Lyon").closest("[data-answer-state]");
+    const correct = screen.getByText("Paris").closest("[data-answer-state]");
+    expect(wrong?.getAttribute("data-answer-state")).toBe("wrong");
+    expect(wrong?.textContent).toMatch(/falsch/i);
+    expect(wrong?.className).toMatch(/answer-wrong/);
+    expect(correct?.getAttribute("data-answer-state")).toBe("correct");
+    expect(correct?.textContent).toMatch(/richtig/i);
+    expect(correct?.className).toMatch(/answer-correct/);
+  });
+
+  it("shows the authoritative correct quiz option when the player timed out without an answer", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "evaluation", {
+      round: { ownEvaluation: { answer: null, points: 0, distance: null, positionsCorrect: null } },
+    }));
+    const correct = screen.getByText("Paris").closest("[data-answer-state]");
+    expect(correct?.getAttribute("data-answer-state")).toBe("correct");
+    expect(correct?.className).toMatch(/answer-correct/);
+    expect(correct?.textContent).toMatch(/richtig/i);
+    expect(screen.queryByText(/deine antwort/i)).toBeNull();
+    expect(document.querySelector('[data-answer-state="wrong"]')).toBeNull();
+    expect(screen.queryByText(/falsch/i)).toBeNull();
+  });
+
+  it("marks sorting positions according to the player's own evaluation", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "evaluation", {
+      round: {
+        solution: { kind: "sorting", question: "Ordne die Jahre", terms: [{ id: "a", text: "1990", value: 1990 }, { id: "b", text: "2000", value: 2000 }] },
+        ownEvaluation: { answer: { kind: "sorting", termIds: ["a", "b"] }, points: 1, distance: null, positionsCorrect: [true, false] },
+      },
+    }));
+    const ownAnswers = screen.getByRole("list", { name: /deine antwort/i });
+    expect(ownAnswers.querySelector('[data-answer-state="correct"]')?.textContent).toContain("1990");
+    expect(ownAnswers.querySelector('[data-answer-state="wrong"]')?.textContent).toContain("2000");
+    expect(ownAnswers.querySelector('[data-answer-state="wrong"]')?.textContent).toMatch(/falsch/i);
+  });
+
+  it("does not show private player status or answer feedback on the projector", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "evaluation", {
+      ranking: [{ playerId: "player-1", name: "Ada", rank: 1, total: 9, games: [{ gameId: "quiz-1", points: 4 }] }],
+      round: { results: [{ playerId: "player-1", name: "Ada", points: 4, rank: 1, distance: null, errors: null }] },
+    }));
+    expect(screen.queryByRole("region", { name: /dein spielstand/i })).toBeNull();
+    expect(screen.queryByText(/deine abgegebene antwort/i)).toBeNull();
+    expect(screen.queryByText(/answer-(correct|wrong)/i)).toBeNull();
+  });
+});
