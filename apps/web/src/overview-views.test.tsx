@@ -116,16 +116,15 @@ describe("FEAT-6 projector overview", () => {
     expect(played.textContent).toContain("Jahre ordnen");
   });
 
-  it("renders the ranking table with columns only for played games", async () => {
+  it("renders the ranking table with rank, points and player name only", async () => {
     const view = renderRole("projector");
     await deliver(view, snapshot("projector", { ranking }));
     const table = screen.getByRole("table");
     const headers = Array.from(table.querySelectorAll("th")).map(cell => cell.textContent);
-    expect(headers).toHaveLength(4);
+    expect(headers).toHaveLength(3);
     expect(headers[0]).toMatch(/platz/i);
     expect(headers[1]).toMatch(/punkte/i);
     expect(headers[2]).toMatch(/name|spieler/i);
-    expect(headers[3]).toMatch(/spiel\s*1/i);
     const rows = table.querySelectorAll("tbody tr");
     expect(rows).toHaveLength(2);
     expect(rows[0].textContent).toContain("Ada");

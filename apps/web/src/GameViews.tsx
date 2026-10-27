@@ -77,32 +77,19 @@ function RankingTable({ ranking, transition }: { ranking: RankingEntry[]; transi
     return () => window.clearInterval(interval);
   }, [stage]);
 
-  const transitionGameId = transition?.gameId ?? null;
   const shown = stage === "after" || !transition ? ranking : transition.previous;
-  const gameIds = [...new Set(shown.flatMap(entry => entry.games.map(game => game.gameId)).concat(stage === "after" || !transition ? [] : [transition.gameId]))];
   const target = transition ? new Map(transition.current.map(entry => [entry.playerId, entry])) : null;
   const displayTotal = (entry: RankingEntry) => {
     if (stage !== "counting" || !target) return entry.total;
     const next = target.get(entry.playerId);
     return next ? Math.round(entry.total + (next.total - entry.total) * progress) : entry.total;
   };
-  const gamePoints = (entry: RankingEntry, gameId: string) => {
-    if (stage === "counting" && target) {
-      const next = target.get(entry.playerId);
-      const current = entry.games.find(game => game.gameId === gameId)?.points ?? 0;
-      const goal = next?.games.find(game => game.gameId === gameId)?.points ?? current;
-      return Math.round(current + (goal - current) * progress);
-    }
-    const source = (stage === "after" || !transition ? entry.games : (gameId === transitionGameId ? [] : entry.games));
-    return source.find(game => game.gameId === gameId)?.points ?? null;
-  };
 
-  if (gameIds.length === 0 && stage === "after") return null;
+  if (shown.length === 0) return null;
   return <table className={`ranking-table ranking-${stage}`} data-ranking-stage={stage}>
-    <thead><tr><th>Platz</th><th>Punkte</th><th>Spielername</th>{gameIds.map((gameId, index) => <th key={gameId} className={gameId === transitionGameId && stage !== "after" ? "ranking-col-new" : ""}>Spiel {index + 1}</th>)}</tr></thead>
+    <thead><tr><th>Platz</th><th>Punkte</th><th>Spielername</th></tr></thead>
     <tbody>{shown.map(entry => <tr key={entry.playerId} className={stage === "after" && transition ? "ranking-row-final" : ""}>
       <td>{entry.rank}</td><td>{displayTotal(entry)}</td><td>{entry.name}</td>
-      {gameIds.map(gameId => <td key={gameId} className={gameId === transitionGameId && stage !== "after" ? "ranking-col-new" : ""}>{gamePoints(entry, gameId) ?? "–"}</td>)}
     </tr>)}</tbody>
   </table>;
 }
@@ -219,7 +206,7 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
         })}</div>}
         {round.task.kind === "sorting" && <fieldset disabled={!canEdit}><legend>Ordne die Begriffe</legend><ol className="sortable-terms">{(draft?.kind === "sorting" ? draft.termIds : round.task.terms.map(term => term.id)).map((id, index, ids) => {
           const term = round.task.kind === "sorting" ? round.task.terms.find(item => item.id === id) : undefined;
-          return <li key={id} draggable={canEdit} className={dragIndex === index ? "sortable-dragging" : undefined}
+          return <li key={id} draggable={canEdit} className={dragIndex === index ? "answer-tile sortable-dragging" : "answer-tile"}
             onDragStart={event => { setDragIndex(index); event.dataTransfer.setData("text/plain", String(index)); event.dataTransfer.effectAllowed = "move"; }}
             onDragOver={event => { if (canEdit) { event.preventDefault(); event.dataTransfer.dropEffect = "move"; } }}
             onDrop={event => {
@@ -236,7 +223,7 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
             }}
             onDragEnd={() => setDragIndex(null)}><span>{term?.text ?? "Begriff"}</span><button type="button" disabled={!canEdit || index === 0} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach oben`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index - 1 ? ids[index] : i === index ? ids[index - 1] : item) })}>↑</button><button type="button" disabled={!canEdit || index === ids.length - 1} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach unten`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index ? ids[index + 1] : i === index + 1 ? ids[index] : item) })}>↓</button></li>;
         })}</ol></fieldset>}
-        {round.task.kind === "estimation" && <label className="estimation-input">Deine Schätzung<input type="number" value={draft?.kind === "estimation" ? draft.value : ""} disabled={!canEdit} onChange={event => { const value = Number(event.target.value); if (event.target.value !== "" && Number.isFinite(value)) sendAnswer({ kind: "estimation", value }); }} /></label>}
+        {round.task.kind === "estimation" && <div className="answer-tile estimation-panel"><label className="estimation-input">Deine Schätzung<input type="number" value={draft?.kind === "estimation" ? draft.value : ""} disabled={!canEdit} onChange={event => { const value = Number(event.target.value); if (event.target.value !== "" && Number.isFinite(value)) sendAnswer({ kind: "estimation", value }); }} /></label></div>}
         {!snapshot.input.final && !round.timer.inputClosed && <button type="button" disabled={!canEdit || !draft} onClick={submit}>Abgeben</button>}
       </>}
     </>}

@@ -315,6 +315,8 @@ describe("CHG-3 game phase views", () => {
     const ranking = await screen.findByRole("region", { name: /rangliste/i });
     expect(ranking.textContent).toContain("Ada");
     expect(ranking.textContent).toContain("5");
+    const headers = Array.from(ranking.querySelectorAll("th")).map(cell => cell.textContent);
+    expect(headers).toEqual(["Platz", "Punkte", "Spielername"]);
     expect(screen.queryByRole("region", { name: /teilnehmerstatus/i })).toBeNull();
     expect(screen.queryByText(/verbunden|getrennt/i)).toBeNull();
     expect(await screen.findByText(/Welche Stadt/)).toBeTruthy();
@@ -340,6 +342,35 @@ describe("CHG-3 game phase views", () => {
     await waitFor(() => expect(option.closest("[data-answer-state]")?.getAttribute("data-answer-state")).toBe("selected"));
     await waitFor(() => expect(view.socket().commands().some(command =>
       command.type === "answer.set" && (command.answer as { optionId?: string }).optionId === "b")).toBe(true));
+  });
+});
+
+describe("CHG-4 visual changes", () => {
+  it("renders sorting terms on grey answer tiles", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing", { round: {
+      roundId: "round-2", game: { id: "sort-1", kind: "sorting", title: "Jahre ordnen", rules: "Begriffe ordnen" },
+      questionIndex: 0, questionCount: 1, phase: "playing",
+      task: { kind: "sorting", question: "Ordne die Jahre", terms: [
+        { id: "a", text: "Mauerfall" }, { id: "b", text: "Mondlandung" }, { id: "c", text: "Internet" },
+      ] },
+      timer: { roundId: "round-2", serverTime: 1_000, deadline: 61_000, acceptUntil: 63_000, inputClosed: false, canReveal: false },
+    } }));
+    const items = screen.getAllByRole("listitem").filter(item => item.closest(".sortable-terms"));
+    expect(items).toHaveLength(3);
+    for (const item of items) expect(item.className).toContain("answer-tile");
+  });
+
+  it("wraps the estimation input in a grey tile", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing", { round: {
+      roundId: "round-3", game: { id: "est-1", kind: "estimation", title: "Wie viele?", rules: "Zahl schaetzen" },
+      questionIndex: 0, questionCount: 1, phase: "playing",
+      task: { kind: "estimation", question: "Wie hoch ist der Eiffelturm in Metern?" },
+      timer: { roundId: "round-3", serverTime: 1_000, deadline: 31_000, acceptUntil: 33_000, inputClosed: false, canReveal: false },
+    } }));
+    const input = await screen.findByLabelText(/schätzung|schaetzung/i);
+    expect(input.closest(".answer-tile")).toBeTruthy();
   });
 });
 
