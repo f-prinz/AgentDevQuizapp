@@ -453,9 +453,11 @@
         "FEAT-4",
         "FEAT-5"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 1,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-15"
+      ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P1",
       "allowed_paths": [
@@ -464,7 +466,14 @@
         "docs/feature-FEAT-14-requirements.md",
         "docs/feature-FEAT-14-architecture.md"
       ],
-      "implemented_by": "web_developer+server_developer"
+      "implemented_by": "web_developer+server_developer",
+      "test_result": "38/38 Webtests gruen auf main; Server 54/54; Build gruen",
+      "review_result": "APPROVED ohne Blocker; Quiz-Aufloesung zeigt authoritative richtige Antwort auch ohne eigene Abgabe (Timeout), Regressionstest vorhanden",
+      "test_evidence": "tasks/evidence/FEAT-14-2026-10-27T09-29-26-834Z.json",
+      "red_evidence": "tasks/evidence/FEAT-14-2026-10-27T09-28-16-033Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-14-2026-10-27T09-29-32-887Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/FEAT-14.md"
     },
     {
       "id": "TECH-5",
@@ -706,5 +715,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T09:28:47.987Z"
+  "last_updated_utc": "2026-10-27T09:47:41.437Z"
 }
