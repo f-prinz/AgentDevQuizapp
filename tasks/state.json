@@ -606,14 +606,25 @@
       ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P0",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-3",
+        "INV-5",
+        "INV-12",
+        "INV-13"
+      ],
       "allowed_paths": [
         "apps/server/",
         "docs/validation/lobby.md"
       ],
-      "implemented_by": "server_test_engineer"
+      "implemented_by": "server_test_engineer",
+      "test_result": "4/4 e2e-Tests gruen auf main",
+      "review_result": "APPROVED; vollstaendiger Lobby-/Reconnect-Ablauf e2e belegt, Moderationsrechte, Wartezustand, Scope-Audit dokumentiert",
+      "test_evidence": "tasks/evidence/TECH-7-2026-10-27T10-09-19-089Z.json",
+      "lint_evidence": "tasks/evidence/TECH-7-2026-10-27T10-10-35-896Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/TECH-7.md"
     },
     {
       "id": "TECH-8",
@@ -756,5 +767,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T10:08:30.049Z"
+  "last_updated_utc": "2026-10-27T10:11:06.409Z"
 }
