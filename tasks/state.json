@@ -444,7 +444,7 @@
       "id": "FEAT-14",
       "component": "web",
       "title": "F9 Design-System: Theme-CSS-Variablen, Statusleiste (Name/Punkte/Platzierung), Antwort-Farbmarkierung",
-      "acceptance_criteria": "Zentrales Theme-File mit 4 freigegebenen Farben; Statusleiste oben in Spieler-Ansichten; neutrale/richtige/falsche Antwort-Farbung",
+      "acceptance_criteria": "Player snapshots expose only the requesting player's own ranking entry after the first completed game; no other player scores are present. Web player status bar shows own name, points (0 before ranking) and rank (unavailable until ranking exists), updating on snapshots. Central theme has exactly the four approved color variables; quiz/sorting answers use neutral/correct/incorrect colors plus textual cues, only after authoritative evaluation. Player and host views remain mobile-first at 320 CSS px; projector remains desktop and exposes no private player status. No schema/dependency changes. Automated tests, lint and production build pass; manual browser/UI and ui_step evidence waived by user.",
       "test_command": "npm --prefix apps/web test",
       "lint_command": "npm --prefix apps/web run lint",
       "red_evidence_required": true,
@@ -453,11 +453,18 @@
         "FEAT-4",
         "FEAT-5"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "classification": "CURRENT_STACK_ONLY",
-      "priority": "P1"
+      "priority": "P1",
+      "allowed_paths": [
+        "apps/web/",
+        "apps/server/",
+        "docs/feature-FEAT-14-requirements.md",
+        "docs/feature-FEAT-14-architecture.md"
+      ],
+      "implemented_by": "web_developer+server_developer"
     },
     {
       "id": "TECH-5",
@@ -699,5 +706,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T09:15:17.576Z"
+  "last_updated_utc": "2026-10-27T09:19:50.509Z"
 }

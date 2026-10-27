@@ -1,6 +1,6 @@
 # Fortschritt
 
-Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE; FEAT-2 DONE; FEAT-3 DONE; FEAT-4 DONE; FEAT-5 DONE; FEAT-6 TODO; FEAT-7 DONE; FEAT-8 TODO; FEAT-9 DONE; FEAT-10 TODO; FEAT-11 DONE; FEAT-12 TODO; FEAT-13 DONE; FEAT-14 TODO; TECH-5 DONE; TECH-6 DONE; FEAT-15 DONE; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO; TECH-13 DONE. Historische Meldungen unten bleiben erhalten.
+Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE; FEAT-2 DONE; FEAT-3 DONE; FEAT-4 DONE; FEAT-5 DONE; FEAT-6 TODO; FEAT-7 DONE; FEAT-8 TODO; FEAT-9 DONE; FEAT-10 TODO; FEAT-11 DONE; FEAT-12 TODO; FEAT-13 DONE; FEAT-14 IN_PROGRESS; TECH-5 DONE; TECH-6 DONE; FEAT-15 DONE; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO; TECH-13 DONE. Historische Meldungen unten bleiben erhalten.
 
 2026-10-26T12:27:54.828Z: TECH-5 IN_PROGRESS.   
 
@@ -179,3 +179,7 @@ Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE
 2026-10-27T09:14:47.130Z: FEAT-4 Fix-Retry 1/3. Code review findings resolved: waiting status is visible in host/projector participant lists; closed input uses neutral timeout wording.
 
 2026-10-27T09:15:17.576Z: FEAT-4 DONE. 31/31 Webtests bestanden; nach Merge auf main APPROVED; waiting visibility und neutrale Timeout-Meldung korrigiert; Security-Review ohne Blocker
+
+2026-10-27T09:19:49.890Z: FEAT-14 aktualisiert.   
+
+2026-10-27T09:19:50.509Z: FEAT-14 IN_PROGRESS.   
