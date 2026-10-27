@@ -674,7 +674,9 @@
       "priority": "P1",
       "status": "IN_PROGRESS",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-18"
+      ],
       "allowed_paths": [
         "apps/server/",
         "docs/validation/sort.md"
@@ -778,5 +780,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T10:23:12.453Z"
+  "last_updated_utc": "2026-10-27T10:25:31.585Z"
 }

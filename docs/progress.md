@@ -235,3 +235,5 @@ Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE
 2026-10-27T10:23:02.801Z: TECH-8 DONE. e2e quiz.test.ts gruen auf main (1/1, 32s) APPROVED; Quiz-Integration e2e mit echter Deadline, Wertung, Reveal-Gate, Rollen-Isolation 
 
 2026-10-27T10:23:12.453Z: TECH-9 IN_PROGRESS.   
+
+2026-10-27T10:25:31.585Z: TECH-9 aktualisiert.   
