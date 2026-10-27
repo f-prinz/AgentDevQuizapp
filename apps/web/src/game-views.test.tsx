@@ -365,6 +365,58 @@ describe("FEAT-10 sorting views", () => {
   });
 });
 
+describe("FEAT-12 estimation views", () => {
+  const estimationPlaying = {
+    roundId: "round-3", game: { id: "est-1", kind: "estimation", title: "Wie viele?", rules: "Zahl schaetzen" },
+    questionIndex: 0, questionCount: 1, phase: "playing",
+    task: { kind: "estimation", question: "Wie hoch ist der Eiffelturm in Metern?" },
+    timer: { roundId: "round-3", serverTime: 1_000, deadline: 31_000, acceptUntil: 33_000, inputClosed: false, canReveal: false },
+  };
+  const estimationEval = {
+    roundId: "round-3", game: { id: "est-1", kind: "estimation", title: "Wie viele?", rules: "Zahl schaetzen" },
+    questionIndex: 0, questionCount: 1, phase: "evaluation", hasNextQuestion: false,
+    solution: { kind: "estimation", question: "Wie hoch ist der Eiffelturm in Metern?", target: 330 },
+  };
+
+  it("sends a numeric estimation draft for the player", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing", { round: estimationPlaying }));
+    fireEvent.change(await screen.findByLabelText(/schätzung|schaetzung/i), { target: { value: "300" } });
+    await waitFor(() => expect(view.socket().commands().some(command =>
+      command.type === "answer.set" && (command.answer as { value?: number }).value === 300)).toBe(true));
+  });
+
+  it("shows the player's own estimate and distance to the solution", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "evaluation", {
+      round: { ...estimationEval, ownEvaluation: { answer: { kind: "estimation", value: 300 }, points: 3, distance: 30, positionsCorrect: null } },
+    }));
+    const section = await screen.findByRole("region", { name: /spielphase/i });
+    expect(section.textContent).toContain("330");
+    expect(section.textContent).toMatch(/300/);
+    expect(section.textContent).toMatch(/abstand/i);
+    expect(section.textContent).toContain("Abstand zur Lösung: 30");
+  });
+
+  it("lists players by rank with distance on the projector", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "evaluation", {
+      round: { ...estimationEval, results: [
+        { playerId: "player-1", name: "Ada", points: 3, rank: 1, distance: 5, errors: null },
+        { playerId: "player-2", name: "Bo", points: 1, rank: 2, distance: 42, errors: null },
+      ] },
+    }));
+    const display = await screen.findByRole("region", { name: /spielanzeige/i });
+    expect(display.textContent).toContain("330");
+    const resultRows = display.querySelectorAll("ol li");
+    expect(resultRows[0].textContent).toContain("Ada");
+    expect(resultRows[0].textContent).toMatch(/platz\s*1/i);
+    expect(resultRows[0].textContent).toMatch(/abstand\s*5/i);
+    expect(resultRows[1].textContent).toContain("Bo");
+    expect(resultRows[1].textContent).toMatch(/abstand\s*42/i);
+  });
+});
+
 describe("FEAT-8 quiz views", () => {
   it("renders the four answer options as selectable radio choices for the player", async () => {
     const view = renderRole("player");
