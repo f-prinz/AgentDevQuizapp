@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import * as QRCodeModule from "react-qr-code";
 import type { QRCodeProps } from "react-qr-code";
 import type { Answer, HostSnapshot, PlayerSnapshot, ProjectorSnapshot, RankingEntry, Snapshot, Timer } from "@raccoons/contracts";
@@ -178,10 +181,19 @@ function SolutionContent({ solution }: { solution: { kind: "quiz"; question: str
   </div>;
 }
 
+function SortableTerm({ id, canEdit, children }: { id: string; canEdit: boolean; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled: !canEdit });
+  const style = { transform: CSS.Transform.toString(transform), transition };
+  return <li ref={setNodeRef} style={style} {...attributes} {...listeners} className={isDragging ? "answer-tile sortable-dragging" : "answer-tile"}>{children}</li>;
+}
+
 export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; send: Send }) {
   const round = snapshot.round;
   const [draft, setDraft] = useState<Answer | null>(snapshot.input.answer);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
   useEffect(() => setDraft(snapshot.input.answer), [snapshot.revision, snapshot.input.answer]);
   if (!round) return <section className="game-view" aria-label="Spielbeginn"><h2>Das Spiel beginnt gleich …</h2></section>;
   const canEdit = round.phase === "playing" && snapshot.input.participating && !snapshot.input.final && !round.timer.inputClosed;
@@ -194,8 +206,14 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
     if (!canEdit || !draft || round.phase !== "playing") return;
     send({ version: 1, type: "answer.submit", requestId: crypto.randomUUID(), roundId: round.roundId, answer: draft });
   };
+  const onSortEnd = (ids: string[]) => (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!canEdit || !over || active.id === over.id) return;
+    const next = arrayMove(ids, ids.indexOf(String(active.id)), ids.indexOf(String(over.id)));
+    sendAnswer({ kind: "sorting", termIds: next });
+  };
   return <section className="game-view" aria-label="Spielphase">
-    <h2>{round.game.title}</h2>
+    {round.game.kind !== "sorting" && <h2>{round.game.title}</h2>}
     {round.phase === "start" && <div className="game-start-animation" role="region" aria-label="Startanimation"><p>{round.game.rules}</p><p>Das Spiel beginnt gleich …</p></div>}
     {round.phase === "playing" && <>
       <TimerDisplay timer={round.timer} size="compact" />
@@ -204,25 +222,23 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
           const chosen = draft?.kind === "quiz" && draft.optionId === option.id;
           return <button type="button" key={option.id} className={`answer-option${chosen ? " answer-selected" : ""}`} data-answer-state={chosen ? "selected" : "neutral"} disabled={!canEdit} onClick={() => sendAnswer({ kind: "quiz", optionId: option.id })}>{option.text}</button>;
         })}</div>}
-        {round.task.kind === "sorting" && <fieldset disabled={!canEdit}><legend>Ordne die Begriffe</legend><ol className="sortable-terms">{(draft?.kind === "sorting" ? draft.termIds : round.task.terms.map(term => term.id)).map((id, index, ids) => {
-          const term = round.task.kind === "sorting" ? round.task.terms.find(item => item.id === id) : undefined;
-          return <li key={id} draggable={canEdit} className={dragIndex === index ? "answer-tile sortable-dragging" : "answer-tile"}
-            onDragStart={event => { setDragIndex(index); event.dataTransfer.setData("text/plain", String(index)); event.dataTransfer.effectAllowed = "move"; }}
-            onDragOver={event => { if (canEdit) { event.preventDefault(); event.dataTransfer.dropEffect = "move"; } }}
-            onDrop={event => {
-              if (!canEdit) return;
-              event.preventDefault();
-              const from = dragIndex ?? Number(event.dataTransfer.getData("text/plain"));
-              if (Number.isFinite(from) && from !== index) {
-                const next = [...ids];
-                const [moved] = next.splice(from, 1);
-                next.splice(index, 0, moved);
-                sendAnswer({ kind: "sorting", termIds: next });
-              }
-              setDragIndex(null);
-            }}
-            onDragEnd={() => setDragIndex(null)}><span>{term?.text ?? "Begriff"}</span><button type="button" disabled={!canEdit || index === 0} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach oben`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index - 1 ? ids[index] : i === index ? ids[index - 1] : item) })}>↑</button><button type="button" disabled={!canEdit || index === ids.length - 1} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach unten`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index ? ids[index + 1] : i === index + 1 ? ids[index] : item) })}>↓</button></li>;
-        })}</ol></fieldset>}
+        {round.task.kind === "sorting" && (() => {
+          const ids = draft?.kind === "sorting" ? draft.termIds : round.task.terms.map(term => term.id);
+          return <fieldset disabled={!canEdit}><legend>Ordne die Begriffe</legend>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onSortEnd(ids)}>
+              <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+                <ol className="sortable-terms">{ids.map((id, index) => {
+                  const term = round.task.kind === "sorting" ? round.task.terms.find(item => item.id === id) : undefined;
+                  return <SortableTerm key={id} id={id} canEdit={canEdit}>
+                    <span>{term?.text ?? "Begriff"}</span>
+                    <button type="button" disabled={!canEdit || index === 0} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach oben`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index - 1 ? ids[index] : i === index ? ids[index - 1] : item) })}>↑</button>
+                    <button type="button" disabled={!canEdit || index === ids.length - 1} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach unten`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index ? ids[index + 1] : i === index + 1 ? ids[index] : item) })}>↓</button>
+                  </SortableTerm>;
+                })}</ol>
+              </SortableContext>
+            </DndContext>
+          </fieldset>;
+        })()}
         {round.task.kind === "estimation" && <div className="answer-tile estimation-panel"><label className="estimation-input">Deine Schätzung<input type="number" value={draft?.kind === "estimation" ? draft.value : ""} disabled={!canEdit} onChange={event => { const value = Number(event.target.value); if (event.target.value !== "" && Number.isFinite(value)) sendAnswer({ kind: "estimation", value }); }} /></label></div>}
         {!snapshot.input.final && !round.timer.inputClosed && <button type="button" disabled={!canEdit || !draft} onClick={submit}>Abgeben</button>}
       </>}
@@ -284,7 +300,7 @@ export function ProjectorGameView({ snapshot }: { snapshot: ProjectorSnapshot; s
     </section>;
   }
   return <div className="projector-game">
-    <h3>{round.game.title}</h3>
+    {round.game.kind !== "sorting" && <h3>{round.game.title}</h3>}
     {round.phase === "start" && <><p>{round.game.rules}</p><p>Das Spiel beginnt gleich …</p></>}
     {round.phase === "playing" && <><h4>Frage {round.questionIndex + 1} von {round.questionCount}</h4><p>{round.task.question}</p><TimerDisplay timer={round.timer} size="large" /></>}
     {round.phase === "evaluation" && <><SolutionContent solution={round.solution} /><Results results={round.results} /></>}

@@ -356,7 +356,7 @@ describe("CHG-4 visual changes", () => {
       ] },
       timer: { roundId: "round-2", serverTime: 1_000, deadline: 61_000, acceptUntil: 63_000, inputClosed: false, canReveal: false },
     } }));
-    const items = screen.getAllByRole("listitem").filter(item => item.closest(".sortable-terms"));
+    const items = Array.from(document.querySelectorAll(".sortable-terms li"));
     expect(items).toHaveLength(3);
     for (const item of items) expect(item.className).toContain("answer-tile");
   });
@@ -391,17 +391,35 @@ describe("FEAT-10 sorting views", () => {
     ] },
   };
 
-  it("reorders terms via drag and drop and sends the new order", async () => {
+  it("renders sortable terms wired for dnd-kit and reorders via controls", async () => {
     const view = renderRole("player");
     await deliver(view, snapshot("player", "playing", { round: sortingPlaying }));
-    const items = screen.getAllByRole("listitem").filter(item => item.closest(".sortable-terms"));
+    const items = Array.from(document.querySelectorAll(".sortable-terms li"));
     expect(items).toHaveLength(3);
-    const dataTransfer = { data: new Map<string, string>(), setData(type: string, value: string) { this.data.set(type, value); }, getData(type: string) { return this.data.get(type) ?? ""; }, effectAllowed: "move", dropEffect: "move" };
-    fireEvent.dragStart(items[0], { dataTransfer });
-    fireEvent.dragOver(items[2], { dataTransfer });
-    fireEvent.drop(items[2], { dataTransfer });
+    // dnd-kit useSortable verdrahtet jedes Item (role=button + tabindex).
+    for (const item of items) {
+      expect(item.getAttribute("role")).toBe("button");
+      expect(item.getAttribute("tabindex")).toBe("0");
+    }
+    const mauerfallDown = () => Array.from(document.querySelectorAll(".sortable-terms li"))
+      .find(item => item.textContent?.includes("Mauerfall"))
+      ?.querySelector('button[aria-label*="nach unten"]');
+    expect(mauerfallDown()).toBeTruthy();
+    fireEvent.click(mauerfallDown()!);
+    fireEvent.click(mauerfallDown()!);
     await waitFor(() => expect(view.socket().commands().some(command =>
       command.type === "answer.set" && JSON.stringify((command.answer as { termIds?: string[] }).termIds) === JSON.stringify(["b", "c", "a"]))).toBe(true));
+  });
+
+  it("hides the game title for the sorting game on player and projector", async () => {
+    const playerView = renderRole("player");
+    await deliver(playerView, snapshot("player", "playing", { round: sortingPlaying }));
+    expect(screen.queryByText("Jahre ordnen")).toBeNull();
+    playerView.unmount();
+    const projectorView = renderRole("projector");
+    await deliver(projectorView, snapshot("projector", "playing", { round: { ...sortingPlaying, task: { kind: "sorting", question: "Ordne die Jahre" } } }));
+    expect(screen.queryByText("Jahre ordnen")).toBeNull();
+    expect(await screen.findByText(/Ordne die Jahre/)).toBeTruthy();
   });
 
   it("shows the solution order with values and per-player errors on the projector", async () => {

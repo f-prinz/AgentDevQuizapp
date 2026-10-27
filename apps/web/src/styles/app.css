@@ -31,9 +31,8 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .projector-lobby { display: grid; place-items: center; gap: 2rem; padding: 2rem; text-align: center; }
 .projector-lobby .player-link { font-size: clamp(1.5rem, 4vw, 3rem); font-weight: 800; word-break: break-all; }
 .projector-lobby [role="img"] svg { width: min(40vmin, 22rem); height: auto; padding: 1rem; background: #fff; }
-.projector { min-width: 64rem; width: min(100% - 2rem, 100rem); min-height: calc(100vh - 5rem); margin-inline: auto; padding-block: clamp(1.5rem, 4vw, 4rem); }
-.projector h1 { margin-top: 0; font-size: clamp(2.5rem, 7vw, 5rem); }
-.projector-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(14rem, 1fr); min-height: 55vh; gap: 1.5rem; }
+.projector { min-width: 64rem; width: 100%; min-height: 100vh; margin-inline: auto; padding: clamp(1.5rem, 4vw, 4rem); }
+.projector-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(14rem, 1fr); min-height: calc(100vh - clamp(3rem, 8vw, 8rem)); gap: 1.5rem; }
 .projector-ranking { align-content: start; max-height: calc(100vh - 14rem); overflow-y: auto; }
 .projector-layout section { display: grid; align-content: center; min-height: 12rem; padding: clamp(1rem, 3vw, 2rem); border: 1px solid var(--color-grey); border-radius: 0.75rem; }
 .projector .participants li { font-size: clamp(1.1rem, 2vw, 1.8rem); }
