@@ -1,0 +1,10 @@
+{
+  "task_id": "TECH-8",
+  "command": "npm --prefix apps/server test -- test/e2e/quiz.test.ts",
+  "exit_code": 0,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 test\n> vitest run test/e2e/quiz.test.ts\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv5.0.5 \u001b[39m\u001b[90mC:/dev/Bedburg/AgentDevQuizapp/apps/server\u001b[39m\n\n \u001b[32m✓\u001b[39m test/e2e/quiz.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 32380\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m e2e: quiz round flow \u001b[2m(1)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m scores a two-question quiz for two players with correct, wrong and missing answers\u001b[33m 32379\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m   Start at \u001b[22m 11:19:56\n\u001b[2m   Duration \u001b[22m 32.88s\u001b[2m (tests 99%, import 1%)\u001b[22m\n\n",
+  "stderr_tail": "",
+  "started": "2026-10-27T10:19:55.560Z",
+  "finished": "2026-10-27T10:20:29.305Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
