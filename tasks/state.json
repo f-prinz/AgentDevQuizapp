@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -937,15 +937,25 @@
       "dependencies": [],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P1",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-12",
+        "INV-14"
+      ],
       "allowed_paths": [
         "apps/web/"
       ],
-      "implemented_by": "web_developer"
+      "implemented_by": "web_developer",
+      "test_result": "62/62 Web-Tests gruen auf main",
+      "review_result": "APPROVED; minimale Spielphasen-Views, Rangliste rechts, Options-Buttons",
+      "test_evidence": "tasks/evidence/CHG-3-2026-10-27T12-48-28-516Z.json",
+      "red_evidence": "tasks/evidence/CHG-3-2026-10-27T12-46-31-479Z.json",
+      "lint_evidence": "tasks/evidence/CHG-3-2026-10-27T12-48-43-674Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/CHG-3.md"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T12:43:56.575Z"
+  "last_updated_utc": "2026-10-27T12:49:42.603Z"
 }

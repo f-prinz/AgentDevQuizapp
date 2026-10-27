@@ -231,7 +231,7 @@
     },
     {
       "id": "INV-12",
-      "capability": "Lobby im Web anlegen, per Rollenlink beitreten und Live-Teilnehmer in Host- und Projektoransicht sehen",
+      "capability": "Lobby im Web anlegen, per Rollenlink beitreten und Live-Teilnehmer in der Host-Lobbyansicht sehen",
       "component": "web",
       "status": "active",
       "anchors": [
@@ -254,7 +254,7 @@
       ],
       "introduced_by": "FEAT-2",
       "removed_by": null,
-      "notes": "CHG-1: Spieleransicht zeigt keine Teilnehmerliste, keine Beitrittsbestaetigung und keinen Phasentext mehr. CHG-2: Lobby-Ersteller landet direkt in der Host-Ansicht (keine Link-Liste auf der Startseite); Host-Teilnehmerliste nur in Lobbyphase. Browserabnahme mit temporaerem lokalen Vite- und fluechtigem In-Memory-Server; Host-Fragment aus URL entfernt; Hostzugriff nach Refresh, Spielerbeitritt und Live-Snapshot, scoped Projektorroute geprueft. Keine DB oder externe Dienste."
+      "notes": "CHG-1: Spieleransicht zeigt keine Teilnehmerliste, keine Beitrittsbestaetigung und keinen Phasentext mehr. CHG-2: Lobby-Ersteller landet direkt in der Host-Ansicht; Host-Teilnehmerliste nur in Lobbyphase. CHG-3: Projektor zeigt keine Teilnehmerliste/Verbindungsstatus mehr — rechte Spalte ist die Rangliste. Browserabnahme mit temporaerem lokalen Vite- und fluechtigem In-Memory-Server; Host-Fragment aus URL entfernt; Hostzugriff nach Refresh, Spielerbeitritt und Live-Snapshot, scoped Projektorroute geprueft. Keine DB oder externe Dienste."
     },
     {
       "id": "INV-13",
@@ -296,7 +296,7 @@
       ],
       "introduced_by": "FEAT-4",
       "removed_by": null,
-      "notes": "Host, Spieler und Projektor sehen servergesteuerte Start-, Spiel- und Auswertungsphasen; Timer folgt der Serverdeadline; Finalabgabe, wartende Spieler und Host-Aktionen folgen autorisiertem Snapshotstatus. Manuelle Browserabnahme und ui_step-Anker fuer FEAT-4 ausdruecklich vom Nutzer erlassen."
+      "notes": "Host, Spieler und Projektor sehen servergesteuerte Start-, Spiel- und Auswertungsphasen; Timer folgt der Serverdeadline; Finalabgabe, wartende Spieler und Host-Aktionen folgen autorisiertem Snapshotstatus. CHG-3: Host sieht beim Spielen nur Timer+Aufloesen und nach Auswertung nur Naechste-Frage-/Beenden-Aktion; Spieler sieht keine Fragetexte (nur Antwortoptionen+Timer, Auswahl rot); Projektor zeigt Rangliste dauerhaft rechts statt Teilnehmerstatus. Manuelle Browserabnahme und ui_step-Anker fuer FEAT-4 ausdruecklich vom Nutzer erlassen."
     },
     {
       "id": "INV-15",
