@@ -154,14 +154,22 @@
         "TECH-3",
         "FEAT-1"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-12"
+      ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P0",
       "implemented_by": "web_developer",
-      "review_result": "Requirements adversarial geprueft; Akzeptanzkriterium um Host-Secret/Refresh ergaenzt. Architektur KEEP, CURRENT_STACK_ONLY; vorhandene Contracts ausreichend; lokaler /lobbies-Proxy erforderlich.",
-      "blocked_reason": "Browserabnahme konnte nicht ausgefuehrt werden: erforderliche Freigabe zum Start des lokalen Vite-Servers wurde abgelehnt. Code, Tests, Lint/Typecheck, Build und unabhängiges Review sind auf Task-Branch FEAT-2 vorhanden; Branch-Commit 96f1e89. Zum Fortsetzen lokale Browserlaufzeit freigeben/starten und UI-Link-/Lobbyablauf pruefen."
+      "review_result": "Unabhaengig APPROVED; 15/15 Tests, ESLint/Typecheck, Build und Browserabnahme gruen: Lobby-Linke, Host-Fragment-Cleanup+Refresh, Spielerbeitritt+Live-Liste, Projektorroute.",
+      "blocked_reason": "Browserabnahme konnte nicht ausgefuehrt werden: erforderliche Freigabe zum Start des lokalen Vite-Servers wurde abgelehnt. Code, Tests, Lint/Typecheck, Build und unabhängiges Review sind auf Task-Branch FEAT-2 vorhanden; Branch-Commit 96f1e89. Zum Fortsetzen lokale Browserlaufzeit freigeben/starten und UI-Link-/Lobbyablauf pruefen.",
+      "test_result": "15/15 Webtests gruen; browserbasiert Lobby erstellt, Hostzugriff nach Fragment-Cleanup und Refresh wiederhergestellt, Spielerbeitritt/Teilnehmerliste und Projektorroute geprueft.",
+      "test_evidence": "tasks/evidence/FEAT-2-2026-10-27T08-39-42-661Z.json",
+      "red_evidence": "tasks/evidence/FEAT-2-2026-10-27T08-26-27-674Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-2-2026-10-27T08-39-52-999Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/FEAT-2.md"
     },
     {
       "id": "FEAT-3",
@@ -666,5 +674,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T08:39:02.693Z"
+  "last_updated_utc": "2026-10-27T08:40:13.129Z"
 }

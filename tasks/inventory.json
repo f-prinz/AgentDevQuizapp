@@ -228,7 +228,34 @@
       "introduced_by": "FEAT-11",
       "removed_by": null,
       "notes": "Nur gueltige endliche Schaetzungen bilden N; absolute Distanz, Rang 1+Anzahl strikt naeherer Schaetzungen, ceil(N/3)/ceil(2N/3) mit Grenzgleichstand zur besseren Stufe. Alle Besten erhalten +2, maximal5; fehlend/N=0 ergibt0 und keinen Rang. Schaetzpunkte fliessen erst nach Spielabschluss ins Ranking. Extremdistanzen bleiben wire-seitig endlich."
+    },
+    {
+      "id": "INV-12",
+      "capability": "Lobby im Web anlegen, per Rollenlink beitreten und Live-Teilnehmer in Host-, Spieler- und Projektoransicht sehen",
+      "component": "web",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "test",
+          "ref": "apps/web/src/lobby-views.test.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/routes/Pages.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/app-routes.tsx"
+        },
+        {
+          "type": "ui_step",
+          "ref": "Browser: Lobby anlegen; Host-Link öffnen und refreshen; Spieler Ada beitreten lassen; Host-Teilnehmerliste und Projektorroute prüfen"
+        }
+      ],
+      "introduced_by": "FEAT-2",
+      "removed_by": null,
+      "notes": "Browserabnahme mit temporaerem lokalen Vite- und fluechtigem In-Memory-Server; Host-Fragment aus URL entfernt; Hostzugriff nach Refresh, Spielerbeitritt und Live-Snapshot, scoped Projektorroute geprueft. Keine DB oder externe Dienste."
     }
   ],
-  "last_updated_utc": "2026-10-26T18:34:30.643Z"
+  "last_updated_utc": "2026-10-27T08:39:23.517Z"
 }
