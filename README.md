@@ -1,6 +1,6 @@
-﻿# Neues Projekt
+﻿# Raccoons Quizgame
 
-Agentgesteuertes lokales Projekt mit Komponentenmodell: mehrere Anwendungsteile mit eigenem Stack (`apps/<komponente>/`), Schnittstellen in `contracts/`. Skeleton mit Multi-Agent-Setup (`.codex/`), Orchestrator-Regeln (`AGENTS.md`), Playbooks und Task-Tracking (`tasks/`, `scripts/`).
+Lokale Quiz-Party-App: Host steuert Lobby und Spiele (Quiz/Sortieren/Schätzen), Spieler antworten auf dem eigenen Gerät, der Projektor zeigt Auftrag, Auswertung und animierte Rangliste. Komponenten: Fastify-WebSocket-Server (`apps/server/`), React-Vite-Client (`apps/web/`), geteilte zod-Verträge (`contracts/`).
 
 **Vollstaendige Anleitung von Einrichtung bis Meilenstein: [`docs/usage.md`](docs/usage.md).**
 
@@ -54,11 +54,25 @@ Hinweise:
 
 ## Lokal starten
 
-<!-- Startbefehle folgen nach Implementierung. -->
+Voraussetzung: Node.js ≥ 20 und PostgreSQL (Katalog-/Spieldaten, siehe `apps/server/README.md`).
+
+```powershell
+npm install                                # Root + Workspaces (server, web, contracts)
+Copy-Item .env.example .env                # Variablen anpassen (DATABASE_URL, Ports)
+npm --prefix apps/server run dev           # Server auf http://127.0.0.1:3000 (Fastify + WS)
+npm --prefix apps/web run dev              # Web auf http://127.0.0.1:5173 (Proxy /api,/ws -> :3000)
+```
+
+Ablauf im Browser: Host legt unter `/` eine Lobby an, teilt Host-/Projektor-/Spieler-Links, startet die Lobby ab zwei Spielern, wählt in der Übersicht Spiele aus und steuert die Runden (Start → Auflösen → nächste Frage/beenden). Der Projektor zeigt Aufgabe, Timer, Auswertung und Rangliste; Spieler antworten auf dem eigenen Gerät.
 
 ## Prüfungen
 
 ```powershell
+npm `pprefixoapps/server test              # Server-Unit- + e2e-wests (Viters,ews)
+lpm--pefix apps/eb test                 # Web-Tests (Vitet + Tsting Lirary)
+npm --prix apps/srvrrun int          # slit +tsc
+pm--rfx apps/wb n lint             # eslit +tsc
+```
 node scripts/check-state.mjs
 node scripts/check-inventory.mjs
 node scripts/verify.mjs
