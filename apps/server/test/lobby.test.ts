@@ -243,6 +243,14 @@ describe('lobby REST and WebSocket integration', () => {
     expect(host.snapshot.role).toBe('host');
     expect(projector.snapshot.role).toBe('projector');
     expect(player.snapshot.role).toBe('player');
+    // TECH-14: Host sieht Beitritts- und Projektorlink, Projektor nur den Spieler-Link.
+    if (host.snapshot.role === 'host') {
+      expect(host.snapshot.links.player).toBe(`/lobbies/${lobby.lobbyId}/join`);
+      expect(host.snapshot.links.projector).toBe(lobby.links.projector);
+    }
+    if (projector.snapshot.role === 'projector') {
+      expect(projector.snapshot.playerLink).toBe(`/lobbies/${lobby.lobbyId}/join`);
+    }
 
     for (const snapshot of [host.snapshot, projector.snapshot, player.snapshot]) {
       expect(snapshot.participants).toHaveLength(8);
@@ -251,7 +259,12 @@ describe('lobby REST and WebSocket integration', () => {
       );
       expect(snapshot.participants.map(participant => participant.id)).not.toContain(lobby.host.sessionId);
       const serialized = JSON.stringify(snapshot);
-      for (const token of [lobby.host.token, lobby.projector.token, ...playerSessions.map(session => session.token)]) {
+      // Der Host-Link im Snapshot enthaelt absichtlich das Projektor-Token
+      // (der Host erhielt es bereits beim Erstellen der Lobby).
+      const forbiddenTokens = snapshot.role === 'host'
+        ? [lobby.host.token, ...playerSessions.map(session => session.token)]
+        : [lobby.host.token, lobby.projector.token, ...playerSessions.map(session => session.token)];
+      for (const token of forbiddenTokens) {
         expect(serialized).not.toContain(token);
       }
       expect(serialized).not.toContain('PRIVATE_QUESTION_TEXT');

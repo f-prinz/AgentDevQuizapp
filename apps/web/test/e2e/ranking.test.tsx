@@ -33,7 +33,7 @@ function snapshot(overrides: Record<string, unknown> = {}) {
   return {
     version: 1, type: "snapshot", lobbyId, revision: 1, serverTime: 1_000, phase: "overview",
     participants, catalog, selectedGameId: null, ranking: [], rankingTransition: null,
-    role: "projector", round: null, ...overrides,
+    role: "projector", playerLink: `/lobbies/${lobbyId}/join`, round: null, ...overrides,
   };
 }
 

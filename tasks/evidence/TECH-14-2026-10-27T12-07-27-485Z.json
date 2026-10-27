@@ -1,0 +1,10 @@
+{
+  "task_id": "TECH-14",
+  "command": "npm --prefix apps/server run lint",
+  "exit_code": 0,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 lint\n> eslint . && tsc --noEmit\n\n",
+  "stderr_tail": "",
+  "started": "2026-10-27T12:07:27.485Z",
+  "finished": "2026-10-27T12:07:31.580Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
