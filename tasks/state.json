@@ -1154,15 +1154,24 @@
       "dependencies": [
         "CHG-7"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-16"
+      ],
       "allowed_paths": [
         "apps/web/"
       ],
-      "implemented_by": "web_developer"
+      "implemented_by": "web_developer",
+      "test_result": "70/70 Web-Tests gruen auf main",
+      "review_result": "APPROVED; Eval nur farblich, Abstandssortierung, groessere Projektor-Anzeige",
+      "test_evidence": "tasks/evidence/CHG-8-2026-10-27T17-00-16-248Z.json",
+      "red_evidence": "tasks/evidence/CHG-8-2026-10-27T16-59-36-700Z.json",
+      "lint_evidence": "tasks/evidence/CHG-8-2026-10-27T17-00-31-454Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/CHG-8.md"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T16:58:36.125Z"
+  "last_updated_utc": "2026-10-27T17:01:40.084Z"
 }
