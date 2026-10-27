@@ -735,14 +735,22 @@
       ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P1",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-17"
+      ],
       "allowed_paths": [
         "apps/web/",
         "docs/validation/ranking.md"
       ],
-      "implemented_by": "server_test_engineer"
+      "implemented_by": "server_test_engineer",
+      "test_result": "e2e ranking.test.tsx gruen auf main (1/1)",
+      "review_result": "APPROVED; Ranking-Lebenszyklus e2e belegt, Theme-konform, Animations-Endzustand korrekt",
+      "test_evidence": "tasks/evidence/TECH-11-2026-10-27T10-29-38-228Z.json",
+      "lint_evidence": "tasks/evidence/TECH-11-2026-10-27T10-29-50-820Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/TECH-11.md"
     },
     {
       "id": "TECH-12",
@@ -796,5 +804,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T10:28:37.007Z"
+  "last_updated_utc": "2026-10-27T10:30:41.078Z"
 }
