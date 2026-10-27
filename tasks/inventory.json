@@ -255,7 +255,26 @@
       "introduced_by": "FEAT-2",
       "removed_by": null,
       "notes": "Browserabnahme mit temporaerem lokalen Vite- und fluechtigem In-Memory-Server; Host-Fragment aus URL entfernt; Hostzugriff nach Refresh, Spielerbeitritt und Live-Snapshot, scoped Projektorroute geprueft. Keine DB oder externe Dienste."
+    },
+    {
+      "id": "INV-13",
+      "capability": "Lobby-Sitzungen im Web wiederaufnehmen und veraltete Sitzungen nach Serverneustart erkennen",
+      "component": "web",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "test",
+          "ref": "apps/web/src/lobby-views.test.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/routes/Pages.tsx"
+        }
+      ],
+      "introduced_by": "FEAT-15",
+      "removed_by": null,
+      "notes": "Rollen- und Lobby-spezifische Sitzung wird nach Refresh wiederverwendet; keine Doppelbeitritte; Storage-Fehler laesst den bestaetigten Join im Tab aktiv; ungueltige Sitzungen werden nach Neustart entfernt und ohne alten Token neu gebunden."
     }
   ],
-  "last_updated_utc": "2026-10-27T08:39:23.517Z"
+  "last_updated_utc": "2026-10-27T08:53:43.351Z"
 }
