@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -954,8 +954,27 @@
       "lint_evidence": "tasks/evidence/CHG-3-2026-10-27T12-48-43-674Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/CHG-3.md"
+    },
+    {
+      "id": "BUG-2",
+      "component": "web",
+      "title": "Projektor-Route crasht: react-qr-code CJS-Interop unter Vite-Dev",
+      "acceptance_criteria": "Projektorroute rendert im Dev-Server fehlerfrei; QR-Test bleibt gruen",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-2"
+      ],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/src"
+      ],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T12:49:42.603Z"
+  "last_updated_utc": "2026-10-27T12:56:19.752Z"
 }
