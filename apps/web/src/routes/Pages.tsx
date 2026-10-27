@@ -204,8 +204,8 @@ export function JoinPage() {
   }
 
   return <main className="page">
-    <h1>Lobby beitreten</h1>
     {!joined && <form onSubmit={(event) => { event.preventDefault(); void joinLobby(); }}>
+    <h1>Lobby beitreten</h1>
       <label htmlFor="player-name">Dein Name</label>
       <input id="player-name" name="name" value={name} maxLength={20} autoComplete="nickname" onChange={(event) => setName(event.target.value)} />
       <button type="submit">Beitreten</button>
@@ -232,10 +232,10 @@ export function ProjectorPage() {
   return <main className="projector" aria-label="Projektor">
     <LobbyStatus error={connectionError} />
     <div className="projector-layout">
-      <section aria-label="Spielanzeige">
+      
         {snapshot?.role === "projector" && <ProjectorGameView snapshot={snapshot} send={send} />}
         {!snapshot && <p>Warte auf die Lobbyverbindung …</p>}
-      </section>
+      
       <section className="projector-ranking" aria-label="Rangliste"><h2>Rangliste</h2>
         {snapshot?.role === "projector" && <ProjectorRanking snapshot={snapshot} />}
         {!snapshot && <p>Warte auf die Lobbyverbindung …</p>}

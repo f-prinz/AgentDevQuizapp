@@ -6,7 +6,7 @@ body { min-width: 20rem; min-height: 100vh; margin: 0; background: var(--color-b
 a { color: var(--color-turquoise); text-underline-offset: 0.2em; }
 a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem; }
 .app-shell { min-height: 100vh; }
-.page { width: min(100% - 2rem, 48rem); margin-inline: auto; padding-block: clamp(2rem, 8vw, 5rem); }
+.page { width: min(100% - 2rem, 48rem); margin-inline: auto; }
 .page h1 { margin-top: 0; font-size: clamp(2rem, 8vw, 3.5rem); }
 .page p, .projector-layout p { max-width: 65ch; color: var(--color-grey); line-height: 1.6; }
 .role-links { display: grid; gap: 0.75rem; margin: 2rem 0 0; padding: 0; list-style: none; }
@@ -33,7 +33,7 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .projector-lobby [role="img"] svg { width: min(40vmin, 22rem); height: auto; padding: 1rem; background: #fff; }
 .projector { min-width: 64rem; width: 100%; min-height: 100vh; margin-inline: auto; padding: clamp(1.5rem, 4vw, 4rem); }
 .projector-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(14rem, 1fr); min-height: calc(100vh - clamp(3rem, 8vw, 8rem)); gap: 1.5rem; }
-.projector-ranking { align-content: start; max-height: calc(100vh - 14rem); overflow-y: auto; }
+.projector-ranking { align-content: start; overflow-y: auto; }
 .projector-layout section { display: grid; min-height: 12rem; padding: clamp(1rem, 3vw, 2rem); border: 1px solid var(--color-grey); border-radius: 0.75rem; }
 .projector .participants li { font-size: clamp(1.1rem, 2vw, 1.8rem); }
 .projector-ranking .ranking-table, .projector-ranking .ranking-names { font-size: clamp(1.05rem, 1.8vw, 1.6rem); }
@@ -61,8 +61,9 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .answer-wrong .answer-mark { color: #fff; }
 .answer-tile { padding: 0.7rem 0.85rem; border: 1px solid var(--color-grey); border-radius: 0.4rem; color: #fff; background: var(--color-grey); }
 .answer-tile input { background: var(--color-bg); }
-.sortable-terms { display: grid; gap: 0.5rem; padding-left: 2rem; }
-.sortable-terms li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 0.4rem; }
+.player-identity { margin: 0 0 0.4rem; font-size: 1.15rem; font-weight: 700; }
+.sortable-terms { display: grid; justify-items: center; gap: 0.5rem; margin-block: 0; padding-left: 0; }
+.sortable-terms li { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 0.4rem; width: min(100%, 30rem); text-align: center; list-style-position: inside; }
 .sortable-terms li[draggable="true"] { cursor: grab; }
 .sortable-terms .answer-tile button { min-height: 2rem; padding: 0.3rem 0.6rem; color: #fff; }
 .sortable-dragging { opacity: 0.5; }

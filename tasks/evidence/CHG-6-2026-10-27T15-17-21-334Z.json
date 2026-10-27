@@ -1,0 +1,10 @@
+{
+  "task_id": "CHG-6",
+  "command": "npm --prefix apps/web run lint",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/web@1.0.0 lint\n> eslint . && npm run typecheck\n\n\nC:\\dev\\Bedburg\\AgentDevQuizapp\\apps\\web\\src\\GameViews.tsx\n  238:62  error  'index' is defined but never used  @typescript-eslint/no-unused-vars\n\n✖ 1 problem (1 error, 0 warnings)\n\n",
+  "stderr_tail": "",
+  "started": "2026-10-27T15:17:21.334Z",
+  "finished": "2026-10-27T15:17:27.641Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
