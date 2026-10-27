@@ -183,7 +183,9 @@ function SolutionContent({ solution }: { solution: { kind: "quiz"; question: str
 
 function SortableTerm({ id, canEdit, children }: { id: string; canEdit: boolean; children: React.ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled: !canEdit });
-  const style = { transform: CSS.Transform.toString(transform), transition };
+  // BUG-3: touch-action:none ist Pflicht für PointerSensor-Drags auf Touch-Geräten
+  // (sonst wertet der Browser die Geste als Scroll und feuert keine Pointer-Moves).
+  const style = { transform: CSS.Transform.toString(transform), transition, touchAction: "none" };
   return <li ref={setNodeRef} style={style} {...attributes} {...listeners} className={isDragging ? "answer-tile sortable-dragging" : "answer-tile"}>{children}</li>;
 }
 

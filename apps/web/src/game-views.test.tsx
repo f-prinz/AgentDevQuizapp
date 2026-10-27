@@ -400,6 +400,8 @@ describe("FEAT-10 sorting views", () => {
     for (const item of items) {
       expect(item.getAttribute("role")).toBe("button");
       expect(item.getAttribute("tabindex")).toBe("0");
+      // BUG-3: Ohne touch-action:none schluckt der Browser Touch-Gesten als Scroll.
+      expect((item as HTMLElement).style.touchAction).toBe("none");
     }
     const mauerfallDown = () => Array.from(document.querySelectorAll(".sortable-terms li"))
       .find(item => item.textContent?.includes("Mauerfall"))
