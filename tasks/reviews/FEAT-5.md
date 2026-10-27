@@ -1,29 +1,26 @@
 # Code Review FEAT-5
 
-Reviewer: code_reviewer, independent of implementation and test authors.
-Reviewed the complete FEAT-5 diff against main, including current working-tree changes in apps/server/src/game.ts, apps/server/src/lobby.ts, and apps/server/test/game-state.test.ts. Also reviewed the task acceptance criteria, agent context, approved stack, architecture scoring/ranking sections, and ranking/snapshot contracts.
+Reviewer: `code_reviewer`, independent of the FEAT-5/FEAT-7/FEAT-9/FEAT-11 implementation authors.
 
 ## Result: APPROVED
 
-No blockers or other findings in the FEAT-5 scope.
+I reviewed the integrated `main` implementation in `apps/server/src/game.ts`, `apps/server/src/lobby.ts`, and the ranking/game-state regressions in `apps/server/test/game-state.test.ts` against the FEAT-5 acceptance criteria, `docs/tech-stack.md`, `docs/agent-context.md`, `docs/feature-mvp-architecture.md`, the ranking contracts, and inventory entry `INV-9`.
 
-- Quiz points accumulate for frozen participants at reveal from the current question's stored answer. Reveal can transition a closed playing round to evaluation only once; next question gets a new round ID while retaining the accumulated points. A completed-game result is created only when the final evaluation is finished. A repeated finish with the old round ID is rejected because the active round has been cleared.
-- Ranking totals sum completedGames only. An unfinished game adds no points and is not marked played. On finish, all current players get a per-game entry; missing answers score zero. Players who join after a game are also projected with zero for that prior game.
-- Competition ranks count players with strictly higher totals, yielding 1, 1, 3 for a tie at first. Ranking iteration follows the lobby's append-only player list, preserving join order within ties. The transition stores previous/current ranking and one resultId at finish; host and projector receive the same values.
-- Player snapshots receive an empty aggregate ranking and null transition; host and projector receive the ranking. Snapshots are parsed through their role-specific contract schemas.
-- The quiz test verifies no new rank or played flag during question evaluations, then verifies accumulated multi-question points, tied ranks, completed-game entry, played status, and matching host/projector transitions. The sorting test verifies completion and ranking-entry structure. The shared finish/ranking path handles all game kinds.
+No blocker or other finding remains in the FEAT-5 scope.
 
-Sorting and estimation currently retain zero points because their scoring algorithms are pending FEAT-9 and FEAT-11, both TODO in tasks/state.json and described as future work in the feature plan. These values are placeholders; this review does not claim they are correct sorting or estimation scores. Those algorithms remain separate follow-up work.
-
-The diff is limited to server game state, lobby projection, and tests. No dependencies, manifests, contracts, persistence changes, or cross-component edits were introduced. It remains within the approved Node.js/TypeScript, Fastify, ws, in-memory state, Vitest, and ESLint/typecheck stack. git diff --check reported no whitespace errors.
+- `finishGame` records a completed game only after the final evaluation, marks its catalog ID as played, stores one per-player score map, and publishes one shared transition containing the previous and current ranking. Repeating a finish with the cleared round is rejected, so scores are not double-counted.
+- `projectRanking` sums only completed games, emits one game entry per completed game, gives missing/late players zero for earlier games, and applies competition ranks (`1, 1, 3`) while retaining append-only player order for ties. Host and projector receive the same ranking and transition; player snapshots receive neither aggregate ranking nor transition.
+- Quiz points are accumulated once per question at reveal and retained across `nextQuestion`; the final quiz column appears only after the last question. Sorting contributes one point per correct position and its error count is term count minus points. Estimation uses only finite answers, computes strict-closer rank groups with the confirmed ceiling boundaries, gives all closest ties the bonus, caps at five, and returns zero/null rank data for missing answers or `N = 0`. All three score sources flow through the same completed-game map and therefore into total ranking points.
+- Catalog projection derives `played` exclusively from completed game IDs and continues to expose metadata without solutions. The role-specific snapshots are parsed through the existing version-1 zod contracts.
+- The implementation remains within the approved server stack: Node.js/TypeScript ESM, Fastify/`ws`, in-memory lobby/game state, PostgreSQL-backed catalog boundary, Vitest, ESLint and `tsc`. No dependency, contract, persistence, or cross-component changes are introduced by the integrated ranking work. `INV-9` anchors cover the game/lobby implementation and game-state tests and its notes accurately include quiz, sorting, and estimation results.
 
 ## Evidence reviewed
 
-- tasks/evidence/FEAT-5-2026-10-26T17-19-43-950Z.json: quiz ranking regression failed while ranking was still empty.
-- tasks/evidence/FEAT-5-2026-10-26T17-26-59-246Z.json: sorting completion regression failed while completed ranking was still empty.
-- tasks/evidence/FEAT-5-2026-10-26T17-28-37-101Z.json: focused game-state suite passed, 11/11.
-- tasks/evidence/FEAT-5-2026-10-26T17-28-40-979Z.json: full server suite passed, 49/49.
-- tasks/evidence/FEAT-5-2026-10-26T17-29-14-793Z.json: lint and typecheck passed.
-- tasks/evidence/FEAT-5-2026-10-26T17-29-37-518Z.json: server build passed.
+- `tasks/evidence/FEAT-5-2026-10-26T17-28-40-979Z.json`: FEAT-5 full server suite, 49/49, before later scoring additions.
+- `tasks/evidence/FEAT-9-2026-10-26T17-48-37-299Z.json`: full server suite, 50/50, including sorting ranking integration.
+- `tasks/evidence/FEAT-11-2026-10-26T18-32-46-924Z.json`: full server suite, 54/54, including estimation ranking integration.
+- `tasks/evidence/FEAT-11-2026-10-26T18-33-21-335Z.json`: server lint and typecheck passed.
+- `tasks/evidence/FEAT-11-2026-10-26T18-33-55-821Z.json`: server build passed.
+- `git diff --check` on the current `main` tree reported no whitespace errors.
 
-Evidence was reviewed from the recorded files and not rerun. FEAT-5 remains IN_PROGRESS with inventory_refs empty in tasks/state.json; the orchestrator must complete the required main-branch bookkeeping and checks before marking it DONE.
+A fresh `npm --prefix apps/server test` rerun in this review environment could not execute the network-dependent tests: the sandbox denied loopback connections with `EACCES` for the ephemeral HTTP/WebSocket and PostgreSQL ports. This is an environment limitation; the recorded green evidence above remains the executable test evidence for the merged code. No implementation files were changed by this review.

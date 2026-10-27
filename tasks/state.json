@@ -218,20 +218,21 @@
       "dependencies": [
         "FEAT-3"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 1,
       "inventory_refs": [
         "INV-9"
       ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P1",
-      "test_result": "49/49 server tests green on main; ranking totals, competition ties and completed-game catalog verified.",
-      "review_result": "Ranking foundation approved; quiz and sorting scores now integrated; estimation scoring remains pending FEAT-11.",
-      "test_evidence": "tasks/evidence/FEAT-5-2026-10-26T17-36-04-382Z.json",
+      "test_result": "54/54 server tests passed on main; quiz, sorting, estimation totals, ties, played catalog and role projections covered.",
+      "review_result": "Fresh independent review approved; quiz, sorting and estimation scoring flow into completed ranking; no findings.",
+      "test_evidence": "tasks/evidence/FEAT-5-2026-10-27T08-02-34-807Z.json",
       "red_evidence": "tasks/evidence/FEAT-5-2026-10-26T17-19-43-950Z.json",
-      "lint_evidence": "tasks/evidence/FEAT-5-2026-10-26T17-36-27-890Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-5-2026-10-27T08-02-42-217Z.json",
       "reviewed_by": "code_reviewer",
-      "review_file": "tasks/reviews/FEAT-5.md"
+      "review_file": "tasks/reviews/FEAT-5.md",
+      "implemented_by": "server_developer"
     },
     {
       "id": "FEAT-6",
@@ -665,5 +666,5 @@
       "reason": "Browseranbindung nicht verfuegbar: CUA apps und browsers leer; Chrome und IAB nicht verfuegbar. Code reviewed, 9 Tests sowie Lint/Build und HTTP-Startup gruen, echte Browserabnahme noch offen."
     }
   ],
-  "last_updated_utc": "2026-10-26T18:34:35.883Z"
+  "last_updated_utc": "2026-10-27T08:03:39.694Z"
 }
