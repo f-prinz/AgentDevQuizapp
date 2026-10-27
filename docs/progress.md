@@ -183,3 +183,5 @@ Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE
 2026-10-27T09:19:49.890Z: FEAT-14 aktualisiert.   
 
 2026-10-27T09:19:50.509Z: FEAT-14 IN_PROGRESS.   
+
+2026-10-27T09:28:47.987Z: FEAT-14 Fix-Retry 1/3. Independent review finding: show the authoritative correct quiz answer even when ownEvaluation.answer is null (timeout/no submission); add regression test and preserve no false player feedback.

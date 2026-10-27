@@ -454,7 +454,7 @@
         "FEAT-5"
       ],
       "status": "IN_PROGRESS",
-      "fix_retries": 0,
+      "fix_retries": 1,
       "inventory_refs": [],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P1",
@@ -706,5 +706,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T09:19:50.509Z"
+  "last_updated_utc": "2026-10-27T09:28:47.987Z"
 }
