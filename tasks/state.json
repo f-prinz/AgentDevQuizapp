@@ -907,14 +907,24 @@
       ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P1",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-12",
+        "INV-21"
+      ],
       "allows_dep_change": true,
       "allowed_paths": [
         "apps/web/"
       ],
-      "implemented_by": "web_developer"
+      "implemented_by": "web_developer",
+      "test_result": "59/59 Web-Tests gruen auf main",
+      "review_result": "APPROVED; Auto-Host, Copy-Links, QR nur in Lobby, Post-Start-Ansichten",
+      "test_evidence": "tasks/evidence/CHG-2-2026-10-27T12-41-15-684Z.json",
+      "red_evidence": "tasks/evidence/CHG-2-2026-10-27T12-39-12-107Z.json",
+      "lint_evidence": "tasks/evidence/CHG-2-2026-10-27T12-41-25-305Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/CHG-2.md"
     },
     {
       "id": "CHG-3",
@@ -936,5 +946,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T12:37:22.810Z"
+  "last_updated_utc": "2026-10-27T12:43:06.339Z"
 }

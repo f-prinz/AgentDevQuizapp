@@ -254,7 +254,7 @@
       ],
       "introduced_by": "FEAT-2",
       "removed_by": null,
-      "notes": "CHG-1: Spieleransicht zeigt keine Teilnehmerliste, keine Beitrittsbestaetigung und keinen Phasentext mehr; Host/Projektor behalten Live-Teilnehmer. Browserabnahme mit temporaerem lokalen Vite- und fluechtigem In-Memory-Server; Host-Fragment aus URL entfernt; Hostzugriff nach Refresh, Spielerbeitritt und Live-Snapshot, scoped Projektorroute geprueft. Keine DB oder externe Dienste."
+      "notes": "CHG-1: Spieleransicht zeigt keine Teilnehmerliste, keine Beitrittsbestaetigung und keinen Phasentext mehr. CHG-2: Lobby-Ersteller landet direkt in der Host-Ansicht (keine Link-Liste auf der Startseite); Host-Teilnehmerliste nur in Lobbyphase. Browserabnahme mit temporaerem lokalen Vite- und fluechtigem In-Memory-Server; Host-Fragment aus URL entfernt; Hostzugriff nach Refresh, Spielerbeitritt und Live-Snapshot, scoped Projektorroute geprueft. Keine DB oder externe Dienste."
     },
     {
       "id": "INV-13",
@@ -414,6 +414,29 @@
       "introduced_by": "TECH-14",
       "removed_by": null,
       "notes": "HostSnapshot.links{player,projector}; ProjectorSnapshot.playerLink; Links beim create() erzeugt und im Lobby-State gehalten; Host erhielt Projektor-Link bereits bei Erstellung; keine Tokens in Spieler-/Projektor-Snapshots"
+    },
+    {
+      "id": "INV-21",
+      "capability": "Host teilt Beitritts- und Projektorlink per Copy-Button; Projektor zeigt Beitrittslink und QR-Code in der Lobby",
+      "component": "web",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "test",
+          "ref": "apps/web/src/lobby-views.test.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/GameViews.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/package.json"
+        }
+      ],
+      "introduced_by": "CHG-2",
+      "removed_by": null,
+      "notes": "CopyLinkButton mit clipboard.writeText + execCommand-Fallback und 'Kopiert'-Feedback; QR via react-qr-code (absolute URL); Link+QR nur in Lobbyphase; Spieler sehen ohne Runde nur 'Das Spiel beginnt gleich …'"
     }
   ],
   "last_updated_utc": "2026-10-27T12:30:00.000Z"
