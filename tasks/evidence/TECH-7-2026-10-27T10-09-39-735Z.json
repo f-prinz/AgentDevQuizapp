@@ -1,0 +1,10 @@
+{
+  "task_id": "TECH-7",
+  "command": "npm --prefix apps/server run lint",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 lint\n> eslint . && tsc --noEmit\n\n\nC:\\dev\\Bedburg\\AgentDevQuizapp\\apps\\server\\test\\e2e\\lobby.test.ts\n  238:11  error  'ada' is assigned a value but never used  @typescript-eslint/no-unused-vars\n  239:11  error  'bo' is assigned a value but never used   @typescript-eslint/no-unused-vars\n\n✖ 2 problems (2 errors, 0 warnings)\n\n",
+  "stderr_tail": "",
+  "started": "2026-10-27T10:09:39.735Z",
+  "finished": "2026-10-27T10:09:46.037Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
