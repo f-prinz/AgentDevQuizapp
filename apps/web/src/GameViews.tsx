@@ -112,7 +112,6 @@ export function HostGameView({ snapshot, send }: { snapshot: HostSnapshot; send:
   const command = (type: string) => send({ version: 1, type, requestId: crypto.randomUUID(), roundId: round.roundId });
   return <section className="game-view" aria-label="Spielphase">
     <h2>{round.game.title}</h2>
-    <p className="phase-label">{round.phase === "start" ? "Startphase" : round.phase === "playing" ? "Spielphase" : "Auswertung"}</p>
     {round.phase === "start" && <>
       <p>{round.game.rules}</p><p>Frage 1 von {round.questionCount}</p>
       <button type="button" onClick={() => command("game.start")}>Spielphase starten</button>
@@ -121,7 +120,6 @@ export function HostGameView({ snapshot, send }: { snapshot: HostSnapshot; send:
       <p>Frage {round.questionIndex + 1} von {round.questionCount}: {round.task.question}</p>
       {round.task.kind === "quiz" && <ul>{round.task.options.map(option => <li key={option.id}>{option.text}</li>)}</ul>}
       <TimerDisplay timer={round.timer} size="compact" />
-      <p>{round.timer.inputClosed ? "Die Eingabezeit ist beendet." : "Antworten werden entgegengenommen."}</p>
       <button type="button" disabled={!round.timer.canReveal} onClick={() => command("game.reveal")}>Auflösen</button>
     </>}
     {round.phase === "evaluation" && <>
@@ -148,12 +146,10 @@ function SolutionContent({ solution }: { solution: { kind: "quiz"; question: str
 
 export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; send: Send }) {
   const round = snapshot.round;
-  const ownRanking = snapshot.ranking.find(entry => entry.playerId === snapshot.playerId);
-  const ownName = ownRanking?.name ?? snapshot.participants.find(participant => participant.id === snapshot.playerId)?.name ?? "Spieler";
   const [draft, setDraft] = useState<Answer | null>(snapshot.input.answer);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   useEffect(() => setDraft(snapshot.input.answer), [snapshot.revision, snapshot.input.answer]);
-  if (!round) return <><PlayerStatus name={ownName} ranking={ownRanking} /><section className="game-view" aria-label="Spielphase"><h2>Warte auf die nächste Spielauswahl</h2></section></>;
+  if (!round) return <section className="game-view" aria-label="Spielphase"><h2>Warte auf die nächste Spielauswahl</h2></section>;
   const canEdit = round.phase === "playing" && snapshot.input.participating && !snapshot.input.final && !round.timer.inputClosed;
   const sendAnswer = (answer: Answer) => {
     if (!canEdit || round.phase !== "playing") return;
@@ -164,9 +160,8 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
     if (!canEdit || !draft || round.phase !== "playing") return;
     send({ version: 1, type: "answer.submit", requestId: crypto.randomUUID(), roundId: round.roundId, answer: draft });
   };
-  return <><PlayerStatus name={ownName} ranking={ownRanking} /><section className="game-view" aria-label="Spielphase">
+  return <section className="game-view" aria-label="Spielphase">
     <h2>{round.game.title}</h2>
-    <p className="phase-label">{round.phase === "start" ? "Startphase" : round.phase === "playing" ? "Spielphase" : "Auswertung"}</p>
     {round.phase === "start" && <div className="game-start-animation" role="region" aria-label="Startanimation"><p>{round.game.rules}</p><p>Das Spiel beginnt gleich …</p></div>}
     {round.phase === "playing" && <>
       <TimerDisplay timer={round.timer} size="compact" />
@@ -196,7 +191,7 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
             onDragEnd={() => setDragIndex(null)}><span>{term?.text ?? "Begriff"}</span><button type="button" disabled={!canEdit || index === 0} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach oben`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index - 1 ? ids[index] : i === index ? ids[index - 1] : item) })}>↑</button><button type="button" disabled={!canEdit || index === ids.length - 1} aria-label={`Verschiebe ${term?.text ?? "Begriff"} nach unten`} onClick={() => sendAnswer({ kind: "sorting", termIds: ids.map((item, i) => i === index ? ids[index + 1] : i === index + 1 ? ids[index] : item) })}>↓</button></li>;
         })}</ol></fieldset>}
         {round.task.kind === "estimation" && <label className="estimation-input">Deine Schätzung<input type="number" value={draft?.kind === "estimation" ? draft.value : ""} disabled={!canEdit} onChange={event => { const value = Number(event.target.value); if (event.target.value !== "" && Number.isFinite(value)) sendAnswer({ kind: "estimation", value }); }} /></label>}
-        {snapshot.input.final ? <p role="status">Deine Antwort ist final abgegeben.</p> : round.timer.inputClosed ? <p role="status">Die Eingabezeit ist beendet.</p> : <button type="button" disabled={!canEdit || !draft} onClick={submit}>Abgeben</button>}
+        {!snapshot.input.final && !round.timer.inputClosed && <button type="button" disabled={!canEdit || !draft} onClick={submit}>Abgeben</button>}
       </>}
     </>}
     {round.phase === "evaluation" && <>{round.solution.kind === "quiz"
@@ -219,14 +214,6 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
       {round.ownEvaluation.distance !== null && <p>Dein Abstand zur Lösung: {round.ownEvaluation.distance}</p>}
       <p>Deine Punkte: {round.ownEvaluation.points}</p>
     </>}
-  </section></>;
-}
-
-function PlayerStatus({ name, ranking }: { name: string; ranking: PlayerSnapshot["ranking"][number] | undefined }) {
-  return <section className="player-status-card" aria-label="Dein Spielstand">
-    <h2>Dein Spielstand</h2><p>Name: {name}</p>
-    <p>{ranking?.total ?? 0} Punkte gesamt</p>
-    <p>{ranking ? `Rang ${ranking.rank}` : "Rang noch nicht verfügbar"}</p>
   </section>;
 }
 

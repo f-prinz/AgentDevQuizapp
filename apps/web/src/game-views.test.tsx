@@ -150,7 +150,7 @@ describe("FEAT-4 game phase views", () => {
   it("shows waiting participants as unable to answer", async () => {
     const view = renderRole("player");
     await deliver(view, snapshot("player", "playing", { input: { answer: null, final: false, participating: false }, playerId: "player-3" }));
-    expect(await screen.findByText(/nächste spielauswahl|naechste spielauswahl|wartet/i)).toBeTruthy();
+    expect(await screen.findByText(/nächsten spielauswahl|naechsten spielauswahl|keine antwort m/i)).toBeTruthy();
     expect((screen.getByRole("button", { name: /abgeben/i }) as HTMLButtonElement).disabled).toBe(true);
   });
 
@@ -164,14 +164,14 @@ describe("FEAT-4 game phase views", () => {
     expect(list.contains(waitingParticipant)).toBe(true);
   });
 
-  it("describes closed input neutrally instead of claiming every player answered", async () => {
+  it("keeps the reveal control reachable when input is closed without status texts", async () => {
     const view = renderRole("host");
     await deliver(view, snapshot("host", "playing", {
       round: { timer: { ...rounds.playing.timer, inputClosed: true, canReveal: true } },
     }));
     const phase = screen.getByRole("region", { name: /spielphase/i });
-    expect(phase.textContent).toMatch(/eingabezeit|antwortphase/i);
-    expect(phase.textContent).not.toMatch(/alle antworten sind eingegangen/i);
+    expect(phase.textContent).not.toMatch(/eingabezeit|antwortphase|entgegengenommen|alle antworten sind eingegangen/i);
+    expect((phase.querySelector("button") as HTMLButtonElement).disabled).toBe(false);
   });
 
   it("counts down from server time and presents the projector timer more prominently than the player timer", async () => {
@@ -215,42 +215,26 @@ describe("FEAT-4 game phase views", () => {
   });
 });
 
-describe("FEAT-14 player status and answer feedback", () => {
-  it("keeps the player's name and fallback score visible while no round is active", async () => {
-    const view = renderRole("player");
-    await deliver(view, {
-      ...base("start"), phase: "lobby", role: "player", round: null,
-      playerId: "player-1", input: { answer: null, final: false, participating: true },
-    });
-    const status = await screen.findByRole("region", { name: /dein spielstand/i });
-    expect(status.textContent).toContain("Ada");
-    expect(status.textContent).toMatch(/0\s*Punkte gesamt/i);
-    expect(status.textContent).toMatch(/Rang noch nicht verfügbar/i);
-  });
+describe("CHG-1 phase texts and status card", () => {
+  it("shows no phase labels or input-status texts on host and player views", async () => {
+    const host = renderRole("host");
+    await deliver(host, snapshot("host", "playing"));
+    expect(screen.queryByText(/antworten werden entgegengenommen|eingabezeit ist beendet/i)).toBeNull();
+    expect(screen.queryByText(/^(startphase|spielphase|auswertung)$/i)).toBeNull();
+    host.unmount();
 
-  it("shows the player's own name, points, and rank, with an unavailable zero-score fallback", async () => {
-    const view = renderRole("player");
-    await deliver(view, snapshot("player", "playing"));
-    const status = await screen.findByRole("region", { name: /dein spielstand/i });
-    expect(status.textContent).toContain("Ada");
-    expect(status.textContent).toMatch(/0\s*(punkte|gesamtpunkte)/i);
-    expect(status.textContent).toMatch(/rang.*(noch nicht verf[uü]gbar|offen)/i);
-  });
-
-  it("updates the status values from the player's own ranking row on a later snapshot", async () => {
-    const view = renderRole("player");
-    await deliver(view, snapshot("player", "playing"));
-    const status = await screen.findByRole("region", { name: /dein spielstand/i });
-    await deliver(view, snapshot("player", "playing", {
-      revision: 2,
-      ranking: [{ playerId: "player-1", name: "Ada", rank: 2, total: 5, games: [{ gameId: "quiz-1", points: 3 }] }],
+    const player = renderRole("player");
+    await deliver(player, snapshot("player", "playing", {
+      input: { answer: { kind: "quiz", optionId: "b" }, final: true, participating: true },
     }));
-    await waitFor(() => {
-      expect(status.textContent).toContain("Ada");
-      expect(status.textContent).toMatch(/5\s*(punkte|gesamtpunkte)/i);
-      expect(status.textContent).toMatch(/platz\s*2|rang\s*2/i);
-    });
+    await screen.findByRole("timer");
+    expect(screen.queryByText(/deine antwort ist final abgegeben/i)).toBeNull();
+    expect(screen.queryByText(/eingabezeit ist beendet/i)).toBeNull();
+    expect(screen.queryByRole("region", { name: /dein spielstand/i })).toBeNull();
   });
+});
+
+describe("player answer feedback", () => {
 
   it("labels quiz answers as neutral before evaluation and correct or wrong with text in evaluation", async () => {
     const view = renderRole("player");
