@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -1052,15 +1052,24 @@
       "dependencies": [
         "CHG-5"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-14"
+      ],
       "allowed_paths": [
         "apps/web/"
       ],
-      "implemented_by": "web_developer"
+      "implemented_by": "web_developer",
+      "test_result": "65/65 Web-Tests gruen auf main",
+      "review_result": "APPROVED; touch-action:none fuer Touch-DnD",
+      "test_evidence": "tasks/evidence/BUG-3-2026-10-27T14-56-51-313Z.json",
+      "red_evidence": "tasks/evidence/BUG-3-2026-10-27T14-56-25-341Z.json",
+      "lint_evidence": "tasks/evidence/BUG-3-2026-10-27T14-56-57-370Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/BUG-3.md"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T14:56:10.245Z"
+  "last_updated_utc": "2026-10-27T14:58:19.563Z"
 }

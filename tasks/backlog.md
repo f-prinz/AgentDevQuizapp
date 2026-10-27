@@ -40,6 +40,6 @@
 | BUG-2 | web |  |  | Projektor-Route crasht: react-qr-code CJS-Interop unter Vite-Dev | CHG-2 | Projektorroute rendert im Dev-Server fehlerfrei; QR-Test bleibt gruen | npm --prefix apps/web test | DONE |
 | CHG-4 | web |  |  | Projektor-Ranking auf Platz/Punkte/Name reduzieren; Antwortflaechen grau | CHG-3 | Projektor-Ranking zeigt nur Platzierung, Punkte, Name; Quiz-/Sortier-Optionen und Schaetz-Container grau | npm --prefix apps/web test | DONE |
 | CHG-5 | web |  |  | Projektor Fullpage ohne Header; Sortier-Titel ausblenden; dnd-kit DnD | CHG-4 | Kein h1 Projektor, Inhalt volle Seite; Sortierspiel zeigt keinen Titel; Sortieren nutzt dnd-kit | npm --prefix apps/web test | DONE |
-| BUG-3 | web |  |  | Sortieren: Drag&Drop auf Touch-Geraeten | CHG-5 | Sortier-Items per Touch verschiebbar (touch-action none) | npm --prefix apps/web test | IN_PROGRESS |
+| BUG-3 | web |  |  | Sortieren: Drag&Drop auf Touch-Geraeten | CHG-5 | Sortier-Items per Touch verschiebbar (touch-action none) | npm --prefix apps/web test | DONE |
 
 DONE erfordert: gueltige Transition, Evidence-Datei aus scripts/record-check.mjs mit Exit-Code 0, reviewed_by != implemented_by (code_reviewer oder security_reviewer), erfuellte Abhaengigkeiten und bei FEAT/CHG/BUG mindestens einen INV-Eintrag. BLOCKED erfordert blocked_reason. Je Task maximal drei gezielte Fix-Retries (scripts/record-fix.mjs). Archivierte Tasks liegen in tasks/archive.json. Aktueller Datencheck: node scripts/check-state.mjs.
