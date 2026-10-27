@@ -1,7 +1,82 @@
 import { useEffect, useState } from "react";
-import type { Answer, HostSnapshot, PlayerSnapshot, ProjectorSnapshot, Timer } from "@raccoons/contracts";
+import type { Answer, HostSnapshot, PlayerSnapshot, ProjectorSnapshot, RankingEntry, Snapshot, Timer } from "@raccoons/contracts";
 
 type Send = (message: Record<string, unknown>) => void;
+
+const KIND_LABEL: Record<string, string> = { quiz: "Quiz", sorting: "Sortieren", estimation: "Schätzen" };
+
+function GameList({ games, label }: { games: Snapshot["catalog"]; label: string }) {
+  return <section aria-label={label}><h3>{label}</h3>
+    {games.length === 0 ? <p>Keine Spiele.</p> : <ul>{games.map(game => <li key={game.id}>{KIND_LABEL[game.kind] ?? game.kind}: {game.title}</li>)}</ul>}
+  </section>;
+}
+
+function RankingTable({ ranking, transition }: { ranking: RankingEntry[]; transition: NonNullable<Snapshot["rankingTransition"]> | null }) {
+  const [stage, setStage] = useState<"before" | "counting" | "after">("after");
+  const [progress, setProgress] = useState(1);
+  useEffect(() => {
+    if (!transition) { setStage("after"); return; }
+    setStage("before");
+    const counting = window.setTimeout(() => setStage("counting"), 800);
+    const after = window.setTimeout(() => setStage("after"), 2400);
+    return () => { window.clearTimeout(counting); window.clearTimeout(after); };
+  }, [transition]);
+  useEffect(() => {
+    if (stage !== "counting") { setProgress(1); return; }
+    setProgress(0);
+    const interval = window.setInterval(() => setProgress(value => Math.min(1, value + 0.1)), 120);
+    return () => window.clearInterval(interval);
+  }, [stage]);
+
+  const transitionGameId = transition?.gameId ?? null;
+  const shown = stage === "after" || !transition ? ranking : transition.previous;
+  const gameIds = [...new Set(shown.flatMap(entry => entry.games.map(game => game.gameId)).concat(stage === "after" || !transition ? [] : [transition.gameId]))];
+  const target = transition ? new Map(transition.current.map(entry => [entry.playerId, entry])) : null;
+  const displayTotal = (entry: RankingEntry) => {
+    if (stage !== "counting" || !target) return entry.total;
+    const next = target.get(entry.playerId);
+    return next ? Math.round(entry.total + (next.total - entry.total) * progress) : entry.total;
+  };
+  const gamePoints = (entry: RankingEntry, gameId: string) => {
+    if (stage === "counting" && target) {
+      const next = target.get(entry.playerId);
+      const current = entry.games.find(game => game.gameId === gameId)?.points ?? 0;
+      const goal = next?.games.find(game => game.gameId === gameId)?.points ?? current;
+      return Math.round(current + (goal - current) * progress);
+    }
+    const source = (stage === "after" || !transition ? entry.games : (gameId === transitionGameId ? [] : entry.games));
+    return source.find(game => game.gameId === gameId)?.points ?? null;
+  };
+
+  if (gameIds.length === 0 && stage === "after") return null;
+  return <table className={`ranking-table ranking-${stage}`} data-ranking-stage={stage}>
+    <thead><tr><th>Platz</th><th>Punkte</th><th>Spielername</th>{gameIds.map((gameId, index) => <th key={gameId} className={gameId === transitionGameId && stage !== "after" ? "ranking-col-new" : ""}>Spiel {index + 1}</th>)}</tr></thead>
+    <tbody>{shown.map(entry => <tr key={entry.playerId} className={stage === "after" && transition ? "ranking-row-final" : ""}>
+      <td>{entry.rank}</td><td>{displayTotal(entry)}</td><td>{entry.name}</td>
+      {gameIds.map(gameId => <td key={gameId} className={gameId === transitionGameId && stage !== "after" ? "ranking-col-new" : ""}>{gamePoints(entry, gameId) ?? "–"}</td>)}
+    </tr>)}</tbody>
+  </table>;
+}
+
+function HostOverview({ snapshot, send }: { snapshot: HostSnapshot; send: Send }) {
+  const selected = snapshot.catalog.find(game => game.id === snapshot.selectedGameId) ?? null;
+  const select = (gameId: string | null) => send({ version: 1, type: "game.select", requestId: crypto.randomUUID(), gameId });
+  return <section className="game-view" aria-label="Übersicht">
+    <h2>Übersicht</h2>
+    <div className="overview-columns">
+      <section aria-label="Verfügbare Spiele"><h3>Verfügbare Spiele</h3>
+        {snapshot.catalog.filter(game => !game.played).length === 0 ? <p>Alle Spiele wurden gespielt.</p> : <ul>{snapshot.catalog.filter(game => !game.played).map(game => <li key={game.id}>
+          <button type="button" className={`game-option${snapshot.selectedGameId === game.id ? " selected" : ""}`} aria-pressed={snapshot.selectedGameId === game.id}
+            onClick={() => select(snapshot.selectedGameId === game.id ? null : game.id)}>{KIND_LABEL[game.kind] ?? game.kind}: {game.title}</button>
+        </li>)}</ul>}
+      </section>
+      <GameList games={snapshot.catalog.filter(game => game.played)} label="Gespielte Spiele" />
+    </div>
+    {selected && <div className="game-selection"><p>{selected.rules}</p>
+      <button type="button" onClick={() => send({ version: 1, type: "game.prepare", requestId: crypto.randomUUID() })}>Starten</button>
+    </div>}
+  </section>;
+}
 
 function TimerDisplay({ timer, size }: { timer: Timer; size: "compact" | "large" }) {
   const [remaining, setRemaining] = useState(() => Math.max(0, Math.ceil((timer.deadline - timer.serverTime) / 1000)));
@@ -27,7 +102,13 @@ function Results({ results }: { results: Array<{ playerId: string; name: string;
 
 export function HostGameView({ snapshot, send }: { snapshot: HostSnapshot; send: Send }) {
   const round = snapshot.round;
-  if (!round) return <section className="game-view" aria-label="Spielphase"><h2>Spielauswahl</h2><p>Wähle ein Spiel aus der Lobbyübersicht.</p></section>;
+  if (!round) {
+    if (snapshot.phase === "overview") return <HostOverview snapshot={snapshot} send={send} />;
+    return <section className="game-view" aria-label="Lobbyphase"><h2>Lobby</h2>
+      <p>Sobald mindestens zwei Spieler beigetreten sind, kannst du die Lobby zur Übersicht starten.</p>
+      <button type="button" disabled={!snapshot.canStartLobby} onClick={() => send({ version: 1, type: "lobby.start", requestId: crypto.randomUUID() })}>Lobby starten</button>
+    </section>;
+  }
   const command = (type: string) => send({ version: 1, type, requestId: crypto.randomUUID(), roundId: round.roundId });
   return <section className="game-view" aria-label="Spielphase">
     <h2>{round.game.title}</h2>
@@ -140,7 +221,21 @@ function answerLabel(answer: Answer, options: Array<{ id: string; text: string }
 
 export function ProjectorGameView({ snapshot }: { snapshot: ProjectorSnapshot; send: Send }) {
   const round = snapshot.round;
-  if (!round) return <p>Warte auf die Spielauswahl.</p>;
+  if (!round) {
+    if (snapshot.phase !== "overview") return <p>Warte auf die Spielauswahl.</p>;
+    const unplayed = snapshot.catalog.filter(game => !game.played);
+    const played = snapshot.catalog.filter(game => game.played);
+    return <section className="projector-overview" aria-label="Übersicht">
+      <div className="overview-columns">
+        <GameList games={unplayed} label="Offene Spiele" />
+        <section aria-label="Rangliste"><h3>Rangliste</h3>
+          <RankingTable ranking={snapshot.ranking} transition={snapshot.rankingTransition} />
+          {played.length === 0 && <ol className="ranking-names">{snapshot.participants.map(participant => <li key={participant.id}>{participant.name || `Spieler ${participant.number}`}</li>)}</ol>}
+        </section>
+        <GameList games={played} label="Gespielte Spiele" />
+      </div>
+    </section>;
+  }
   return <div className="projector-game">
     <h3>{round.game.title}</h3>
     {round.phase === "start" && <><p>{round.game.rules}</p><p>Das Spiel beginnt gleich …</p></>}
