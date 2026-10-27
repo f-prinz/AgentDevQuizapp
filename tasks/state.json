@@ -807,8 +807,103 @@
       "review_result": "Ist-Stack und offene Client-Funktionen korrekt; freigegebene Ziele unveraendert; Dokumentreview und Strukturcheck gruen",
       "test_evidence": "tasks/evidence/TECH-13-2026-10-26T15-52-44-019Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "TECH-14",
+      "component": "contracts",
+      "title": "CONTRACT_CHANGE: Links in Snapshots",
+      "acceptance_criteria": "HostSnapshot traegt links{player,projector}; ProjectorSnapshot traegt playerLink; Server projiziert sie aus Lobby-State; strictObject-Schemas erweitert; Tests gruen",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": false,
+      "dependencies": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1",
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "contracts/",
+        "apps/server/"
+      ]
+    },
+    {
+      "id": "BUG-1",
+      "component": "server",
+      "title": "Startfehler-Diagnose: echte Fehler loggen",
+      "acceptance_criteria": "main.ts gibt den echten Fehler aus; bootstrap.ts reicht cause weiter; 'Server startup failed.' zeigt Ursache",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": false,
+      "dependencies": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1",
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/server/src/main.ts",
+        "apps/server/src/bootstrap.ts"
+      ]
+    },
+    {
+      "id": "CHG-1",
+      "component": "web",
+      "title": "Shell & Spieler-Basis vereinfachen",
+      "acceptance_criteria": "AppShell ohne Header/Nav; keine 'Spielphase:'- und Spielphasen-Statustexte; Spieler sieht nie Teilnehmerliste oder Statuskarte; JoinPage ohne Beitritts-Bestaetigung; HomePage ohne Beitritts-UI",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1",
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ]
+    },
+    {
+      "id": "CHG-2",
+      "component": "web",
+      "title": "Lobby-Flow: Auto-Host, Links, QR",
+      "acceptance_criteria": "Lobby erstellen landet direkt in Host-Ansicht; Host sieht in Lobby Spieler+Projektor-Link mit Copy; Projektor sieht Spieler-Link+QR nur in Lobby; nach lobby.start: Host nur Spiele-Uebersicht, Spieler nur 'Das Spiel beginnt gleich'",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "TECH-14"
+      ],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1",
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allows_dep_change": true,
+      "allowed_paths": [
+        "apps/web/"
+      ]
+    },
+    {
+      "id": "CHG-3",
+      "component": "web",
+      "title": "Spielphasen-Views (alle Spielarten)",
+      "acceptance_criteria": "Host: nur Timer+Aufloesen bzw. naechste Frage/beenden; Projektor: zentrale grosse Anzeige+Timer, rechts schmales nach Punkten sortiertes Ranking ohne 'verbunden', nach Lobby-Start offene/gespielte Spiele zentral, Loesung nach Aufloesung zentral; Spieler: nur Optionen+Timer, graue Karten, rot=gewaehlt, tuerkis=richtig, keine Checkbox, keine Frage bei Quiz",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "classification": "CURRENT_STACK_ONLY",
+      "priority": "P1",
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T10:37:20.974Z"
+  "last_updated_utc": "2026-10-27T12:02:22.105Z"
 }
