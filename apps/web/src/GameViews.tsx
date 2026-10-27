@@ -134,7 +134,10 @@ function TimerDisplay({ timer, size }: { timer: Timer; size: "compact" | "large"
 
 function Results({ results }: { results: Array<{ playerId: string; name: string; points: number; rank: number | null; distance: number | null; errors: number | null }> }) {
   if (results.length === 0) return <p>Noch keine Ergebnisse vorhanden.</p>;
-  return <section aria-label="Ergebnisse"><h3>Ergebnisse</h3><ol>{results.map(result => <li key={result.playerId}>
+  // CHG-8: Ergebnisse mit Abstand (Schaetzen) aufsteigend nach Abstand sortieren;
+  // Eintraege ohne Abstand (Quiz/Sortieren) bleiben in ihrer Reihenfolge.
+  const sorted = [...results].sort((a, b) => (a.distance ?? Number.MAX_SAFE_INTEGER) - (b.distance ?? Number.MAX_SAFE_INTEGER));
+  return <section aria-label="Ergebnisse"><h3>Ergebnisse</h3><ol>{sorted.map(result => <li key={result.playerId}>
     {result.name}: {result.points} Punkte{result.rank ? `, Platz ${result.rank}` : ""}
     {result.distance !== null ? `, Abstand ${result.distance}` : ""}
     {result.errors !== null ? `, ${result.errors} Fehler` : ""}
@@ -248,23 +251,27 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
         {!snapshot.input.final && !round.timer.inputClosed && <button type="button" disabled={!canEdit || !draft} onClick={submit}>Abgeben</button>}
       </>}
     </>}
-    {round.phase === "evaluation" && <>{round.solution.kind === "quiz"
-      ? <div className="solution"><h3>Auflösung</h3><p>{round.solution.question}</p></div>
-      : <SolutionContent solution={round.solution} />}
+    {/* CHG-8: Spieler sehen in der Evaluation keine Aufloesungs-Box und keine
+        Marktexte — die farbliche Markierung der Antworten reicht aus. */}
+    {round.phase === "evaluation" && <>
       {round.solution.kind === "quiz" && <ul className="answer-feedback" aria-label={round.ownEvaluation.answer?.kind === "quiz" ? "Deine Antwort" : "Antworten"}>{round.solution.options.map(option => {
         const ownAnswer = round.ownEvaluation.answer;
         const selected = ownAnswer?.kind === "quiz" && ownAnswer.optionId === option.id;
         const correct = round.solution.kind === "quiz" && round.solution.correctOptionId === option.id;
         const state = selected ? (correct ? "correct" : "wrong") : (correct ? "correct" : "neutral");
-        return <li key={option.id} className={`answer-tile answer-marked answer-${state}`} data-answer-state={state}>{option.text}<span className="answer-mark">{selected ? (correct ? "Deine Antwort · Richtig" : "Deine Antwort · Falsch") : correct ? "Richtig" : ""}</span></li>;
+        // CHG-8: Die richtige Antwort blinkt 3 s im 0,5-s-Takt; Zielfarbe haengt
+        // davon ab, ob der Spieler sie gewaehlt hat (rot) oder nicht (grau).
+        const flash = correct ? ` answer-flash-${selected ? "own" : "missed"}` : "";
+        const stateLabel = state === "correct" ? "Richtig" : state === "wrong" ? "Deine Antwort, falsch" : "Nicht gewählt";
+        return <li key={option.id} className={`answer-tile answer-marked answer-${state}${flash}`} data-answer-state={state} aria-label={`${option.text}: ${stateLabel}`}>{option.text}</li>;
       })}</ul>}
       {round.solution.kind === "sorting" && round.ownEvaluation.answer?.kind === "sorting" && <ol className="answer-feedback" aria-label="Deine Antwort">{round.ownEvaluation.answer.termIds.map((termId, index) => {
         const term = round.solution.kind === "sorting" ? round.solution.terms.find(item => item.id === termId) : undefined;
         const correct = round.ownEvaluation.positionsCorrect?.[index] === true;
         const state = correct ? "correct" : "wrong";
-        return <li key={termId} className={`answer-tile answer-marked answer-${state}`} data-answer-state={state}>{term?.text ?? "Begriff"}<span className="answer-mark">{correct ? "Richtig" : "Falsch"}</span></li>;
+        return <li key={termId} className={`answer-tile answer-marked answer-${state}`} data-answer-state={state} aria-label={`${term?.text ?? "Begriff"}: ${correct ? "Richtig" : "Falsch"}`}>{term?.text ?? "Begriff"}</li>;
       })}</ol>}
-      {round.ownEvaluation.answer && round.solution.kind !== "quiz" && <p>Deine abgegebene Antwort: {answerLabel(round.ownEvaluation.answer, [])}</p>}
+      {round.ownEvaluation.answer && round.solution.kind === "estimation" && <p>Deine abgegebene Antwort: {answerLabel(round.ownEvaluation.answer, [])}</p>}
       {round.ownEvaluation.distance !== null && <p>Dein Abstand zur Lösung: {round.ownEvaluation.distance}</p>}
       <p>Deine Punkte: {round.ownEvaluation.points}</p>
     </>}
@@ -297,7 +304,7 @@ export function ProjectorGameView({ snapshot }: { snapshot: ProjectorSnapshot; s
     if (snapshot.phase !== "overview") return <p>Warte auf die Spielauswahl.</p>;
     const unplayed = snapshot.catalog.filter(game => !game.played);
     const played = snapshot.catalog.filter(game => game.played);
-    return <section className="projector-overview" aria-label="Übersicht">
+    return <section className="projector-overview" aria-label="Übersicht"><h2>Spielübersicht</h2>
       <div className="overview-columns">
         <GameList games={unplayed} label="Offene Spiele" />
         <GameList games={played} label="Gespielte Spiele" />
@@ -307,7 +314,7 @@ export function ProjectorGameView({ snapshot }: { snapshot: ProjectorSnapshot; s
   return <div className="projector-game">
     {round.game.kind !== "sorting" && <h3>{round.game.title}</h3>}
     {round.phase === "start" && <><p>{round.game.rules}</p><p>Das Spiel beginnt gleich …</p></>}
-    {round.phase === "playing" && <><h4>Frage {round.questionIndex + 1} von {round.questionCount}</h4><p>{round.task.question}</p><TimerDisplay timer={round.timer} size="large" /></>}
+    {round.phase === "playing" && <><h4>Frage {round.questionIndex + 1} von {round.questionCount}</h4><p className="projector-question">{round.task.question}</p><TimerDisplay timer={round.timer} size="large" /></>}
     {round.phase === "evaluation" && <><SolutionContent solution={round.solution} /><Results results={round.results} /></>}
   </div>;
 }

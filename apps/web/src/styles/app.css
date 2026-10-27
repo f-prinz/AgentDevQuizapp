@@ -34,7 +34,7 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .projector { min-width: 64rem; width: 100%; min-height: 100vh; margin-inline: auto; padding: clamp(1.5rem, 4vw, 4rem); }
 .projector-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(14rem, 1fr); min-height: calc(100vh - clamp(3rem, 8vw, 8rem)); gap: 1.5rem; }
 .projector-ranking { align-content: start; overflow-y: auto; }
-.projector-layout section { display: grid; min-height: 12rem; padding: clamp(1rem, 3vw, 2rem); border: 1px solid var(--color-grey); border-radius: 0.75rem; }
+.projector-layout section { min-height: 12rem; padding: clamp(1rem, 3vw, 2rem); border: 1px solid var(--color-grey); border-radius: 0.75rem; }
 .projector .participants li { font-size: clamp(1.1rem, 2vw, 1.8rem); }
 .projector-ranking .ranking-table, .projector-ranking .ranking-names { font-size: clamp(1.05rem, 1.8vw, 1.6rem); }
 .projector-layout h2 { margin-top: 0; }
@@ -60,7 +60,7 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .answer-mark { margin-left: 0.5rem; color: #fff; font-size: 0.9em; }
 .answer-correct .answer-mark { color: var(--color-bg); }
 .answer-wrong .answer-mark { color: #fff; }
-.player-identity { margin: 0 0 0.4rem; font-size: 1.15rem; font-weight: 700; }
+.player-identity { font-size: 1.15rem; font-weight: 700; }
 .sortable-terms { display: grid; justify-items: center; gap: 0.5rem; margin-block: 0; padding-left: 0; }
 .sortable-terms li { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 0.4rem; width: min(100%, 30rem); text-align: center; list-style-position: inside; }
 .sortable-terms li[draggable="true"] { cursor: grab; }
@@ -69,6 +69,15 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .estimation-panel { max-width: 24rem; }
 .estimation-input { display: grid; gap: 0.4rem; }
 .solution { padding: 0.85rem; border-inline-start: 0.25rem solid var(--color-turquoise); }
+/* CHG-8: Auf dem Projektor Frage und Aufloesung deutlich groesser darstellen. */
+.projector-question, .projector-game .solution { font-size: 1.8rem; }
+.projector-game .solution h3 { font-size: 2.2rem; }
+/* CHG-8: Richtige Quiz-Antwort blinkt 3 s lang im 0,5-s-Takt. Zielfarbe:
+   rot wenn der Spieler sie gewaehlt hat, sonst grau; Endzustand tuerkis. */
+.answer-flash-own { animation: answer-flash-red 0.5s linear 6 alternate; }
+.answer-flash-missed { animation: answer-flash-grey 0.5s linear 6 alternate; }
+@keyframes answer-flash-red { from { background: var(--color-turquoise); } to { background: var(--color-red); } }
+@keyframes answer-flash-grey { from { background: var(--color-turquoise); } to { background: var(--color-grey); } }
 .game-start-animation { animation: game-start 700ms ease-out both; }
 @keyframes game-start { from { opacity: 0; transform: translateY(0.6rem); } to { opacity: 1; transform: translateY(0); } }
 .projector-game { display: grid; gap: 1rem; }
