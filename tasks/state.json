@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -769,14 +769,19 @@
       ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P2",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
         "README.md",
         "docs/"
       ],
-      "implemented_by": "analyst"
+      "implemented_by": "analyst",
+      "test_result": "check-state exit 0; 61/61 Server-, 56/56 Web-Tests",
+      "review_result": "APPROVED; lokale Systemdoku und MVP-Abschlussbericht vollstaendig, check-state gruen",
+      "test_evidence": "tasks/evidence/TECH-12-2026-10-27T10-35-31-812Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/TECH-12.md"
     },
     {
       "id": "TECH-13",
@@ -805,5 +810,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T10:30:46.375Z"
+  "last_updated_utc": "2026-10-27T10:37:20.974Z"
 }
