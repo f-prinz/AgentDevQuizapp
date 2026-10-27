@@ -72,6 +72,7 @@ beforeEach(() => {
 
 afterEach(() => {
   localStorage.clear();
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
 
@@ -111,6 +112,26 @@ describe("FEAT-2 lobby views", () => {
     expect(Array.from({ length: localStorage.length }, (_, index) => localStorage.getItem(localStorage.key(index) ?? "") ?? "").join(" ")).toContain(playerSession.token);
   });
 
+  it("keeps a successful server join successful when local session storage is unavailable", async () => {
+    const fetchMock = vi.fn(async () => response({ version: 1, session: playerSession }));
+    vi.stubGlobal("fetch", fetchMock);
+    const originalSetItem = Storage.prototype.setItem.bind(localStorage);
+    const setItem = vi.spyOn(Storage.prototype, "setItem").mockImplementation((key, value) => {
+      if (key === `lobby:${lobbyId}:player`) throw new DOMException("Storage disabled", "QuotaExceededError");
+      originalSetItem(key, value);
+    });
+
+    renderAt(`/lobbies/${lobbyId}/join`);
+    fireEvent.change(screen.getByRole("textbox", { name: /name/i }), { target: { value: "Ada" } });
+    fireEvent.click(screen.getByRole("button", { name: /beitreten/i }));
+
+    expect((await screen.findByRole("status")).textContent).toMatch(/du bist der lobby beigetreten/i);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith(`/api/lobbies/${lobbyId}/players`, expect.objectContaining({ method: "POST" }));
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(setItem).toHaveBeenCalledWith(`lobby:${lobbyId}:player`, JSON.stringify(playerSession));
+  });
+
   it("authenticates the host from the link fragment and restores the session after a fresh route load", async () => {
     const link = `/lobbies/${lobbyId}/host#sessionId=${hostSession.sessionId}&token=${hostSession.token}`;
     const first = renderAt(link);
@@ -128,6 +149,85 @@ describe("FEAT-2 lobby views", () => {
     await waitFor(() => expect(refreshedSocket.sent.some(message => {
       const parsed = JSON.parse(message);
       return parsed.type === "auth" && parsed.sessionId === hostSession.sessionId && parsed.token === hostSession.token;
+    })).toBe(true));
+  });
+
+  it("reopens an existing player session from the join link without creating a second player", async () => {
+    localStorage.setItem(`lobby:${lobbyId}:player`, JSON.stringify(playerSession));
+    const fetchMock = vi.mocked(fetch);
+
+    const first = renderAt(`/lobbies/${lobbyId}/join`);
+    await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(0));
+    const firstSocket = FakeWebSocket.instances.at(-1)!;
+    await waitFor(() => expect(firstSocket.sent.some(message => {
+      const parsed = JSON.parse(message);
+      return parsed.type === "auth" && parsed.lobbyId === lobbyId && parsed.sessionId === playerSession.sessionId && parsed.token === playerSession.token;
+    })).toBe(true));
+    await act(async () => firstSocket.deliver(snapshot("player")));
+    expect(await screen.findByText("Spielphase: lobby")).toBeTruthy();
+    first.unmount();
+
+    renderAt(`/lobbies/${lobbyId}/join`);
+    await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(1));
+    const reopenedSocket = FakeWebSocket.instances.at(-1)!;
+    await waitFor(() => expect(reopenedSocket.sent.some(message => {
+      const parsed = JSON.parse(message);
+      return parsed.type === "auth" && parsed.lobbyId === lobbyId && parsed.sessionId === playerSession.sessionId && parsed.token === playerSession.token;
+    })).toBe(true));
+    expect(fetchMock).not.toHaveBeenCalledWith(`/api/lobbies/${lobbyId}/players`, expect.anything());
+    expect(screen.queryByRole("button", { name: /beitreten/i })).toBeNull();
+  });
+
+  it("shows a clear stale-session message after a server restart without exposing the token or rejoining", async () => {
+    localStorage.setItem(`lobby:${lobbyId}:player`, JSON.stringify(playerSession));
+    const fetchMock = vi.mocked(fetch);
+    const router = createMemoryRouter(appRoutes, { initialEntries: [`/lobbies/${lobbyId}/join`] });
+    render(<RouterProvider router={router} />);
+
+    await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(0));
+    const socket = FakeWebSocket.instances.at(-1)!;
+    await waitFor(() => expect(socket.sent.some(message => {
+      const parsed = JSON.parse(message);
+      return parsed.type === "auth" && parsed.sessionId === playerSession.sessionId && parsed.token === playerSession.token;
+    })).toBe(true));
+    await act(async () => socket.deliver({
+      version: 1,
+      type: "error",
+      requestId: null,
+      code: "LOBBY_NOT_FOUND",
+      message: "Lobby not found",
+    }));
+
+    const status = await screen.findByRole("status");
+    expect(status.textContent).toMatch(/Lobby|Sitzung/i);
+    expect(status.textContent).toMatch(/nicht mehr|abgelaufen|neu erstellen|erneut/i);
+    expect(status.textContent).not.toContain(playerSession.token);
+    expect(fetchMock).not.toHaveBeenCalledWith(`/api/lobbies/${lobbyId}/players`, expect.anything());
+    expect(localStorage.getItem(`lobby:${lobbyId}:player`)).toBeNull();
+    expect(await screen.findByRole("button", { name: /beitreten/i })).toBeTruthy();
+
+    const nextLobbyId = "lobby-456";
+    await act(async () => router.navigate(`/lobbies/${nextLobbyId}/join`));
+    await waitFor(() => expect(screen.getByRole("button", { name: /beitreten/i })).toBeTruthy());
+    expect(FakeWebSocket.instances.flatMap(instance => instance.sent).some(message => {
+      const parsed = JSON.parse(message);
+      return parsed.type === "auth" && parsed.lobbyId === nextLobbyId && parsed.token === playerSession.token;
+    })).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalledWith(`/api/lobbies/${nextLobbyId}/players`, expect.anything());
+  });
+
+  it("restores a projector session from local storage after reopening its route", async () => {
+    localStorage.setItem(`lobby:${lobbyId}:projector`, JSON.stringify(projectorSession));
+    const first = renderAt(`/lobbies/${lobbyId}/projector`);
+    await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(0));
+    first.unmount();
+
+    renderAt(`/lobbies/${lobbyId}/projector`);
+    await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(1));
+    const reopenedSocket = FakeWebSocket.instances.at(-1)!;
+    await waitFor(() => expect(reopenedSocket.sent.some(message => {
+      const parsed = JSON.parse(message);
+      return parsed.type === "auth" && parsed.lobbyId === lobbyId && parsed.sessionId === projectorSession.sessionId && parsed.token === projectorSession.token;
     })).toBe(true));
   });
 
