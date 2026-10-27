@@ -215,7 +215,8 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
         const state = correct ? "correct" : "wrong";
         return <li key={termId} className={`answer-marked answer-${state}`} data-answer-state={state}>{term?.text ?? "Begriff"}<span className="answer-mark">{correct ? "Richtig" : "Falsch"}</span></li>;
       })}</ol>}
-      {snapshot.input.answer && round.solution.kind !== "quiz" && <p>Deine abgegebene Antwort: {answerLabel(snapshot.input.answer, [])}</p>}
+      {round.ownEvaluation.answer && round.solution.kind !== "quiz" && <p>Deine abgegebene Antwort: {answerLabel(round.ownEvaluation.answer, [])}</p>}
+      {round.ownEvaluation.distance !== null && <p>Dein Abstand zur Lösung: {round.ownEvaluation.distance}</p>}
       <p>Deine Punkte: {round.ownEvaluation.points}</p>
     </>}
   </section></>;
