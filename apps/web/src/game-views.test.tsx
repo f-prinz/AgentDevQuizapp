@@ -202,8 +202,12 @@ describe("FEAT-4 game phase views", () => {
     expect(screen.queryByText("Paris")).toBeNull();
     expect(screen.queryByText("Lyon")).toBeNull();
     await deliver(view, snapshot("projector", "evaluation", { revision: 2 }));
-    await waitFor(() => expect(screen.getByRole("region", { name: /spielanzeige/i }).textContent).toContain("Richtige Antwort: Paris"));
-    expect(screen.getByRole("region", { name: /spielanzeige/i }).textContent).not.toContain("Lyon");
+    const display = await screen.findByRole("region", { name: /spielanzeige/i });
+    await waitFor(() => {
+      const correct = display.querySelector('[data-answer-state="correct"]');
+      expect(correct?.textContent).toContain("Paris");
+      expect(correct?.textContent).toMatch(/richtig/i);
+    });
   });
 });
 
@@ -303,5 +307,42 @@ describe("FEAT-14 player status and answer feedback", () => {
     expect(screen.queryByRole("region", { name: /dein spielstand/i })).toBeNull();
     expect(screen.queryByText(/deine abgegebene antwort/i)).toBeNull();
     expect(screen.queryByText(/answer-(correct|wrong)/i)).toBeNull();
+  });
+});
+
+describe("FEAT-8 quiz views", () => {
+  it("renders the four answer options as selectable radio choices for the player", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing"));
+    const radios = screen.getAllByRole("radio");
+    expect(radios).toHaveLength(4);
+    expect(radios.map(radio => radio.getAttribute("value")).sort()).toEqual(["a", "b", "c", "d"]);
+  });
+
+  it("shows question and all four options to the host during play", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "playing"));
+    expect(await screen.findByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeTruthy();
+    for (const option of ["Paris", "Lyon", "Marseille", "Toulouse"]) {
+      expect(screen.getByText(option)).toBeTruthy();
+    }
+  });
+
+  it.each(["host", "projector"] as const)("marks the correct quiz option in the %s evaluation answer list", async role => {
+    const view = renderRole(role);
+    await deliver(view, snapshot(role, "evaluation"));
+    const correct = screen.getByText("Paris").closest("[data-answer-state]");
+    expect(correct?.getAttribute("data-answer-state")).toBe("correct");
+    expect(correct?.textContent).toMatch(/richtig/i);
+    expect(correct?.className).toMatch(/answer-correct/);
+    expect(screen.queryByText("Lyon")?.closest("[data-answer-state]")?.getAttribute("data-answer-state")).toBe("neutral");
+  });
+
+  it("does not expose answer options on the projector during play", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "playing"));
+    for (const option of ["Paris", "Lyon", "Marseille", "Toulouse"]) {
+      expect(screen.queryByText(option)).toBeNull();
+    }
   });
 });
