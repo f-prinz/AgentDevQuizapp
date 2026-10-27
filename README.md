@@ -68,19 +68,17 @@ Ablauf im Browser: Host legt unter `/` eine Lobby an, teilt Host-/Projektor-/Spi
 ## Prüfungen
 
 ```powershell
-npm `pprefixoapps/server test              # Server-Unit- + e2e-wests (Viters,ews)
-lpm--pefix apps/eb test                 # Web-Tests (Vitet + Tsting Lirary)
-npm --prix apps/srvrrun int          # slit +tsc
-pm--rfx apps/wb n lint             # eslit +tsc
-```
 node scripts/check-state.mjs
 node scripts/check-inventory.mjs
 node scripts/verify.mjs
-npm test                         # scripts/selftest.mjs: End-to-End-Test aller Gates in einem Temp-Repo
+npm test                             # scripts/selftest.mjs: End-to-End-Test aller Gates in einem Temp-Repo
+
+npm --prefix apps/server test        # Server-Unit- + e2e-Tests (Vitest, ws)
+npm --prefix apps/web test           # Web-Tests (Vitest + Testing Library)
+npm --prefix apps/server run lint    # eslint + tsc
+npm --prefix apps/web run lint       # eslint + tsc
 ```
 
 Betrieb: `docs/orchestrator-checklist.md` (Kurzfassung aller Gates + Befehlssequenz).
-
-<!-- Test- und Browserbefehle folgen nach Implementierung. -->
 
 Entwicklung und Betrieb erfolgen lokal. Kein Deployment; Push nur Task-Branches bei konfiguriertem Remote (`push-task.mjs`), main nie.
