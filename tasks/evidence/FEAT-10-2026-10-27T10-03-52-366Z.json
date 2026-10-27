@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-10",
+  "command": "npm --prefix apps/web test",
+  "exit_code": 0,
+  "stdout_tail": "\n> @raccoons/web@1.0.0 test\n> vitest run\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv5.0.5 \u001b[39m\u001b[90mC:/dev/Bedburg/AgentDevQuizapp/apps/web\u001b[39m\n\n \u001b[32m✓\u001b[39m src/app-routes.test.tsx \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 227\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m src/projector-layout.test.tsx \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 265\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m src/lobby-views.test.tsx \u001b[2m(\u001b[22m\u001b[2m10 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 668\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m src/game-views.test.tsx \u001b[2m(\u001b[22m\u001b[2m27 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 1484\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m src/overview-views.test.tsx \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 2839\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[32m✓\u001b[39m FEAT-6 projector overview \u001b[2m(4)\u001b[22m\n     \u001b[33m\u001b[2m✓\u001b[22m\u001b[39m animates the ranking transition: previous standings first, then updated totals and order\u001b[33m 2439\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m5 passed\u001b[39m\u001b[22m\u001b[90m (5)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m52 passed\u001b[39m\u001b[22m\u001b[90m (52)\u001b[39m\n\u001b[2m   Start at \u001b[22m 11:03:53\n\u001b[2m   Duration \u001b[22m 4.57s\u001b[2m (tests 42%, environment 40%, import 8%, setup 7%, transform 3%)\u001b[22m\n\n",
+  "stderr_tail": "",
+  "started": "2026-10-27T10:03:52.366Z",
+  "finished": "2026-10-27T10:03:57.741Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
