@@ -1,6 +1,6 @@
 # Fortschritt
 
-Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE; FEAT-2 DONE; FEAT-3 DONE; FEAT-4 TODO; FEAT-5 DONE; FEAT-6 TODO; FEAT-7 DONE; FEAT-8 TODO; FEAT-9 DONE; FEAT-10 TODO; FEAT-11 DONE; FEAT-12 TODO; FEAT-13 DONE; FEAT-14 TODO; TECH-5 DONE; TECH-6 DONE; FEAT-15 TODO; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO; TECH-13 DONE. Historische Meldungen unten bleiben erhalten.
+Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE; FEAT-2 DONE; FEAT-3 DONE; FEAT-4 TODO; FEAT-5 DONE; FEAT-6 TODO; FEAT-7 DONE; FEAT-8 TODO; FEAT-9 DONE; FEAT-10 TODO; FEAT-11 DONE; FEAT-12 TODO; FEAT-13 DONE; FEAT-14 TODO; TECH-5 DONE; TECH-6 DONE; FEAT-15 IN_PROGRESS; TECH-7 TODO; TECH-8 TODO; TECH-9 TODO; TECH-10 TODO; TECH-11 TODO; TECH-12 TODO; TECH-13 DONE. Historische Meldungen unten bleiben erhalten.
 
 2026-10-26T12:27:54.828Z: TECH-5 IN_PROGRESS.   
 
@@ -165,3 +165,5 @@ Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE
 2026-10-27T08:39:23.958Z: FEAT-2 DONE. 15/15 Webtests gruen; browserbasiert Lobby erstellt, Hostzugriff nach Fragment-Cleanup und Refresh wiederhergestellt, Spielerbeitritt/Teilnehmerliste und Projektorroute geprueft. Unabhaengig APPROVED; 15/15 Tests, ESLint/Typecheck, Build und Browserabnahme gruen: Lobby-Linke, Host-Fragment-Cleanup+Refresh, Spielerbeitritt+Live-Liste, Projektorroute. 
 
 2026-10-27T08:40:13.129Z: FEAT-2 aktualisiert.   
+
+2026-10-27T08:42:05.255Z: FEAT-15 IN_PROGRESS.  Analyst: kein Klaerungsbedarf; adversariale Validierung ohne Blocker. Architektur: CURRENT_STACK_ONLY, Stack und Contracts KEEP; bestehende WS-Fehlercodes reichen, Client soll LOBBY_NOT_FOUND/UNAUTHORIZED nach Neustart klar anzeigen, ohne Re-Join. 
