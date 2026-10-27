@@ -14,9 +14,10 @@ export const RankingEntrySchema = z.strictObject({ playerId: IdSchema, name: Tex
 export const RankingTransitionSchema = z.strictObject({ resultId: IdSchema, gameId: IdSchema, previous: z.array(RankingEntrySchema), current: z.array(RankingEntrySchema) });
 const SnapshotBase = { version: ProtocolVersionSchema, type: z.literal('snapshot'), lobbyId: IdSchema, revision: z.number().int().nonnegative(), serverTime: TimestampSchema, phase: PhaseSchema, participants: z.array(ParticipantSchema), catalog: z.array(CatalogEntrySchema), selectedGameId: IdSchema.nullable(), ranking: z.array(RankingEntrySchema), rankingTransition: RankingTransitionSchema.nullable() };
 const snapshotConsistent = (value: { phase: string; round: { phase: string } | null }) => ['start', 'playing', 'evaluation'].includes(value.phase) ? value.round?.phase === value.phase : value.round === null;
-export const HostSnapshotSchema = z.strictObject({ ...SnapshotBase, role: z.literal('host'), canStartLobby: z.boolean(), round: HostRoundSchema.nullable() }).refine(snapshotConsistent, 'phase and round must match');
+export const LobbyLinksSchema = z.strictObject({ player: z.string().min(1), projector: z.string().min(1) });
+export const HostSnapshotSchema = z.strictObject({ ...SnapshotBase, role: z.literal('host'), canStartLobby: z.boolean(), links: LobbyLinksSchema, round: HostRoundSchema.nullable() }).refine(snapshotConsistent, 'phase and round must match');
 export const PlayerSnapshotSchema = z.strictObject({ ...SnapshotBase, role: z.literal('player'), playerId: IdSchema, input: PlayerInputSchema, round: PlayerRoundSchema.nullable() }).refine(snapshotConsistent, 'phase and round must match');
-export const ProjectorSnapshotSchema = z.strictObject({ ...SnapshotBase, role: z.literal('projector'), round: ProjectorRoundSchema.nullable() }).refine(snapshotConsistent, 'phase and round must match');
+export const ProjectorSnapshotSchema = z.strictObject({ ...SnapshotBase, role: z.literal('projector'), playerLink: z.string().min(1), round: ProjectorRoundSchema.nullable() }).refine(snapshotConsistent, 'phase and round must match');
 export const SnapshotSchema = z.discriminatedUnion('role', [HostSnapshotSchema, PlayerSnapshotSchema, ProjectorSnapshotSchema]);
 export const AuthCommandSchema = z.strictObject({ ...CommandBase, type: z.literal('auth'), lobbyId: IdSchema, sessionId: IdSchema, token: TokenSchema });
 export const LobbyStartCommandSchema = z.strictObject({ ...CommandBase, type: z.literal('lobby.start') });

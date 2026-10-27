@@ -46,7 +46,11 @@ function base(overrides: Record<string, unknown> = {}) {
 }
 function snapshot(role: "host" | "player" | "projector", overrides: Record<string, unknown> = {}) {
   const data: Record<string, unknown> = { ...base(overrides), role };
-  if (role === "host") data.canStartLobby = true;
+  if (role === "host") {
+    data.canStartLobby = true;
+    data.links = { player: `/lobbies/${lobbyId}/join`, projector: `/lobbies/${lobbyId}/projector#sessionId=p&token=${token}` };
+  }
+  if (role === "projector") data.playerLink = `/lobbies/${lobbyId}/join`;
   if (role === "player") {
     data.playerId = "player-1";
     data.input = { answer: null, final: false, participating: true };

@@ -39,7 +39,8 @@ function snapshot(role: "host" | "player" | "projector") {
     ranking: [],
     rankingTransition: null,
     role,
-    ...(role === "host" ? { canStartLobby: false } : {}),
+    ...(role === "host" ? { canStartLobby: false, links: { player: `/lobbies/${lobbyId}/join`, projector: `/lobbies/${lobbyId}/projector#sessionId=projector-session&token=${"x".repeat(43)}` } } : {}),
+    ...(role === "projector" ? { playerLink: `/lobbies/${lobbyId}/join` } : {}),
     ...(role === "player" ? { playerId: "player-1", input: { answer: null, final: false, participating: true } } : {}),
     round: null,
   };

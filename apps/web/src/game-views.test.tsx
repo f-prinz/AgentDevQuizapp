@@ -51,7 +51,11 @@ function base(phase: "start" | "playing" | "evaluation") {
 }
 function snapshot(role: "host" | "player" | "projector", phase: "start" | "playing" | "evaluation", overrides: Record<string, unknown> = {}) {
   const data: Record<string, unknown> = { ...base(phase), role, round: rounds[phase], ...overrides };
-  if (role === "host") data.canStartLobby = true;
+  if (role === "host") {
+    data.canStartLobby = true;
+    data.links = { player: `/lobbies/${lobbyId}/join`, projector: `/lobbies/${lobbyId}/projector#sessionId=p&token=${token}` };
+  }
+  if (role === "projector") data.playerLink = `/lobbies/${lobbyId}/join`;
   if (role === "player") {
     data.playerId = "player-1";
     data.input = overrides.input ?? { answer: null, final: false, participating: true };

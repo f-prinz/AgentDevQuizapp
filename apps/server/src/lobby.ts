@@ -46,6 +46,7 @@ interface StoredSession {
 
 export interface Lobby extends GameLobbyState {
   sessions: Map<string, StoredSession>;
+  links: { host: string; player: string; projector: string };
 }
 
 export interface AuthenticatedSession {
@@ -107,6 +108,7 @@ export class LobbyRegistry {
       id,
       phase: 'lobby',
       revision: 0,
+      links: { host: '', player: '', projector: '' },
       players: [],
       selectedGameId: null,
       playedGameIds: new Set(),
@@ -117,6 +119,11 @@ export class LobbyRegistry {
     };
     const host = createSession(lobby, 'host');
     const projector = createSession(lobby, 'projector');
+    lobby.links = {
+      host: `/lobbies/${id}/host#sessionId=${host.sessionId}&token=${host.token}`,
+      player: `/lobbies/${id}/join`,
+      projector: `/lobbies/${id}/projector#sessionId=${projector.sessionId}&token=${projector.token}`,
+    };
     this.lobbies.set(id, lobby);
 
     return CreateLobbyResponseSchema.parse({
@@ -124,11 +131,7 @@ export class LobbyRegistry {
       lobbyId: id,
       host,
       projector,
-      links: {
-        host: `/lobbies/${id}/host#sessionId=${host.sessionId}&token=${host.token}`,
-        player: `/lobbies/${id}/join`,
-        projector: `/lobbies/${id}/projector#sessionId=${projector.sessionId}&token=${projector.token}`,
-      },
+      links: lobby.links,
     });
   }
 
@@ -296,6 +299,7 @@ export class LobbyRegistry {
     switch (session.role) {
       case 'host':
         return HostSnapshotSchema.parse({
+          links: { player: lobby.links.player, projector: lobby.links.projector },
           ...common,
           role: 'host',
           canStartLobby: lobby.phase === 'lobby' && lobby.players.length >= 2,
@@ -305,6 +309,7 @@ export class LobbyRegistry {
         return ProjectorSnapshotSchema.parse({
           ...common,
           role: 'projector',
+          playerLink: lobby.links.player,
           round: projectRound(lobby, 'projector', undefined, now),
         });
       case 'player': {
