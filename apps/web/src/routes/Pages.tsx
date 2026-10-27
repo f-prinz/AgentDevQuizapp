@@ -114,10 +114,9 @@ function ParticipantList({ snapshot, label = "Teilnehmer" }: { snapshot: Snapsho
   </section>;
 }
 
-function LobbyStatus({ snapshot, error }: { snapshot: Snapshot | null; error: string }) {
+function LobbyStatus({ error }: { error: string }) {
   return <>
     {error && <p className="error-message" role="status">{error}</p>}
-    {snapshot && <p className="lobby-phase">Spielphase: {snapshot.phase}</p>}
   </>;
 }
 
@@ -164,7 +163,7 @@ export function HostPage() {
   return <main className="page">
     <h1>Hostbereich</h1>
     <p>Lobby: {lobbyId}</p>
-    <LobbyStatus snapshot={snapshot} error={connectionError} />
+    <LobbyStatus error={connectionError} />
     <ParticipantList snapshot={snapshot} />
     {snapshot?.role === "host" && <><p>Verbinde mindestens zwei Spieler, um das Spiel vorzubereiten.</p><HostGameView snapshot={snapshot} send={send} /></>}
   </main>;
@@ -220,9 +219,7 @@ export function JoinPage() {
       <button type="submit">Beitreten</button>
     </form>}
     {error && <p className="error-message" role="alert">{error}</p>}
-    {joined && !connectionError && <p role="status">Du bist der Lobby beigetreten.</p>}
-    <LobbyStatus snapshot={snapshot} error={connectionError} />
-    <ParticipantList snapshot={snapshot} />
+    <LobbyStatus error={connectionError} />
     {snapshot?.role === "player" && <PlayerGameView snapshot={snapshot} send={send} />}
   </main>;
 }
@@ -232,8 +229,7 @@ export function PlayerPage() {
   const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "player");
   return <main className="page">
     <h1>Spieleransicht</h1>
-    <LobbyStatus snapshot={snapshot} error={connectionError} />
-    <ParticipantList snapshot={snapshot} />
+    <LobbyStatus error={connectionError} />
     {snapshot?.role === "player" && <PlayerGameView snapshot={snapshot} send={send} />}
   </main>;
 }
@@ -243,7 +239,7 @@ export function ProjectorPage() {
   const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "projector");
   return <main className="projector" aria-labelledby="projector-title">
     <h1 id="projector-title">Projektor</h1>
-    <LobbyStatus snapshot={snapshot} error={connectionError} />
+    <LobbyStatus error={connectionError} />
     <div className="projector-layout">
       <section aria-label="Spielanzeige"><h2>Spielanzeige</h2>
         {snapshot?.role === "projector" && <ProjectorGameView snapshot={snapshot} send={send} />}

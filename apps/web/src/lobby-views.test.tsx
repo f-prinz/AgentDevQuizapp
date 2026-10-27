@@ -126,10 +126,11 @@ describe("FEAT-2 lobby views", () => {
     fireEvent.change(screen.getByRole("textbox", { name: /name/i }), { target: { value: "Ada" } });
     fireEvent.click(screen.getByRole("button", { name: /beitreten/i }));
 
-    expect((await screen.findByRole("status")).textContent).toMatch(/du bist der lobby beigetreten/i);
+    await waitFor(() => expect(screen.queryByRole("textbox", { name: /name/i })).toBeNull());
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(fetchMock).toHaveBeenCalledWith(`/api/lobbies/${lobbyId}/players`, expect.objectContaining({ method: "POST" }));
     expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.queryByText(/du bist der lobby beigetreten/i)).toBeNull();
     expect(setItem).toHaveBeenCalledWith(`lobby:${lobbyId}:player`, JSON.stringify(playerSession));
   });
 
@@ -165,7 +166,8 @@ describe("FEAT-2 lobby views", () => {
       return parsed.type === "auth" && parsed.lobbyId === lobbyId && parsed.sessionId === playerSession.sessionId && parsed.token === playerSession.token;
     })).toBe(true));
     await act(async () => firstSocket.deliver(snapshot("player")));
-    expect(await screen.findByText("Spielphase: lobby")).toBeTruthy();
+    expect(await screen.findByText(/warte auf die n[äa]chste spielauswahl/i)).toBeTruthy();
+    expect(screen.queryByText(/spielphase/i)).toBeNull();
     first.unmount();
 
     renderAt(`/lobbies/${lobbyId}/join`);
@@ -234,12 +236,8 @@ describe("FEAT-2 lobby views", () => {
 
   it.each([
     [`/lobbies/${lobbyId}/host#sessionId=${hostSession.sessionId}&token=${hostSession.token}`, "host"],
-    [`/lobbies/${lobbyId}/join`, "player"],
     [`/lobbies/${lobbyId}/projector#sessionId=${projectorSession.sessionId}&token=${projectorSession.token}`, "projector"],
   ] as const)("shows the live participant list and unnamed-player placeholder for the %s route", async (path, role) => {
-    if (role === "player") {
-      localStorage.setItem(`lobby:${lobbyId}:player`, JSON.stringify(playerSession));
-    }
     if (role === "projector") {
       localStorage.setItem(`lobby:${lobbyId}:projector`, JSON.stringify(projectorSession));
     }
@@ -249,5 +247,35 @@ describe("FEAT-2 lobby views", () => {
     await act(async () => socket.deliver(snapshot(role)));
     expect(await screen.findByText("Spieler 1")).toBeTruthy();
     expect(screen.getByRole("region", { name: /teilnehmer/i })).toBeTruthy();
+  });
+});
+
+describe("CHG-1 shell and player base", () => {
+  it("renders no site header or main navigation on any route", () => {
+    localStorage.setItem(`lobby:${lobbyId}:player`, JSON.stringify(playerSession));
+    renderAt(`/lobbies/${lobbyId}/join`);
+    expect(document.querySelector("header")).toBeNull();
+    expect(screen.queryByRole("navigation")).toBeNull();
+    expect(screen.queryByRole("link", { name: /beitreten/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /projektor/i })).toBeNull();
+  });
+
+  it("shows players no phase text, no join confirmation, no participant list and no status card", async () => {
+    localStorage.setItem(`lobby:${lobbyId}:player`, JSON.stringify(playerSession));
+    renderAt(`/lobbies/${lobbyId}/join`);
+    await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(0));
+    const socket = FakeWebSocket.instances.at(-1)!;
+    await act(async () => socket.deliver(snapshot("player")));
+    expect(await screen.findByText(/warte auf die n[äa]chste spielauswahl/i)).toBeTruthy();
+    expect(screen.queryByText(/spielphase/i)).toBeNull();
+    expect(screen.queryByText(/du bist der lobby beigetreten/i)).toBeNull();
+    expect(screen.queryByRole("region", { name: /teilnehmer/i })).toBeNull();
+    expect(screen.queryByRole("region", { name: /dein spielstand/i })).toBeNull();
+    expect(screen.queryByText("Spieler 1")).toBeNull();
+  });
+
+  it("keeps connection errors visible on the player route", async () => {
+    renderAt(`/lobbies/${lobbyId}/player`);
+    expect(await screen.findByText(/sitzung fehlt/i)).toBeTruthy();
   });
 });
