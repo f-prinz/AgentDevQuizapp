@@ -404,7 +404,30 @@
       "introduced_by": "FEAT-12",
       "removed_by": null,
       "notes": ""
+    },
+    {
+      "id": "INV-20",
+      "capability": "Rollen-Beitrittslinks im Host- und Projektor-Snapshot bereitstellen",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "file",
+          "ref": "contracts/lobby.schema.ts"
+        },
+        {
+          "type": "file",
+          "ref": "apps/server/src/lobby.ts"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/lobby.test.ts"
+        }
+      ],
+      "introduced_by": "TECH-14",
+      "removed_by": null,
+      "notes": "HostSnapshot.links{player,projector}; ProjectorSnapshot.playerLink; Links beim create() erzeugt und im Lobby-State gehalten; Host erhielt Projektor-Link bereits bei Erstellung; keine Tokens in Spieler-/Projektor-Snapshots"
     }
   ],
-  "last_updated_utc": "2026-10-27T10:07:50.312Z"
+  "last_updated_utc": "2026-10-27T12:30:00.000Z"
 }

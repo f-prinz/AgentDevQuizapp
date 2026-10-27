@@ -819,15 +819,23 @@
       "dependencies": [],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P1",
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-20"
+      ],
       "allowed_paths": [
         "contracts/",
         "apps/server/",
         "apps/web/"
       ],
-      "implemented_by": "integration_engineer"
+      "implemented_by": "integration_engineer",
+      "test_result": "61/61 Server-Tests gruen auf main",
+      "review_result": "APPROVED; Links in Snapshots, keine neuen Secrets, Fixtures angehoben",
+      "test_evidence": "tasks/evidence/TECH-14-2026-10-27T12-23-41-069Z.json",
+      "lint_evidence": "tasks/evidence/TECH-14-2026-10-27T12-07-27-485Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/TECH-14.md"
     },
     {
       "id": "BUG-1",
@@ -916,5 +924,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T12:04:44.969Z"
+  "last_updated_utc": "2026-10-27T12:25:12.933Z"
 }
