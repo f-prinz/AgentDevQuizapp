@@ -232,7 +232,7 @@ export function ProjectorPage() {
   return <main className="projector" aria-label="Projektor">
     <LobbyStatus error={connectionError} />
     <div className="projector-layout">
-      <section aria-label="Spielanzeige"><h2>Spielanzeige</h2>
+      <section aria-label="Spielanzeige">
         {snapshot?.role === "projector" && <ProjectorGameView snapshot={snapshot} send={send} />}
         {!snapshot && <p>Warte auf die Lobbyverbindung …</p>}
       </section>
