@@ -205,7 +205,7 @@
       "id": "FEAT-4",
       "component": "web",
       "title": "F3/F7 Spielphasen-Grundgeruest + Timeranzeige (Spieler klein, Projektor gross, Abgeben-Button)",
-      "acceptance_criteria": "Start-/Spiel-/Auswertungsphasen je Rolle; Startanimation; Timer Spieler klein Projektor gross; atomare Finalabgabe sperrt Eingabe; Host-Aufloesen nach Eingabeschluss inkl Fruehschluss; wartende neue Spieler; nach Refresh korrekte Phase, Draft, Finalsperre und unveraenderte Deadline aus Serverzustand.",
+      "acceptance_criteria": "Rollenansichten für Start-, Spiel- und Auswertungsphase; Spieler sehen Startanimation, Timer klein und eigenen Draft/Finalstatus; Projektor sieht Titel/Regeln und Timer groß; Host startet Spielphase, löst erst bei Eingabeschluss (inkl. Frühschluss) auf und steuert nach Auswertung weiter; wartende Spätbeitretende sichtbar ohne Eingaberecht; finale Abgabe sperrt Eingabe; Refresh zeigt Serverphase, Draft, Finalstatus und unveränderte Deadline. Darstellung ausschließlich aus autorisierten Server-Snapshots.",
       "test_command": "npm --prefix apps/web test",
       "lint_command": "npm --prefix apps/web run lint",
       "red_evidence_required": true,
@@ -214,11 +214,16 @@
         "FEAT-3",
         "FEAT-15"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "classification": "CURRENT_STACK_ONLY",
-      "priority": "P0"
+      "priority": "P0",
+      "allowed_paths": [
+        "docs/feature-FEAT-4-requirements.md",
+        "docs/feature-FEAT-4-architecture.md"
+      ],
+      "implemented_by": "web_developer"
     },
     {
       "id": "FEAT-5",
@@ -684,5 +689,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T08:53:43.785Z"
+  "last_updated_utc": "2026-10-27T08:59:41.934Z"
 }
