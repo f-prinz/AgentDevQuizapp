@@ -1,6 +1,26 @@
 import { useEffect, useState } from "react";
-import QRCode from "react-qr-code";
+import * as QRCodeModule from "react-qr-code";
+import type { QRCodeProps } from "react-qr-code";
 import type { Answer, HostSnapshot, PlayerSnapshot, ProjectorSnapshot, RankingEntry, Snapshot, Timer } from "@raccoons/contracts";
+
+// BUG-2: react-qr-code ist reines CJS — je nach Interop (Vite-Dev vs. Vitest)
+// liefert der Import ein verschachteltes Namespace-Objekt statt der Komponente
+// ({ default: { QRCode } }, { QRCode } oder die Funktion direkt).
+// .default-Ketten auspacken; landet das in einem Objekt ohne weitere
+// .default-Ebene, liegt die Komponente als Funktionswert darin (QRCode-Key).
+export function resolveComponent<T>(mod: unknown): T {
+  let resolved: unknown = mod;
+  while (resolved !== null && typeof resolved === "object" && "default" in resolved) {
+    resolved = (resolved as { default: unknown }).default;
+  }
+  if (resolved !== null && typeof resolved === "object") {
+    const component = Object.values(resolved).find(value => typeof value === "function");
+    if (component) resolved = component;
+  }
+  return resolved as T;
+}
+
+const QRCode = resolveComponent<React.ComponentType<QRCodeProps>>(QRCodeModule);
 
 type Send = (message: Record<string, unknown>) => void;
 

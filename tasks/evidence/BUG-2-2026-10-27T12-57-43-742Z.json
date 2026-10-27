@@ -1,0 +1,10 @@
+{
+  "task_id": "BUG-2",
+  "command": "npm --prefix apps/web run lint",
+  "exit_code": 0,
+  "stdout_tail": "\n> @raccoons/web@1.0.0 lint\n> eslint . && npm run typecheck\n\n\n> @raccoons/web@1.0.0 typecheck\n> tsc --noEmit\n\n",
+  "stderr_tail": "",
+  "started": "2026-10-27T12:57:43.742Z",
+  "finished": "2026-10-27T12:57:54.160Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

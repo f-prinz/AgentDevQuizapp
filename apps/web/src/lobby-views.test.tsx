@@ -282,6 +282,21 @@ describe("CHG-1 shell and player base", () => {
   });
 });
 
+describe("BUG-2 QR component interop", () => {
+  it("resolves the QR component under all observed CJS interop shapes", async () => {
+    const { resolveComponent } = await import("./GameViews");
+    function Stub() { return null; }
+    expect(resolveComponent(Stub)).toBe(Stub);
+    expect(resolveComponent({ default: Stub })).toBe(Stub);
+    expect(resolveComponent({ default: { default: Stub } })).toBe(Stub);
+    expect(resolveComponent({ QRCode: Stub })).toBe(Stub);
+    const pkg = await import("react-qr-code");
+    for (const shape of [pkg, pkg.default, (pkg as { QRCode?: unknown }).QRCode]) {
+      expect(typeof resolveComponent(shape)).toBe("function");
+    }
+  });
+});
+
 describe("CHG-2 lobby flow", () => {
   it("lets the host copy player and projector links from the lobby", async () => {
     localStorage.setItem(`lobby:${lobbyId}:host`, JSON.stringify(hostSession));
