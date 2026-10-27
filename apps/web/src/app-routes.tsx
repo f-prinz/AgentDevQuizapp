@@ -8,6 +8,9 @@ export const appRoutes: RouteObject[] = [{
   children: [
     { index: true, element: <HomePage /> },
     { path: "lobbies/:lobbyId/host", element: <HostPage /> },
+    { path: "lobbies/:lobbyId/join", element: <JoinPage /> },
+    { path: "lobbies/:lobbyId/player", element: <PlayerPage /> },
+    { path: "lobbies/:lobbyId/projector", element: <ProjectorPage /> },
     { path: "join", element: <JoinPage /> },
     { path: "player", element: <PlayerPage /> },
     { path: "projector", element: <ProjectorPage /> },
