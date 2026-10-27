@@ -14,15 +14,17 @@ describe("role route smoke checks", () => {
     ["/lobbies/lobby-123/host", "Hostbereich"],
     ["/join", "Lobby beitreten"],
     ["/player", "Spieleransicht"],
-    ["/projector", "Projektor"],
   ])("renders the expected page for %s", (path, heading) => {
     renderAt(path);
     expect(screen.getByRole("heading", { level: 1, name: heading })).toBeTruthy();
   });
 
-  it("shows separate display and ranking regions on the projector route", () => {
+  it("shows separate display and ranking regions on the projector route without a page heading", () => {
     renderAt("/projector");
     expect(screen.getByRole("region", { name: "Spielanzeige" })).toBeTruthy();
     expect(screen.getByRole("region", { name: "Rangliste" })).toBeTruthy();
+    // CHG-5: Der Projektor nutzt die gesamte Seite — kein sichtbarer h1-Header.
+    expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+    expect(screen.getByRole("main").className).toContain("projector");
   });
 });

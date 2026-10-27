@@ -229,8 +229,7 @@ export function PlayerPage() {
 export function ProjectorPage() {
   const { lobbyId } = useParams();
   const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "projector");
-  return <main className="projector" aria-labelledby="projector-title">
-    <h1 id="projector-title">Projektor</h1>
+  return <main className="projector" aria-label="Projektor">
     <LobbyStatus error={connectionError} />
     <div className="projector-layout">
       <section aria-label="Spielanzeige"><h2>Spielanzeige</h2>
