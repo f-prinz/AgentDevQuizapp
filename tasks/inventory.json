@@ -231,7 +231,7 @@
     },
     {
       "id": "INV-12",
-      "capability": "Lobby im Web anlegen, per Rollenlink beitreten und Live-Teilnehmer in Host-, Spieler- und Projektoransicht sehen",
+      "capability": "Lobby im Web anlegen, per Rollenlink beitreten und Live-Teilnehmer in Host- und Projektoransicht sehen",
       "component": "web",
       "status": "active",
       "anchors": [
@@ -254,7 +254,7 @@
       ],
       "introduced_by": "FEAT-2",
       "removed_by": null,
-      "notes": "Browserabnahme mit temporaerem lokalen Vite- und fluechtigem In-Memory-Server; Host-Fragment aus URL entfernt; Hostzugriff nach Refresh, Spielerbeitritt und Live-Snapshot, scoped Projektorroute geprueft. Keine DB oder externe Dienste."
+      "notes": "CHG-1: Spieleransicht zeigt keine Teilnehmerliste, keine Beitrittsbestaetigung und keinen Phasentext mehr; Host/Projektor behalten Live-Teilnehmer. Browserabnahme mit temporaerem lokalen Vite- und fluechtigem In-Memory-Server; Host-Fragment aus URL entfernt; Hostzugriff nach Refresh, Spielerbeitritt und Live-Snapshot, scoped Projektorroute geprueft. Keine DB oder externe Dienste."
     },
     {
       "id": "INV-13",
@@ -300,26 +300,13 @@
     },
     {
       "id": "INV-15",
-      "capability": "Spieler-Statusleiste (Name/Punkte/Platzierung) und rollenbasierte Antwort-Farbmarkierung",
+      "capability": "Spieler-Statusleiste (Name/Punkte/Platzierung)",
       "component": "web",
-      "status": "active",
-      "anchors": [
-        {
-          "type": "test",
-          "ref": "apps/web/src/game-views.test.tsx"
-        },
-        {
-          "type": "file",
-          "ref": "apps/web/src/GameViews.tsx"
-        },
-        {
-          "type": "file",
-          "ref": "apps/web/src/styles/theme.css"
-        }
-      ],
+      "status": "removed",
+      "anchors": [],
       "introduced_by": "FEAT-14",
-      "removed_by": null,
-      "notes": ""
+      "removed_by": "CHG-1",
+      "notes": "Statusleiste (Name/Punkte/Platzierung) in CHG-1 auf Nutzerwunsch entfernt; Antwort-Farbmarkierung lebt in INV-16 weiter"
     },
     {
       "id": "INV-16",
