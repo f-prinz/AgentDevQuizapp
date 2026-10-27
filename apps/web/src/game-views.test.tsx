@@ -105,8 +105,9 @@ describe("FEAT-4 game phase views", () => {
       if (phase === "start" && role !== "player") {
         expect(await screen.findByText(/Eine Antwort/)).toBeTruthy();
       }
-      if (phase === "playing") expect(await screen.findByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeTruthy();
-      if (phase === "evaluation") expect(await screen.findByText(/Paris/)).toBeTruthy();
+      if (phase === "playing" && role === "projector") expect(await screen.findByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeTruthy();
+      if (phase === "playing" && role !== "projector") expect(screen.queryByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeNull();
+      if (phase === "evaluation" && role !== "host") expect(await screen.findByText(/Paris/)).toBeTruthy();
     }
   });
 
@@ -139,12 +140,12 @@ describe("FEAT-4 game phase views", () => {
   it("sends mutable quiz drafts and final submission only for an active player; locks after final", async () => {
     const view = renderRole("player");
     await deliver(view, snapshot("player", "playing"));
-    fireEvent.click(await screen.findByRole("radio", { name: /Lyon/i }));
+    fireEvent.click(await screen.findByRole("button", { name: "Lyon" }));
     await waitFor(() => expect(view.socket().commands().some(command => command.type === "answer.set" && (command.answer as { optionId?: string }).optionId === "b")).toBe(true));
     fireEvent.click(screen.getByRole("button", { name: /abgeben/i }));
     await waitFor(() => expect(view.socket().commands().some(command => command.type === "answer.submit" && (command.answer as { optionId?: string }).optionId === "b")).toBe(true));
     await deliver(view, snapshot("player", "playing", { revision: 2, input: { answer: { kind: "quiz", optionId: "b" }, final: true, participating: true } }));
-    expect((screen.getByRole("radio", { name: /Paris/i }) as HTMLInputElement).matches(":disabled")).toBe(true);
+    expect((screen.getByRole("button", { name: "Paris" })).matches(":disabled")).toBe(true);
   });
 
   it("shows waiting participants as unable to answer", async () => {
@@ -152,16 +153,6 @@ describe("FEAT-4 game phase views", () => {
     await deliver(view, snapshot("player", "playing", { input: { answer: null, final: false, participating: false }, playerId: "player-3" }));
     expect(await screen.findByText(/nächsten spielauswahl|naechsten spielauswahl|keine antwort m/i)).toBeTruthy();
     expect((screen.getByRole("button", { name: /abgeben/i }) as HTMLButtonElement).disabled).toBe(true);
-  });
-
-  it("marks waiting participants in the projector participant list", async () => {
-    const view = renderRole("projector");
-    await deliver(view, snapshot("projector", "playing"));
-    const list = screen.getByRole("region", { name: /teilnehmerstatus/i });
-    const waitingParticipant = screen.getByText("Cyd").closest("li");
-    expect(waitingParticipant).not.toBeNull();
-    expect(waitingParticipant!.textContent).toMatch(/wartet/i);
-    expect(list.contains(waitingParticipant)).toBe(true);
   });
 
   it("keeps the reveal control reachable when input is closed without status texts", async () => {
@@ -193,10 +184,10 @@ describe("FEAT-4 game phase views", () => {
   it("restores draft, final state, and authoritative deadline from a reauthenticated snapshot", async () => {
     const view = renderRole("player");
     await deliver(view, snapshot("player", "playing", { input: { answer: { kind: "quiz", optionId: "c" }, final: false, participating: true } }));
-    expect((await screen.findByRole("radio", { name: /Marseille/i }) as HTMLInputElement).checked).toBe(true);
+    expect((await screen.findByRole("button", { name: "Marseille" })).closest("[data-answer-state]")?.getAttribute("data-answer-state")).toBe("selected");
     await act(async () => view.socket().deliver(snapshot("player", "playing", { revision: 2, input: { answer: { kind: "quiz", optionId: "c" }, final: true, participating: true }, round: { ...rounds.playing, timer: { ...rounds.playing.timer, serverTime: 10_000, deadline: 20_000, acceptUntil: 22_000 } } })));
-    expect((screen.getByRole("radio", { name: /Marseille/i }) as HTMLInputElement).checked).toBe(true);
-    expect((screen.getByRole("radio", { name: /Paris/i }) as HTMLInputElement).matches(":disabled")).toBe(true);
+    expect((screen.getByRole("button", { name: "Marseille" })).closest("[data-answer-state]")?.getAttribute("data-answer-state")).toBe("selected");
+    expect((screen.getByRole("button", { name: "Paris" })).matches(":disabled")).toBe(true);
     expect(screen.getByRole("timer").textContent).toMatch(/10/);
   });
 
@@ -241,7 +232,7 @@ describe("player answer feedback", () => {
     await deliver(view, snapshot("player", "playing", {
       input: { answer: { kind: "quiz", optionId: "b" }, final: true, participating: true },
     }));
-    expect(screen.getByText("Lyon").closest("[data-answer-state]")?.getAttribute("data-answer-state")).toBe("neutral");
+    expect(screen.getByText("Lyon").closest("[data-answer-state]")?.getAttribute("data-answer-state")).toBe("selected");
     expect(screen.queryByText(/richtig|falsch/i)).toBeNull();
 
     await deliver(view, snapshot("player", "evaluation", {
@@ -295,6 +286,60 @@ describe("player answer feedback", () => {
     expect(screen.queryByRole("region", { name: /dein spielstand/i })).toBeNull();
     expect(screen.queryByText(/deine abgegebene antwort/i)).toBeNull();
     expect(screen.queryByText(/answer-(correct|wrong)/i)).toBeNull();
+  });
+});
+
+describe("CHG-3 game phase views", () => {
+  it("shows the host only timer and resolve control while playing", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "playing"));
+    expect(screen.queryByText(/Welche Stadt/)).toBeNull();
+    expect(screen.queryByText("Paris")).toBeNull();
+    expect(screen.getByRole("timer")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /auflösen|aufloesen/i })).toBeTruthy();
+  });
+
+  it("shows the host only the next-step control after evaluation", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "evaluation"));
+    expect(screen.queryByText("Auflösung")).toBeNull();
+    expect(screen.queryByText("Ergebnisse")).toBeNull();
+    expect(screen.getByRole("button", { name: /nächste frage|naechste frage/i })).toBeTruthy();
+  });
+
+  it("keeps the ranking on the right of the projector during play without participant status", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "playing", {
+      ranking: [{ playerId: "player-1", name: "Ada", rank: 1, total: 5, games: [{ gameId: "quiz-1", points: 5 }] }],
+    }));
+    const ranking = await screen.findByRole("region", { name: /rangliste/i });
+    expect(ranking.textContent).toContain("Ada");
+    expect(ranking.textContent).toContain("5");
+    expect(screen.queryByRole("region", { name: /teilnehmerstatus/i })).toBeNull();
+    expect(screen.queryByText(/verbunden|getrennt/i)).toBeNull();
+    expect(await screen.findByText(/Welche Stadt/)).toBeTruthy();
+  });
+
+  it("shows players only options and timer without the question text", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing"));
+    expect(screen.getByRole("timer")).toBeTruthy();
+    expect(screen.queryByText(/Welche Stadt/)).toBeNull();
+    expect(screen.queryByRole("radio")).toBeNull();
+    expect(screen.queryByRole("checkbox")).toBeNull();
+    for (const option of ["Paris", "Lyon", "Marseille", "Toulouse"]) {
+      expect(screen.getByRole("button", { name: option })).toBeTruthy();
+    }
+  });
+
+  it("marks the player's chosen option as selected while playing", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing"));
+    const option = await screen.findByRole("button", { name: "Lyon" });
+    fireEvent.click(option);
+    await waitFor(() => expect(option.closest("[data-answer-state]")?.getAttribute("data-answer-state")).toBe("selected"));
+    await waitFor(() => expect(view.socket().commands().some(command =>
+      command.type === "answer.set" && (command.answer as { optionId?: string }).optionId === "b")).toBe(true));
   });
 });
 
@@ -406,24 +451,26 @@ describe("FEAT-12 estimation views", () => {
 });
 
 describe("FEAT-8 quiz views", () => {
-  it("renders the four answer options as selectable radio choices for the player", async () => {
+  it("renders the four answer options as selectable buttons for the player", async () => {
     const view = renderRole("player");
     await deliver(view, snapshot("player", "playing"));
-    const radios = screen.getAllByRole("radio");
-    expect(radios).toHaveLength(4);
-    expect(radios.map(radio => radio.getAttribute("value")).sort()).toEqual(["a", "b", "c", "d"]);
-  });
-
-  it("shows question and all four options to the host during play", async () => {
-    const view = renderRole("host");
-    await deliver(view, snapshot("host", "playing"));
-    expect(await screen.findByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeTruthy();
+    expect(screen.queryByRole("radio")).toBeNull();
     for (const option of ["Paris", "Lyon", "Marseille", "Toulouse"]) {
-      expect(screen.getByText(option)).toBeTruthy();
+      expect(screen.getByRole("button", { name: option })).toBeTruthy();
     }
   });
 
-  it.each(["host", "projector"] as const)("marks the correct quiz option in the %s evaluation answer list", async role => {
+  it("shows the host only timer and resolve control during play", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "playing"));
+    expect(screen.queryByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeNull();
+    for (const option of ["Paris", "Lyon", "Marseille", "Toulouse"]) {
+      expect(screen.queryByText(option)).toBeNull();
+    }
+    expect(screen.getByRole("timer")).toBeTruthy();
+  });
+
+  it.each(["projector"] as const)("marks the correct quiz option in the %s evaluation answer list", async role => {
     const view = renderRole(role);
     await deliver(view, snapshot(role, "evaluation"));
     const correct = screen.getByText("Paris").closest("[data-answer-state]");

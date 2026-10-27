@@ -20,9 +20,9 @@ describe("role route smoke checks", () => {
     expect(screen.getByRole("heading", { level: 1, name: heading })).toBeTruthy();
   });
 
-  it("shows separate display and participant regions on the projector route", () => {
+  it("shows separate display and ranking regions on the projector route", () => {
     renderAt("/projector");
     expect(screen.getByRole("region", { name: "Spielanzeige" })).toBeTruthy();
-    expect(screen.getByRole("region", { name: "Teilnehmerstatus" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Rangliste" })).toBeTruthy();
   });
 });

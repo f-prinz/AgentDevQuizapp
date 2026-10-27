@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { CreateLobbyResponseSchema, JoinPlayerResponseSchema, ServerMessageSchema, SessionSchema, type Session, type Snapshot } from "@raccoons/contracts";
-import { HostGameView, PlayerGameView, ProjectorGameView } from "../GameViews";
+import { HostGameView, PlayerGameView, ProjectorGameView, ProjectorRanking } from "../GameViews";
 
 type Role = "host" | "player" | "projector";
 
@@ -237,7 +237,10 @@ export function ProjectorPage() {
         {snapshot?.role === "projector" && <ProjectorGameView snapshot={snapshot} send={send} />}
         {!snapshot && <p>Warte auf die Lobbyverbindung …</p>}
       </section>
-      <ParticipantList snapshot={snapshot} label="Teilnehmerstatus" />
+      <section className="projector-ranking" aria-label="Rangliste"><h2>Rangliste</h2>
+        {snapshot?.role === "projector" && <ProjectorRanking snapshot={snapshot} />}
+        {!snapshot && <p>Warte auf die Lobbyverbindung …</p>}
+      </section>
     </div>
   </main>;
 }

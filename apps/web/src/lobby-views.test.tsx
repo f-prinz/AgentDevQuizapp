@@ -248,7 +248,7 @@ describe("FEAT-2 lobby views", () => {
     const socket = FakeWebSocket.instances.at(-1)!;
     await act(async () => socket.deliver(snapshot(role)));
     expect(await screen.findByText("Spieler 1")).toBeTruthy();
-    expect(screen.getByRole("region", { name: /teilnehmer/i })).toBeTruthy();
+    expect(screen.getByRole("region", { name: role === "host" ? /teilnehmer/i : /rangliste/i })).toBeTruthy();
   });
 });
 
