@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLocation, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { CreateLobbyResponseSchema, JoinPlayerResponseSchema, ServerMessageSchema, SessionSchema, type Session, type Snapshot } from "@raccoons/contracts";
 import { HostGameView, PlayerGameView, ProjectorGameView } from "../GameViews";
 
@@ -121,7 +121,7 @@ function LobbyStatus({ error }: { error: string }) {
 }
 
 export function HomePage() {
-  const [links, setLinks] = useState<{ host: string; player: string; projector: string } | null>(null);
+  const navigate = useNavigate();
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -133,7 +133,7 @@ export function HomePage() {
       if (!response.ok) throw new Error();
       const parsed = CreateLobbyResponseSchema.safeParse(await response.json());
       if (!parsed.success) throw new Error();
-      setLinks(parsed.data.links);
+      navigate(parsed.data.links.host);
     } catch {
       setError("Lobby konnte nicht erstellt werden. Bitte versuche es erneut.");
     } finally {
@@ -143,17 +143,9 @@ export function HomePage() {
 
   return <main className="page">
     <h1>Prinzgame</h1>
-    <p>Erstelle eine Lobby und teile die passenden Links mit Host, Spielern und Projektor.</p>
+    <p>Erstelle eine Lobby — du landest direkt in der Host-Ansicht und kannst die Links für Spieler und Projektor teilen.</p>
     <button type="button" onClick={() => void createLobby()} disabled={pending}>{pending ? "Lobby wird erstellt …" : "Lobby erstellen"}</button>
     {error && <p className="error-message" role="alert">{error}</p>}
-    {links && <section className="created-lobby" aria-label="Lobby-Links">
-      <h2>Lobby bereit</h2>
-      <ul className="role-links">
-        <li><a aria-label="Host-Link" href={links.host}>Host-Link</a></li>
-        <li><a aria-label="Spieler-Link" href={links.player}>Spieler-Link</a></li>
-        <li><a aria-label="Projektor-Link" href={links.projector}>Projektor-Link</a></li>
-      </ul>
-    </section>}
   </main>;
 }
 
@@ -164,8 +156,8 @@ export function HostPage() {
     <h1>Hostbereich</h1>
     <p>Lobby: {lobbyId}</p>
     <LobbyStatus error={connectionError} />
-    <ParticipantList snapshot={snapshot} />
-    {snapshot?.role === "host" && <><p>Verbinde mindestens zwei Spieler, um das Spiel vorzubereiten.</p><HostGameView snapshot={snapshot} send={send} /></>}
+    {snapshot?.phase === "lobby" && <ParticipantList snapshot={snapshot} />}
+    {snapshot?.role === "host" && <HostGameView snapshot={snapshot} send={send} />}
   </main>;
 }
 

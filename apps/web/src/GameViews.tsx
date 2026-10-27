@@ -1,9 +1,38 @@
 import { useEffect, useState } from "react";
+import QRCode from "react-qr-code";
 import type { Answer, HostSnapshot, PlayerSnapshot, ProjectorSnapshot, RankingEntry, Snapshot, Timer } from "@raccoons/contracts";
 
 type Send = (message: Record<string, unknown>) => void;
 
 const KIND_LABEL: Record<string, string> = { quiz: "Quiz", sorting: "Sortieren", estimation: "Schätzen" };
+
+async function copyText(value: string) {
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    const field = document.createElement("textarea");
+    field.value = value;
+    document.body.appendChild(field);
+    field.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch { ok = false; }
+    field.remove();
+    return ok;
+  }
+}
+
+function CopyLinkButton({ label, link }: { label: string; link: string }) {
+  const [copied, setCopied] = useState(false);
+  const url = new URL(link, window.location.origin).href;
+  return <span className="link-copy">
+    <code className="link-copy-text">{link}</code>
+    <button type="button" aria-label={`${label} kopieren`} onClick={() => { void copyText(url).then(ok => { if (ok) { setCopied(true); window.setTimeout(() => setCopied(false), 1600); } }); }}>
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M9 9h2V7H9a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-2h-2v2H9V9Zm5-5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-6Zm0 2h6v9h-6V6Z"/></svg>
+    </button>
+    {copied && <span className="link-copied" role="status">Kopiert</span>}
+  </span>;
+}
 
 function GameList({ games, label }: { games: Snapshot["catalog"]; label: string }) {
   return <section aria-label={label}><h3>{label}</h3>
@@ -106,6 +135,10 @@ export function HostGameView({ snapshot, send }: { snapshot: HostSnapshot; send:
     if (snapshot.phase === "overview") return <HostOverview snapshot={snapshot} send={send} />;
     return <section className="game-view" aria-label="Lobbyphase"><h2>Lobby</h2>
       <p>Sobald mindestens zwei Spieler beigetreten sind, kannst du die Lobby zur Übersicht starten.</p>
+      <div className="lobby-links">
+        <p>Spieler-Link: <CopyLinkButton label="Spieler-Link" link={snapshot.links.player} /></p>
+        <p>Projektor-Link: <CopyLinkButton label="Projektor-Link" link={snapshot.links.projector} /></p>
+      </div>
       <button type="button" disabled={!snapshot.canStartLobby} onClick={() => send({ version: 1, type: "lobby.start", requestId: crypto.randomUUID() })}>Lobby starten</button>
     </section>;
   }
@@ -149,7 +182,7 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
   const [draft, setDraft] = useState<Answer | null>(snapshot.input.answer);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   useEffect(() => setDraft(snapshot.input.answer), [snapshot.revision, snapshot.input.answer]);
-  if (!round) return <section className="game-view" aria-label="Spielphase"><h2>Warte auf die nächste Spielauswahl</h2></section>;
+  if (!round) return <section className="game-view" aria-label="Spielbeginn"><h2>Das Spiel beginnt gleich …</h2></section>;
   const canEdit = round.phase === "playing" && snapshot.input.participating && !snapshot.input.final && !round.timer.inputClosed;
   const sendAnswer = (answer: Answer) => {
     if (!canEdit || round.phase !== "playing") return;
@@ -226,6 +259,13 @@ function answerLabel(answer: Answer, options: Array<{ id: string; text: string }
 export function ProjectorGameView({ snapshot }: { snapshot: ProjectorSnapshot; send: Send }) {
   const round = snapshot.round;
   if (!round) {
+    if (snapshot.phase === "lobby") {
+      const joinUrl = new URL(snapshot.playerLink, window.location.origin).href;
+      return <section className="projector-lobby" aria-label="Spielerbeitritt">
+        <p className="player-link">{snapshot.playerLink}</p>
+        <div role="img" aria-label="QR-Code zum Spieler-Link"><QRCode value={joinUrl} size={256} /></div>
+      </section>;
+    }
     if (snapshot.phase !== "overview") return <p>Warte auf die Spielauswahl.</p>;
     const unplayed = snapshot.catalog.filter(game => !game.played);
     const played = snapshot.catalog.filter(game => game.played);
