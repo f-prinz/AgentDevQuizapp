@@ -305,3 +305,5 @@ Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE
 2026-10-27T13:04:07.155Z: BUG-2 aktualisiert.   
 
 2026-10-27T13:04:50.131Z: BUG-2 DONE. 63/63 Web-Tests gruen auf main APPROVED; resolveComponent loest CJS-Interop fuer react-qr-code auf 
+
+2026-10-27T13:04:52.785Z: BUG-2 Fix-Retry 1/3. default-Import von react-qr-code liefert unter Vite-Dev verschachteltes CJS-Namespace; resolveComponent packt .default-Kette + QRCode-Key aus
