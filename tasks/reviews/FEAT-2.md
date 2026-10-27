@@ -36,3 +36,17 @@ new persistence backend, contract change, or unapproved framework was found.
 No review findings remain. The orchestrator should record fresh green test,
 lint and build evidence (and complete the required browser acceptance if not
 already recorded) before merging and marking the task DONE.
+
+## Browserabnahme (Orchestrator, 2026-10-27)
+
+- Temporary local Vite UI and an in-memory lobby server were started; no
+  PostgreSQL connection or persistent data was used.
+- Created a lobby in the browser and confirmed the three role links appeared.
+- Opened the host link; the URL fragment was removed after session capture.
+  Reloading the host route restored the host view from localStorage.
+- Joined the same lobby as `Ada`; the join view received a live participant
+  snapshot and the host view displayed that participant.
+- Opened the projector link and confirmed the lobby-scoped projector route,
+  phase display and participant region rendered. The address bar contained no
+  session fragment after loading.
+- Stopped both temporary local servers after the check.
