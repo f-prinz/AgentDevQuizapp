@@ -275,12 +275,21 @@
         "FEAT-5",
         "FEAT-14"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-17"
+      ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P1",
-      "implemented_by": "web_developer"
+      "implemented_by": "web_developer",
+      "test_result": "49/49 Webtests gruen auf main; Build gruen",
+      "review_result": "APPROVED; Uebersicht auf Phase overview gegated, fehlender lobby.start-Button ergaenzt, Animation dreistufig, Themekonform",
+      "test_evidence": "tasks/evidence/FEAT-6-2026-10-27T10-01-37-006Z.json",
+      "red_evidence": "tasks/evidence/FEAT-6-2026-10-27T09-58-50-228Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-6-2026-10-27T10-01-42-514Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/FEAT-6.md"
     },
     {
       "id": "FEAT-7",
@@ -726,5 +735,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T09:56:46.423Z"
+  "last_updated_utc": "2026-10-27T10:02:22.640Z"
 }

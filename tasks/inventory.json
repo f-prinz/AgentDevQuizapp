@@ -339,7 +339,30 @@
       "introduced_by": "FEAT-8",
       "removed_by": null,
       "notes": ""
+    },
+    {
+      "id": "INV-17",
+      "capability": "Uebersicht mit Spielekatalog, Host-Auswahl/-Start und Projektor-Ranking mit Animationsuebergang",
+      "component": "web",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "test",
+          "ref": "apps/web/src/overview-views.test.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/GameViews.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/styles/app.css"
+        }
+      ],
+      "introduced_by": "FEAT-6",
+      "removed_by": null,
+      "notes": ""
     }
   ],
-  "last_updated_utc": "2026-10-27T09:55:13.765Z"
+  "last_updated_utc": "2026-10-27T10:02:21.924Z"
 }
