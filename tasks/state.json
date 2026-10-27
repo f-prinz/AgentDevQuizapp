@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1040,8 +1040,27 @@
       "lint_evidence": "tasks/evidence/CHG-5-2026-10-27T14-25-03-405Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/CHG-5.md"
+    },
+    {
+      "id": "BUG-3",
+      "component": "web",
+      "title": "Sortieren: Drag&Drop auf Touch-Geraeten",
+      "acceptance_criteria": "Sortier-Items per Touch verschiebbar (touch-action none)",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-5"
+      ],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T14:26:36.621Z"
+  "last_updated_utc": "2026-10-27T14:56:10.245Z"
 }
