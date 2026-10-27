@@ -32,6 +32,30 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .projector-layout section { display: grid; align-content: center; min-height: 12rem; padding: clamp(1rem, 3vw, 2rem); border: 1px solid var(--color-grey); border-radius: 0.75rem; }
 .projector .participants li { font-size: clamp(1.1rem, 2vw, 1.8rem); }
 .projector-layout h2 { margin-top: 0; }
+.game-view { display: grid; gap: 0.8rem; margin-block: 1.5rem; padding: 1rem; border: 1px solid var(--color-grey); border-radius: 0.75rem; }
+.game-view h2, .game-view h3, .game-view p { margin-block: 0.35rem; }
+.game-view button, .game-view input { min-height: 2.75rem; padding: 0.65rem 0.85rem; border: 1px solid var(--color-grey); border-radius: 0.4rem; color: var(--color-turquoise); background: var(--color-bg); font: inherit; }
+.game-view button { cursor: pointer; }
+.game-view button:disabled, .game-view fieldset:disabled { cursor: not-allowed; opacity: 0.65; }
+.game-view button:focus-visible, .game-view input:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.15rem; }
+.phase-label { color: var(--color-grey); text-transform: uppercase; letter-spacing: 0.08em; }
+.game-timer { width: fit-content; margin: 0.4rem 0; font-variant-numeric: tabular-nums; font-weight: 800; }
+.timer-compact { font-size: 1.25rem; }
+.game-view fieldset { display: grid; gap: 0.65rem; min-width: 0; margin: 0; padding: 1rem; border: 1px solid var(--color-grey); border-radius: 0.5rem; }
+.answer-option { display: flex; align-items: center; gap: 0.75rem; min-height: 2.75rem; padding: 0.55rem; border: 1px solid var(--color-grey); border-radius: 0.4rem; }
+.answer-option input { width: 1.15rem; height: 1.15rem; min-height: auto; margin: 0; accent-color: var(--color-turquoise); }
+.sortable-terms { display: grid; gap: 0.5rem; padding-left: 2rem; }
+.sortable-terms li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 0.4rem; }
+.estimation-input { display: grid; gap: 0.4rem; max-width: 24rem; }
+.solution { padding: 0.85rem; border-inline-start: 0.25rem solid var(--color-turquoise); }
+.game-start-animation { animation: game-start 700ms ease-out both; }
+@keyframes game-start { from { opacity: 0; transform: translateY(0.6rem); } to { opacity: 1; transform: translateY(0); } }
+.projector-game { display: grid; gap: 1rem; }
+.projector-game > h3 { font-size: clamp(2rem, 5vw, 4rem); }
+.projector-game > p { font-size: clamp(1.4rem, 3vw, 2.6rem); }
+.timer-large { justify-self: center; font-size: clamp(4rem, 12vw, 10rem); }
+.projector .game-view { font-size: 1.2rem; }
+@media (prefers-reduced-motion: reduce) { .game-start-animation { animation: none; } }
 @media (min-width: 48rem) { .role-links { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 64rem) {
   .site-header { padding-inline: 2rem; }
