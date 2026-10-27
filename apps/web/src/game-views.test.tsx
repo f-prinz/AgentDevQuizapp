@@ -154,10 +154,10 @@ describe("FEAT-4 game phase views", () => {
     expect((screen.getByRole("button", { name: /abgeben/i }) as HTMLButtonElement).disabled).toBe(true);
   });
 
-  it.each(["host", "projector"] as const)("marks waiting participants in the %s participant list", async role => {
-    const view = renderRole(role);
-    await deliver(view, snapshot(role, "playing"));
-    const list = screen.getByRole("region", { name: role === "host" ? /teilnehmer/i : /teilnehmerstatus/i });
+  it("marks waiting participants in the projector participant list", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "playing"));
+    const list = screen.getByRole("region", { name: /teilnehmerstatus/i });
     const waitingParticipant = screen.getByText("Cyd").closest("li");
     expect(waitingParticipant).not.toBeNull();
     expect(waitingParticipant!.textContent).toMatch(/wartet/i);

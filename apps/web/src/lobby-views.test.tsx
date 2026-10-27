@@ -48,7 +48,7 @@ function snapshot(role: "host" | "player" | "projector") {
 
 function renderAt(path: string) {
   const router = createMemoryRouter(appRoutes, { initialEntries: [path] });
-  return render(<RouterProvider router={router} />);
+  return { ...render(<RouterProvider router={router} />), router };
 }
 
 function response(body: unknown, status = 201) {
@@ -78,16 +78,18 @@ afterEach(() => {
 });
 
 describe("FEAT-2 lobby views", () => {
-  it("creates a lobby through the REST proxy and displays all three server-provided scoped links", async () => {
-    renderAt("/");
+  it("creates a lobby through the REST proxy and lands the creator on the host view", async () => {
+    const { router } = renderAt("/");
     fireEvent.click(screen.getByRole("button", { name: /lobby erstellen/i }));
 
     const fetchMock = vi.mocked(fetch);
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/lobbies", expect.objectContaining({ method: "POST" })));
-    expect((await screen.findByRole("link", { name: /host-link/i })).getAttribute("href")).toBe(`/lobbies/${lobbyId}/host#sessionId=${hostSession.sessionId}&token=${hostSession.token}`);
-    expect(screen.getByRole("link", { name: /spieler-link/i }).getAttribute("href")).toBe(`/lobbies/${lobbyId}/join`);
-    expect(screen.getByRole("link", { name: /projektor-link/i }).getAttribute("href")).toBe(`/lobbies/${lobbyId}/projector#sessionId=${projectorSession.sessionId}&token=${projectorSession.token}`);
-    expect(screen.getByRole("link", { name: /host-link/i }).getAttribute("href")).toContain("#sessionId=");
+    await waitFor(() => expect(router.state.location.pathname).toBe(`/lobbies/${lobbyId}/host`));
+    expect(router.state.location.hash).toContain(`sessionId=${hostSession.sessionId}`);
+    expect(router.state.location.hash).toContain(`token=${hostSession.token}`);
+    await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(0));
+    expect(screen.queryByRole("link", { name: /spieler-link/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /projektor-link/i })).toBeNull();
   });
 
   it("limits a player name to 20 characters, joins the lobby via REST, and stores the returned player session", async () => {
@@ -166,7 +168,7 @@ describe("FEAT-2 lobby views", () => {
       return parsed.type === "auth" && parsed.lobbyId === lobbyId && parsed.sessionId === playerSession.sessionId && parsed.token === playerSession.token;
     })).toBe(true));
     await act(async () => firstSocket.deliver(snapshot("player")));
-    expect(await screen.findByText(/warte auf die n[äa]chste spielauswahl/i)).toBeTruthy();
+    expect(await screen.findByText(/das spiel beginnt gleich/i)).toBeTruthy();
     expect(screen.queryByText(/spielphase/i)).toBeNull();
     first.unmount();
 
@@ -266,7 +268,7 @@ describe("CHG-1 shell and player base", () => {
     await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(0));
     const socket = FakeWebSocket.instances.at(-1)!;
     await act(async () => socket.deliver(snapshot("player")));
-    expect(await screen.findByText(/warte auf die n[äa]chste spielauswahl/i)).toBeTruthy();
+    expect(await screen.findByText(/das spiel beginnt gleich/i)).toBeTruthy();
     expect(screen.queryByText(/spielphase/i)).toBeNull();
     expect(screen.queryByText(/du bist der lobby beigetreten/i)).toBeNull();
     expect(screen.queryByRole("region", { name: /teilnehmer/i })).toBeNull();
@@ -277,5 +279,61 @@ describe("CHG-1 shell and player base", () => {
   it("keeps connection errors visible on the player route", async () => {
     renderAt(`/lobbies/${lobbyId}/player`);
     expect(await screen.findByText(/sitzung fehlt/i)).toBeTruthy();
+  });
+});
+
+describe("CHG-2 lobby flow", () => {
+  it("lets the host copy player and projector links from the lobby", async () => {
+    localStorage.setItem(`lobby:${lobbyId}:host`, JSON.stringify(hostSession));
+    const writeText = vi.fn(async () => undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+    renderAt(`/lobbies/${lobbyId}/host`);
+    await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(0));
+    const socket = FakeWebSocket.instances.at(-1)!;
+    await act(async () => socket.deliver(snapshot("host")));
+
+    const playerCopy = await screen.findByRole("button", { name: /spieler.*link.*kopieren|link.*kopieren.*spieler/i });
+    fireEvent.click(playerCopy);
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining(`/lobbies/${lobbyId}/join`));
+    const projectorCopy = screen.getByRole("button", { name: /projektor.*link.*kopieren|link.*kopieren.*projektor/i });
+    fireEvent.click(projectorCopy);
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining(`/lobbies/${lobbyId}/projector`));
+  });
+
+  it("shows the player link and QR code on the projector only during the lobby", async () => {
+    localStorage.setItem(`lobby:${lobbyId}:projector`, JSON.stringify(projectorSession));
+    renderAt(`/lobbies/${lobbyId}/projector`);
+    await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(0));
+    const socket = FakeWebSocket.instances.at(-1)!;
+    await act(async () => socket.deliver(snapshot("projector")));
+
+    expect(await screen.findByText(`/lobbies/${lobbyId}/join`)).toBeTruthy();
+    expect(screen.getByRole("img", { name: /qr/i })).toBeTruthy();
+
+    await act(async () => socket.deliver({ ...snapshot("projector"), revision: 2, phase: "overview" }));
+    await waitFor(() => expect(screen.queryByRole("img", { name: /qr/i })).toBeNull());
+    expect(screen.queryByText(`/lobbies/${lobbyId}/join`)).toBeNull();
+  });
+
+  it("hides the participant list from the host after the lobby starts", async () => {
+    localStorage.setItem(`lobby:${lobbyId}:host`, JSON.stringify(hostSession));
+    renderAt(`/lobbies/${lobbyId}/host`);
+    await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(0));
+    const socket = FakeWebSocket.instances.at(-1)!;
+    await act(async () => socket.deliver(snapshot("host")));
+    expect(await screen.findByRole("region", { name: /teilnehmer/i })).toBeTruthy();
+
+    await act(async () => socket.deliver({ ...snapshot("host"), revision: 2, phase: "overview" }));
+    await waitFor(() => expect(screen.queryByRole("region", { name: /teilnehmer/i })).toBeNull());
+  });
+
+  it("shows players only 'Das Spiel beginnt gleich' when no round is active", async () => {
+    localStorage.setItem(`lobby:${lobbyId}:player`, JSON.stringify(playerSession));
+    renderAt(`/lobbies/${lobbyId}/join`);
+    await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(0));
+    const socket = FakeWebSocket.instances.at(-1)!;
+    await act(async () => socket.deliver({ ...snapshot("player"), phase: "overview" }));
+    expect(await screen.findByText(/das spiel beginnt gleich/i)).toBeTruthy();
+    expect(screen.queryByText(/spielauswahl/i)).toBeNull();
   });
 });
