@@ -320,6 +320,8 @@ describe("CHG-3 game phase views", () => {
     }));
     const identity = screen.getByRole("heading", { level: 2, name: /ada - 9 \(2\)/i });
     expect(identity).toBeTruthy();
+    // CHG-7: Die Identitätszeile liegt ausserhalb der Card.
+    expect(identity.closest(".game-view")).toBeNull();
   });
 
   it("shows only the player name when no ranking entry exists", async () => {
@@ -396,6 +398,21 @@ describe("CHG-4 visual changes", () => {
     const items = Array.from(document.querySelectorAll(".sortable-terms li"));
     expect(items).toHaveLength(3);
     for (const item of items) expect(item.className).toContain("answer-tile");
+  });
+
+  it("renders quiz options and evaluation answers as grey tiles", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing"));
+    const options = document.querySelectorAll(".answer-option");
+    expect(options).toHaveLength(4);
+    // CHG-7: Quiz-Optionen sind waehrend des Spiels grau hinterlegt.
+    for (const option of options) expect(option.className).toContain("answer-tile");
+    await deliver(view, snapshot("player", "evaluation", { revision: 2 }));
+    const answers = document.querySelectorAll(".answer-feedback li");
+    expect(answers).toHaveLength(4);
+    // CHG-7: Auch neutrale Antworten der Aufloesung sind Kacheln, keine Liste.
+    for (const answer of answers) expect(answer.className).toContain("answer-tile");
+    expect(Array.from(answers).filter(item => item.getAttribute("data-answer-state") === "neutral")).toHaveLength(2);
   });
 
   it("wraps the estimation input in a grey tile", async () => {

@@ -51,16 +51,15 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .answer-option { display: block; width: 100%; min-height: 3rem; padding: 0.7rem 0.85rem; border: 1px solid var(--color-grey); border-radius: 0.4rem; text-align: left; color: #fff; background: var(--color-grey); cursor: pointer; }
 .answer-option:disabled { cursor: not-allowed; }
 .answer-option[data-answer-state="selected"], .answer-option.answer-selected { background: var(--color-red); border-color: var(--color-red); }
+.answer-tile { padding: 0.7rem 0.85rem; border: 1px solid var(--color-grey); border-radius: 0.4rem; color: #fff; background: var(--color-grey); }
+.answer-tile input { background: var(--color-bg); }
 .answer-marked { border-inline-start: 0.3rem solid var(--color-grey); }
 .answer-correct { border-inline-start-color: var(--color-turquoise) !important; background: var(--color-turquoise); color: var(--color-bg); }
 .answer-wrong { border-inline-start-color: var(--color-red) !important; background: var(--color-red); color: #fff; }
-.answer-feedback { display: grid; gap: 0.45rem; margin: 0; padding-left: 2rem; }
-.answer-feedback li { padding: 0.45rem; border-radius: 0.4rem; }
-.answer-mark { margin-left: 0.5rem; color: var(--color-grey); font-size: 0.9em; }
+.answer-feedback { display: grid; gap: 0.45rem; margin: 0; padding-left: 0; list-style: none; }
+.answer-mark { margin-left: 0.5rem; color: #fff; font-size: 0.9em; }
 .answer-correct .answer-mark { color: var(--color-bg); }
 .answer-wrong .answer-mark { color: #fff; }
-.answer-tile { padding: 0.7rem 0.85rem; border: 1px solid var(--color-grey); border-radius: 0.4rem; color: #fff; background: var(--color-grey); }
-.answer-tile input { background: var(--color-bg); }
 .player-identity { margin: 0 0 0.4rem; font-size: 1.15rem; font-weight: 700; }
 .sortable-terms { display: grid; justify-items: center; gap: 0.5rem; margin-block: 0; padding-left: 0; }
 .sortable-terms li { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 0.4rem; width: min(100%, 30rem); text-align: center; list-style-position: inside; }
