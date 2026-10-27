@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1068,8 +1068,27 @@
       "lint_evidence": "tasks/evidence/BUG-3-2026-10-27T14-56-57-370Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/BUG-3.md"
+    },
+    {
+      "id": "CHG-6",
+      "component": "web",
+      "title": "Ranking sortiert; Spieler-Kopfzeile; Startphase wartet auf Host; Sortierliste zentriert",
+      "acceptance_criteria": "Projektor-Ranking immer nach Platz sortiert; Spieler sieht oben Name - Punkte (Platz); Spieler sieht in Startphase keine Aufgabe/Regeln bis Host Spielphase startet; sortable-terms ohne Einzug, zentriert",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "BUG-3"
+      ],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/ apps/server/seeds/"
+      ],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T14:58:19.563Z"
+  "last_updated_utc": "2026-10-27T15:14:32.535Z"
 }
