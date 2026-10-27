@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router";
-import { CreateLobbyResponseSchema, JoinPlayerResponseSchema, SessionSchema, SnapshotSchema, type Session, type Snapshot } from "@raccoons/contracts";
+import { CreateLobbyResponseSchema, JoinPlayerResponseSchema, ServerMessageSchema, SessionSchema, type Session, type Snapshot } from "@raccoons/contracts";
 
 type Role = "host" | "player" | "projector";
 
@@ -31,14 +31,19 @@ function readSession(lobbyId: string, role: Role, fragment = ""): Session | null
   }
 }
 
-function useLobbySnapshot(lobbyId: string | undefined, role: Role, enabled = true) {
+function useLobbySnapshot(lobbyId: string | undefined, role: Role, enabled = true, sessionOverride: Session | null = null, onSessionInvalidated?: () => void) {
   const location = useLocation();
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [connectionError, setConnectionError] = useState("");
 
   useEffect(() => {
+    setSnapshot(null);
+    setConnectionError("");
+  }, [lobbyId, role]);
+
+  useEffect(() => {
     if (!lobbyId || !enabled) return;
-    const session = readSession(lobbyId, role, location.hash);
+    const session = sessionOverride ?? readSession(lobbyId, role, location.hash);
     if (!session) {
       setConnectionError("Sitzung fehlt. Öffne den persönlichen Link erneut.");
       return;
@@ -63,8 +68,22 @@ function useLobbySnapshot(lobbyId: string | undefined, role: Role, enabled = tru
     socket.onmessage = (event) => {
       try {
         const value: unknown = JSON.parse(String(event.data));
-        const parsed = SnapshotSchema.safeParse(value);
-        if (!parsed.success || parsed.data.role !== role || parsed.data.lobbyId !== lobbyId || parsed.data.revision <= lastRevision) return;
+        const parsed = ServerMessageSchema.safeParse(value);
+        if (!parsed.success) return;
+        if (parsed.data.type === "error") {
+          if (parsed.data.code === "LOBBY_NOT_FOUND" || parsed.data.code === "UNAUTHORIZED") {
+            try { localStorage.removeItem(sessionStorageKey(lobbyId, role)); } catch { /* Storage may be disabled. */ }
+            setSnapshot(null);
+            onSessionInvalidated?.();
+            setConnectionError(parsed.data.code === "LOBBY_NOT_FOUND"
+              ? "Diese Lobby ist nicht mehr verfügbar. Bitte erstelle eine neue Lobby und öffne den neuen persönlichen Link."
+              : "Diese Sitzung ist abgelaufen oder ungültig. Bitte öffne den persönlichen Link erneut.");
+          } else {
+            setConnectionError("Die Lobby-Anfrage konnte nicht verarbeitet werden.");
+          }
+          return;
+        }
+        if (parsed.data.type !== "snapshot" || parsed.data.role !== role || parsed.data.lobbyId !== lobbyId || parsed.data.revision <= lastRevision) return;
         lastRevision = parsed.data.revision;
         setSnapshot(parsed.data);
       } catch {
@@ -73,7 +92,7 @@ function useLobbySnapshot(lobbyId: string | undefined, role: Role, enabled = tru
     };
     socket.onerror = () => setConnectionError("Verbindung zur Lobby fehlgeschlagen.");
     return () => socket.close();
-  }, [lobbyId, role, enabled, location.hash, location.pathname, location.search]);
+  }, [lobbyId, role, enabled, sessionOverride, onSessionInvalidated, location.hash, location.pathname, location.search]);
 
   return { snapshot, connectionError };
 }
@@ -148,8 +167,14 @@ export function JoinPage() {
   const { lobbyId } = useParams();
   const [name, setName] = useState("");
   const [error, setError] = useState("");
-  const [joined, setJoined] = useState(() => Boolean(lobbyId && readSession(lobbyId, "player")));
-  const { snapshot, connectionError } = useLobbySnapshot(lobbyId, "player", joined);
+  const [session, setSession] = useState(() => lobbyId ? readSession(lobbyId, "player") : null);
+  const activeSession = session && session.lobbyId === lobbyId && session.role === "player" ? session : null;
+  const joined = Boolean(activeSession);
+  useEffect(() => {
+    setSession(lobbyId ? readSession(lobbyId, "player") : null);
+  }, [lobbyId]);
+  const invalidateSession = useCallback(() => setSession(null), []);
+  const { snapshot, connectionError } = useLobbySnapshot(lobbyId, "player", joined, activeSession, invalidateSession);
 
   async function joinLobby() {
     if (!lobbyId || name.trim().length > 20) {
@@ -166,8 +191,15 @@ export function JoinPage() {
       if (!response.ok) throw new Error();
       const parsed = JoinPlayerResponseSchema.safeParse(await response.json());
       if (!parsed.success || parsed.data.session.lobbyId !== lobbyId) throw new Error();
-      localStorage.setItem(sessionStorageKey(lobbyId, "player"), JSON.stringify(parsed.data.session));
-      setJoined(true);
+      // The server has already accepted the join. Keep this session in memory even
+      // when browser storage is unavailable, so a storage error cannot invite a
+      // retry that would create a second participant.
+      setSession(parsed.data.session);
+      try {
+        localStorage.setItem(sessionStorageKey(lobbyId, "player"), JSON.stringify(parsed.data.session));
+      } catch {
+        // This browser session remains usable until the page is closed.
+      }
     } catch {
       setError("Beitritt fehlgeschlagen. Prüfe den Link und versuche es erneut.");
     }
@@ -181,7 +213,7 @@ export function JoinPage() {
       <button type="submit">Beitreten</button>
     </form>}
     {error && <p className="error-message" role="alert">{error}</p>}
-    {joined && <p role="status">Du bist der Lobby beigetreten.</p>}
+    {joined && !connectionError && <p role="status">Du bist der Lobby beigetreten.</p>}
     <LobbyStatus snapshot={snapshot} error={connectionError} />
     <ParticipantList snapshot={snapshot} />
   </main>;

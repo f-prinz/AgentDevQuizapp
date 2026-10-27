@@ -1,0 +1,10 @@
+{
+  "task_id": "FEAT-15",
+  "command": "npm --prefix apps/web test",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/web@1.0.0 test\n> vitest run\n\n\n RUN  v5.0.5 C:/dev/Bedburg/AgentDevQuizapp/apps/web\n\n ❯ src/lobby-views.test.tsx (9 tests | 1 failed) 477ms\n   ❯ FEAT-2 lobby views (9)\n     × shows a clear stale-session message after a server restart without exposing the token or rejoining 57ms\n\n Test Files  1 failed | 2 passed (3)\n      Tests  1 failed | 17 passed (18)\n   Start at  09:43:07\n   Duration  2.80s (environment 63%, import 13%, tests 11%, setup 11%, transform 2%)\n\n",
+  "stderr_tail": "\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  src/lobby-views.test.tsx > FEAT-2 lobby views > shows a clear stale-session message after a server restart without exposing the token or rejoining\nAssertionError: expected 'Du bist der Lobby beigetreten.' to match /nicht mehr|abgelaufen|neu erstellen|…/i\n\n- Expected:\n/nicht mehr|abgelaufen|neu erstellen|erneut/i\n\n+ Received:\n\"Du bist der Lobby beigetreten.\"\n\n ❯ src/lobby-views.test.tsx:181:32\n    179|     const status = await screen.findByRole(\"status\");\n    180|     expect(status.textContent).toMatch(/Lobby|Sitzung/i);\n    181|     expect(status.textContent).toMatch(/nicht mehr|abgelaufen|neu erst…\n       |                                ^\n    182|     expect(status.textContent).not.toContain(playerSession.token);\n    183|     expect(fetchMock).not.toHaveBeenCalledWith(`/api/lobbies/${lobbyId…\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n",
+  "started": "2026-10-27T08:43:05.834Z",
+  "finished": "2026-10-27T08:43:11.560Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
