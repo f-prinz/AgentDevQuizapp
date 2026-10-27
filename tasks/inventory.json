@@ -274,7 +274,30 @@
       "introduced_by": "FEAT-15",
       "removed_by": null,
       "notes": "Rollen- und Lobby-spezifische Sitzung wird nach Refresh wiederverwendet; keine Doppelbeitritte; Storage-Fehler laesst den bestaetigten Join im Tab aktiv; ungueltige Sitzungen werden nach Neustart entfernt und ohne alten Token neu gebunden."
+    },
+    {
+      "id": "INV-14",
+      "capability": "Rollenbasierte Spielphasen, Timer, Eingabestatus und Host-Steuerung im Web",
+      "component": "web",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "test",
+          "ref": "apps/web/src/game-views.test.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/GameViews.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/routes/Pages.tsx"
+        }
+      ],
+      "introduced_by": "FEAT-4",
+      "removed_by": null,
+      "notes": "Host, Spieler und Projektor sehen servergesteuerte Start-, Spiel- und Auswertungsphasen; Timer folgt der Serverdeadline; Finalabgabe, wartende Spieler und Host-Aktionen folgen autorisiertem Snapshotstatus. Manuelle Browserabnahme und ui_step-Anker fuer FEAT-4 ausdruecklich vom Nutzer erlassen."
     }
   ],
-  "last_updated_utc": "2026-10-27T08:53:43.351Z"
+  "last_updated_utc": "2026-10-27T09:15:17.118Z"
 }
