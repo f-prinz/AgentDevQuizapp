@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -1110,15 +1110,24 @@
       "dependencies": [
         "CHG-6"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-15"
+      ],
       "allowed_paths": [
         "apps/web/"
       ],
-      "implemented_by": "web_developer"
+      "implemented_by": "web_developer",
+      "test_result": "69/69 Web-Tests gruen auf main",
+      "review_result": "APPROVED; graue Kacheln, Liste ohne Bullets, Identitaet ausserhalb",
+      "test_evidence": "tasks/evidence/CHG-7-2026-10-27T15-59-40-792Z.json",
+      "red_evidence": "tasks/evidence/CHG-7-2026-10-27T15-55-17-238Z.json",
+      "lint_evidence": "tasks/evidence/CHG-7-2026-10-27T16-00-01-183Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/CHG-7.md"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T15:38:23.434Z"
+  "last_updated_utc": "2026-10-27T16:01:38.764Z"
 }
