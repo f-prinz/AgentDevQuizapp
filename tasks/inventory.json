@@ -385,7 +385,26 @@
       "introduced_by": "FEAT-10",
       "removed_by": null,
       "notes": ""
+    },
+    {
+      "id": "INV-19",
+      "capability": "Schaetzen im Web eingeben und Auswertung mit eigener Eingabe, Abstand und Rangliste sehen",
+      "component": "web",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "test",
+          "ref": "apps/web/src/game-views.test.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/GameViews.tsx"
+        }
+      ],
+      "introduced_by": "FEAT-12",
+      "removed_by": null,
+      "notes": ""
     }
   ],
-  "last_updated_utc": "2026-10-27T10:04:51.378Z"
+  "last_updated_utc": "2026-10-27T10:07:50.312Z"
 }
