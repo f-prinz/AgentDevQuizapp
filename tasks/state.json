@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1011,8 +1011,27 @@
       "lint_evidence": "tasks/evidence/CHG-4-2026-10-27T13-57-54-380Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/CHG-4.md"
+    },
+    {
+      "id": "CHG-5",
+      "component": "web",
+      "title": "Projektor Fullpage ohne Header; Sortier-Titel ausblenden; dnd-kit DnD",
+      "acceptance_criteria": "Kein h1 Projektor, Inhalt volle Seite; Sortierspiel zeigt keinen Titel; Sortieren nutzt dnd-kit",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-4"
+      ],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T13:58:54.920Z"
+  "last_updated_utc": "2026-10-27T14:23:16.073Z"
 }
