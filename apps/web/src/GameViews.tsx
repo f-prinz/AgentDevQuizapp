@@ -203,7 +203,8 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
   const mine = snapshot.ranking.find(entry => entry.playerId === snapshot.playerId);
   const myName = mine?.name ?? snapshot.participants.find(player => player.id === snapshot.playerId)?.name ?? "Spieler";
   const identity = <h2 className="player-identity">{myName}{mine ? ` - ${mine.total} (${mine.rank})` : ""}</h2>;
-  if (!round) return <section className="game-view" aria-label="Spielbeginn">{identity}<h3>Das Spiel beginnt gleich …</h3></section>;
+  // CHG-7: Die Identitaetszeile steht oberhalb der Card, nicht darin.
+  if (!round) return <>{identity}<section className="game-view" aria-label="Spielbeginn"><h3>Das Spiel beginnt gleich …</h3></section></>;
   const canEdit = round.phase === "playing" && snapshot.input.participating && !snapshot.input.final && !round.timer.inputClosed;
   const sendAnswer = (answer: Answer) => {
     if (!canEdit || round.phase !== "playing") return;
@@ -220,8 +221,7 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
     const next = arrayMove(ids, ids.indexOf(String(active.id)), ids.indexOf(String(over.id)));
     sendAnswer({ kind: "sorting", termIds: next });
   };
-  return <section className="game-view" aria-label="Spielphase">
-    {identity}
+  return <>{identity}<section className="game-view" aria-label="Spielphase">
     {round.game.kind !== "sorting" && <h3>{round.game.title}</h3>}
     {round.phase === "start" && <div className="game-start-animation" role="region" aria-label="Startanimation"><p>Das Spiel beginnt gleich …</p></div>}
     {round.phase === "playing" && <>
@@ -229,7 +229,7 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
       {!snapshot.input.participating ? <><p role="status">Du steigst bei der nächsten Spielauswahl ein. In dieser Runde ist keine Antwort möglich.</p><button type="button" disabled>Abgeben</button></> : <>
         {round.task.kind === "quiz" && <div className="answer-options" role="group" aria-label="Antwortoptionen">{round.task.options.map(option => {
           const chosen = draft?.kind === "quiz" && draft.optionId === option.id;
-          return <button type="button" key={option.id} className={`answer-option${chosen ? " answer-selected" : ""}`} data-answer-state={chosen ? "selected" : "neutral"} disabled={!canEdit} onClick={() => sendAnswer({ kind: "quiz", optionId: option.id })}>{option.text}</button>;
+          return <button type="button" key={option.id} className={`answer-tile answer-option${chosen ? " answer-selected" : ""}`} data-answer-state={chosen ? "selected" : "neutral"} disabled={!canEdit} onClick={() => sendAnswer({ kind: "quiz", optionId: option.id })}>{option.text}</button>;
         })}</div>}
         {round.task.kind === "sorting" && (() => {
           const ids = draft?.kind === "sorting" ? draft.termIds : round.task.terms.map(term => term.id);
@@ -256,19 +256,19 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
         const selected = ownAnswer?.kind === "quiz" && ownAnswer.optionId === option.id;
         const correct = round.solution.kind === "quiz" && round.solution.correctOptionId === option.id;
         const state = selected ? (correct ? "correct" : "wrong") : (correct ? "correct" : "neutral");
-        return <li key={option.id} className={`answer-marked answer-${state}`} data-answer-state={state}>{option.text}<span className="answer-mark">{selected ? (correct ? "Deine Antwort · Richtig" : "Deine Antwort · Falsch") : correct ? "Richtig" : ""}</span></li>;
+        return <li key={option.id} className={`answer-tile answer-marked answer-${state}`} data-answer-state={state}>{option.text}<span className="answer-mark">{selected ? (correct ? "Deine Antwort · Richtig" : "Deine Antwort · Falsch") : correct ? "Richtig" : ""}</span></li>;
       })}</ul>}
       {round.solution.kind === "sorting" && round.ownEvaluation.answer?.kind === "sorting" && <ol className="answer-feedback" aria-label="Deine Antwort">{round.ownEvaluation.answer.termIds.map((termId, index) => {
         const term = round.solution.kind === "sorting" ? round.solution.terms.find(item => item.id === termId) : undefined;
         const correct = round.ownEvaluation.positionsCorrect?.[index] === true;
         const state = correct ? "correct" : "wrong";
-        return <li key={termId} className={`answer-marked answer-${state}`} data-answer-state={state}>{term?.text ?? "Begriff"}<span className="answer-mark">{correct ? "Richtig" : "Falsch"}</span></li>;
+        return <li key={termId} className={`answer-tile answer-marked answer-${state}`} data-answer-state={state}>{term?.text ?? "Begriff"}<span className="answer-mark">{correct ? "Richtig" : "Falsch"}</span></li>;
       })}</ol>}
       {round.ownEvaluation.answer && round.solution.kind !== "quiz" && <p>Deine abgegebene Antwort: {answerLabel(round.ownEvaluation.answer, [])}</p>}
       {round.ownEvaluation.distance !== null && <p>Dein Abstand zur Lösung: {round.ownEvaluation.distance}</p>}
       <p>Deine Punkte: {round.ownEvaluation.points}</p>
     </>}
-  </section>;
+  </section></>;
 }
 
 function answerLabel(answer: Answer, options: Array<{ id: string; text: string }>) {
