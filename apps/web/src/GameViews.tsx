@@ -55,7 +55,11 @@ export function HostGameView({ snapshot, send }: { snapshot: HostSnapshot; send:
 
 function SolutionContent({ solution }: { solution: { kind: "quiz"; question: string; options: Array<{ id: string; text: string }>; correctOptionId: string } | { kind: "sorting"; question: string; terms: Array<{ id: string; text: string; value: number }> } | { kind: "estimation"; question: string; target: number } }) {
   return <div className="solution"><h3>Auflösung</h3><p>{solution.question}</p>
-    {solution.kind === "quiz" && <p>Richtige Antwort: {solution.options.find(option => option.id === solution.correctOptionId)?.text ?? "Antwort nicht verfügbar"}</p>}
+    {solution.kind === "quiz" && <ul className="answer-feedback" aria-label="Auflösung der Antworten">{solution.options.map(option => {
+      const correct = option.id === solution.correctOptionId;
+      const state = correct ? "correct" : "neutral";
+      return <li key={option.id} className={`answer-marked answer-${state}`} data-answer-state={state}>{option.text}<span className="answer-mark">{correct ? "Richtig" : ""}</span></li>;
+    })}</ul>}
     {solution.kind === "sorting" && <ol>{[...solution.terms].sort((a, b) => a.value - b.value).map(term => <li key={term.id}>{term.text}: {term.value}</li>)}</ol>}
     {solution.kind === "estimation" && <p>Lösung: {solution.target}</p>}
   </div>;
