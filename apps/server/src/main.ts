@@ -25,8 +25,8 @@ export async function main(): Promise<void> {
 
 const entryPath = process.argv[1];
 if (entryPath && import.meta.url === pathToFileURL(entryPath).href) {
-  main().catch(() => {
-    console.error('Server startup failed.');
+  main().catch((err) => {
+    console.error('Server startup failed:', err);
     process.exitCode = 1;
   });
 }
