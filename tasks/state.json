@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -995,15 +995,24 @@
       "dependencies": [
         "CHG-3"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-14"
+      ],
       "allowed_paths": [
         "apps/web/"
       ],
-      "implemented_by": "web_developer"
+      "implemented_by": "web_developer",
+      "test_result": "65/65 Web-Tests gruen auf main",
+      "review_result": "APPROVED; Rangliste drei Spalten, graue Antwort-Kacheln",
+      "test_evidence": "tasks/evidence/CHG-4-2026-10-27T13-57-26-325Z.json",
+      "red_evidence": "tasks/evidence/CHG-4-2026-10-27T13-54-52-708Z.json",
+      "lint_evidence": "tasks/evidence/CHG-4-2026-10-27T13-57-54-380Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/CHG-4.md"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T13:53:43.456Z"
+  "last_updated_utc": "2026-10-27T13:58:54.920Z"
 }
