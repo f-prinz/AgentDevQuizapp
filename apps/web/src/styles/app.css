@@ -33,9 +33,11 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .projector-lobby [role="img"] svg { width: min(40vmin, 22rem); height: auto; padding: 1rem; background: #fff; }
 .projector { min-width: 64rem; width: min(100% - 2rem, 100rem); min-height: calc(100vh - 5rem); margin-inline: auto; padding-block: clamp(1.5rem, 4vw, 4rem); }
 .projector h1 { margin-top: 0; font-size: clamp(2.5rem, 7vw, 5rem); }
-.projector-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); min-height: 55vh; gap: 1.5rem; }
+.projector-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(14rem, 1fr); min-height: 55vh; gap: 1.5rem; }
+.projector-ranking { align-content: start; max-height: calc(100vh - 14rem); overflow-y: auto; }
 .projector-layout section { display: grid; align-content: center; min-height: 12rem; padding: clamp(1rem, 3vw, 2rem); border: 1px solid var(--color-grey); border-radius: 0.75rem; }
 .projector .participants li { font-size: clamp(1.1rem, 2vw, 1.8rem); }
+.projector-ranking .ranking-table, .projector-ranking .ranking-names { font-size: clamp(1.05rem, 1.8vw, 1.6rem); }
 .projector-layout h2 { margin-top: 0; }
 .game-view { display: grid; gap: 0.8rem; margin-block: 1.5rem; padding: 1rem; border: 1px solid var(--color-grey); border-radius: 0.75rem; }
 .game-view h2, .game-view h3, .game-view p { margin-block: 0.35rem; }
@@ -46,17 +48,18 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .game-timer { width: fit-content; margin: 0.4rem 0; font-variant-numeric: tabular-nums; font-weight: 800; }
 .timer-compact { font-size: 1.25rem; }
 .game-view fieldset { display: grid; gap: 0.65rem; min-width: 0; margin: 0; padding: 1rem; border: 1px solid var(--color-grey); border-radius: 0.5rem; }
-.answer-option { display: flex; align-items: center; gap: 0.75rem; min-height: 2.75rem; padding: 0.55rem; border: 1px solid var(--color-grey); border-radius: 0.4rem; }
-.answer-marked, .answer-option[data-answer-state] { border-inline-start: 0.3rem solid var(--color-grey); }
-.answer-neutral { border-inline-start-color: var(--color-grey) !important; }
-.answer-correct { border-inline-start-color: var(--color-turquoise) !important; }
-.answer-wrong { border-inline-start-color: var(--color-red) !important; }
+.answer-options { display: grid; gap: 0.65rem; }
+.answer-option { display: block; width: 100%; min-height: 3rem; padding: 0.7rem 0.85rem; border: 1px solid var(--color-grey); border-radius: 0.4rem; text-align: left; color: #fff; background: var(--color-grey); cursor: pointer; }
+.answer-option:disabled { cursor: not-allowed; }
+.answer-option[data-answer-state="selected"], .answer-option.answer-selected { background: var(--color-red); border-color: var(--color-red); }
+.answer-marked { border-inline-start: 0.3rem solid var(--color-grey); }
+.answer-correct { border-inline-start-color: var(--color-turquoise) !important; background: var(--color-turquoise); color: var(--color-bg); }
+.answer-wrong { border-inline-start-color: var(--color-red) !important; background: var(--color-red); color: #fff; }
 .answer-feedback { display: grid; gap: 0.45rem; margin: 0; padding-left: 2rem; }
-.answer-feedback li { padding: 0.45rem; }
-.answer-mark { margin-left: auto; color: var(--color-grey); font-size: 0.9em; }
-.answer-correct .answer-mark { color: var(--color-turquoise); }
-.answer-wrong .answer-mark { color: var(--color-red); }
-.answer-option input { width: 1.15rem; height: 1.15rem; min-height: auto; margin: 0; accent-color: var(--color-turquoise); }
+.answer-feedback li { padding: 0.45rem; border-radius: 0.4rem; }
+.answer-mark { margin-left: 0.5rem; color: var(--color-grey); font-size: 0.9em; }
+.answer-correct .answer-mark { color: var(--color-bg); }
+.answer-wrong .answer-mark { color: #fff; }
 .sortable-terms { display: grid; gap: 0.5rem; padding-left: 2rem; }
 .sortable-terms li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 0.4rem; }
 .sortable-terms li[draggable="true"] { cursor: grab; }
@@ -83,7 +86,7 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .ranking-counting .ranking-col-new { color: var(--color-turquoise); }
 .ranking-row-final { animation: ranking-fade-in 700ms ease-out both; }
 .ranking-names { display: grid; gap: 0.4rem; margin: 0; padding-left: 1.5rem; }
-.projector-overview .overview-columns { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr); align-items: start; }
+.projector-overview .overview-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
 .projector-overview .ranking-table { font-size: clamp(1.1rem, 2vw, 1.8rem); }
 @keyframes ranking-fade-in { from { opacity: 0; transform: translateY(0.5rem); } to { opacity: 1; transform: translateY(0); } }
 @media (min-width: 48rem) { .game-view .overview-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

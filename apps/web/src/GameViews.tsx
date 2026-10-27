@@ -150,18 +150,12 @@ export function HostGameView({ snapshot, send }: { snapshot: HostSnapshot; send:
       <button type="button" onClick={() => command("game.start")}>Spielphase starten</button>
     </>}
     {round.phase === "playing" && <>
-      <p>Frage {round.questionIndex + 1} von {round.questionCount}: {round.task.question}</p>
-      {round.task.kind === "quiz" && <ul>{round.task.options.map(option => <li key={option.id}>{option.text}</li>)}</ul>}
       <TimerDisplay timer={round.timer} size="compact" />
       <button type="button" disabled={!round.timer.canReveal} onClick={() => command("game.reveal")}>Auflösen</button>
     </>}
-    {round.phase === "evaluation" && <>
-      <SolutionContent solution={round.solution} />
-      <Results results={round.results} />
-      {round.hasNextQuestion
-        ? <button type="button" onClick={() => command("game.next")}>Nächste Frage</button>
-        : <button type="button" onClick={() => command("game.finish")}>Spiel beenden / Zur Übersicht</button>}
-    </>}
+    {round.phase === "evaluation" && (round.hasNextQuestion
+      ? <button type="button" onClick={() => command("game.next")}>Nächste Frage</button>
+      : <button type="button" onClick={() => command("game.finish")}>Spiel beenden / Zur Übersicht</button>)}
   </section>;
 }
 
@@ -198,12 +192,11 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
     {round.phase === "start" && <div className="game-start-animation" role="region" aria-label="Startanimation"><p>{round.game.rules}</p><p>Das Spiel beginnt gleich …</p></div>}
     {round.phase === "playing" && <>
       <TimerDisplay timer={round.timer} size="compact" />
-      <h3>Frage {round.questionIndex + 1} von {round.questionCount}</h3><p>{round.task.question}</p>
       {!snapshot.input.participating ? <><p role="status">Du steigst bei der nächsten Spielauswahl ein. In dieser Runde ist keine Antwort möglich.</p><button type="button" disabled>Abgeben</button></> : <>
-        {round.task.kind === "quiz" && <fieldset disabled={!canEdit}><legend>Wähle eine Antwort</legend>{round.task.options.map(option => <label className={`answer-option${draft?.kind === "quiz" && draft.optionId === option.id ? " answer-neutral" : ""}`} data-answer-state={draft?.kind === "quiz" && draft.optionId === option.id ? "neutral" : undefined} key={option.id}>
-          <input type="radio" name="quiz-answer" value={option.id} checked={draft?.kind === "quiz" && draft.optionId === option.id} onChange={() => sendAnswer({ kind: "quiz", optionId: option.id })} />{option.text}
-          {draft?.kind === "quiz" && draft.optionId === option.id && <span className="answer-mark">Ausgewählt</span>}
-        </label>)}</fieldset>}
+        {round.task.kind === "quiz" && <div className="answer-options" role="group" aria-label="Antwortoptionen">{round.task.options.map(option => {
+          const chosen = draft?.kind === "quiz" && draft.optionId === option.id;
+          return <button type="button" key={option.id} className={`answer-option${chosen ? " answer-selected" : ""}`} data-answer-state={chosen ? "selected" : "neutral"} disabled={!canEdit} onClick={() => sendAnswer({ kind: "quiz", optionId: option.id })}>{option.text}</button>;
+        })}</div>}
         {round.task.kind === "sorting" && <fieldset disabled={!canEdit}><legend>Ordne die Begriffe</legend><ol className="sortable-terms">{(draft?.kind === "sorting" ? draft.termIds : round.task.terms.map(term => term.id)).map((id, index, ids) => {
           const term = round.task.kind === "sorting" ? round.task.terms.find(item => item.id === id) : undefined;
           return <li key={id} draggable={canEdit} className={dragIndex === index ? "sortable-dragging" : undefined}
@@ -256,6 +249,13 @@ function answerLabel(answer: Answer, options: Array<{ id: string; text: string }
   return String(answer.value);
 }
 
+export function ProjectorRanking({ snapshot }: { snapshot: ProjectorSnapshot }) {
+  return <>
+    <RankingTable ranking={snapshot.ranking} transition={snapshot.rankingTransition} />
+    {snapshot.ranking.length === 0 && <ol className="ranking-names">{snapshot.participants.map(participant => <li key={participant.id}>{participant.name || `Spieler ${participant.number}`}</li>)}</ol>}
+  </>;
+}
+
 export function ProjectorGameView({ snapshot }: { snapshot: ProjectorSnapshot; send: Send }) {
   const round = snapshot.round;
   if (!round) {
@@ -272,10 +272,6 @@ export function ProjectorGameView({ snapshot }: { snapshot: ProjectorSnapshot; s
     return <section className="projector-overview" aria-label="Übersicht">
       <div className="overview-columns">
         <GameList games={unplayed} label="Offene Spiele" />
-        <section aria-label="Rangliste"><h3>Rangliste</h3>
-          <RankingTable ranking={snapshot.ranking} transition={snapshot.rankingTransition} />
-          {played.length === 0 && <ol className="ranking-names">{snapshot.participants.map(participant => <li key={participant.id}>{participant.name || `Spieler ${participant.number}`}</li>)}</ol>}
-        </section>
         <GameList games={played} label="Gespielte Spiele" />
       </div>
     </section>;
