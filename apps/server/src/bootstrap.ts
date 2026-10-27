@@ -53,11 +53,11 @@ export async function startCatalogServer(
     app.decorate('catalog', catalog);
     await app.listen({ host: config.host, port: config.port });
     return app as CatalogServerInstance;
-  } catch {
+  } catch (err) {
     if (app) {
       await app.close().catch(() => undefined);
     }
     await closePool().catch(() => undefined);
-    throw new Error('Catalog server failed to start.');
+    throw new Error('Catalog server failed to start.', { cause: err });
   }
 }
