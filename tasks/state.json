@@ -672,13 +672,14 @@
       ],
       "classification": "CURRENT_STACK_ONLY",
       "priority": "P1",
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
         "apps/server/",
         "docs/validation/sort.md"
-      ]
+      ],
+      "implemented_by": "server_test_engineer"
     },
     {
       "id": "TECH-10",
@@ -777,5 +778,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T10:23:02.801Z"
+  "last_updated_utc": "2026-10-27T10:23:12.453Z"
 }
