@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router";
 import { CreateLobbyResponseSchema, JoinPlayerResponseSchema, ServerMessageSchema, SessionSchema, type Session, type Snapshot } from "@raccoons/contracts";
+import { HostGameView, PlayerGameView, ProjectorGameView } from "../GameViews";
 
 type Role = "host" | "player" | "projector";
 
@@ -35,6 +36,7 @@ function useLobbySnapshot(lobbyId: string | undefined, role: Role, enabled = tru
   const location = useLocation();
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [connectionError, setConnectionError] = useState("");
+  const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
     setSnapshot(null);
@@ -60,6 +62,7 @@ function useLobbySnapshot(lobbyId: string | undefined, role: Role, enabled = tru
       setConnectionError("Verbindung zur Lobby konnte nicht hergestellt werden.");
       return;
     }
+    socketRef.current = socket;
     let lastRevision = -1;
     socket.onopen = () => {
       socket.send(JSON.stringify({ version: 1, type: "auth", requestId: crypto.randomUUID(), lobbyId, sessionId: session.sessionId, token: session.token }));
@@ -91,10 +94,14 @@ function useLobbySnapshot(lobbyId: string | undefined, role: Role, enabled = tru
       }
     };
     socket.onerror = () => setConnectionError("Verbindung zur Lobby fehlgeschlagen.");
-    return () => socket.close();
+    return () => { socketRef.current = null; socket.close(); };
   }, [lobbyId, role, enabled, sessionOverride, onSessionInvalidated, location.hash, location.pathname, location.search]);
 
-  return { snapshot, connectionError };
+  const send = useCallback((message: Record<string, unknown>) => {
+    const socket = socketRef.current;
+    if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify(message));
+  }, []);
+  return { snapshot, connectionError, send };
 }
 
 function ParticipantList({ snapshot, label = "Teilnehmer" }: { snapshot: Snapshot | null; label?: string }) {
@@ -102,7 +109,7 @@ function ParticipantList({ snapshot, label = "Teilnehmer" }: { snapshot: Snapsho
     <h2>Teilnehmer</h2>
     {snapshot ? <ul>{snapshot.participants.map((participant) => <li key={participant.id}>
       <span>{participant.name || `Spieler ${participant.number}`}</span>
-      <span className="participant-status">{participant.connected ? "Verbunden" : "Getrennt"}</span>
+      <span className="participant-status">{participant.waiting ? "Wartet auf die nächste Spielauswahl" : participant.connected ? "Verbunden" : "Getrennt"}</span>
     </li>)}</ul> : <p>Warte auf die Lobbyverbindung …</p>}
   </section>;
 }
@@ -153,13 +160,13 @@ export function HomePage() {
 
 export function HostPage() {
   const { lobbyId } = useParams();
-  const { snapshot, connectionError } = useLobbySnapshot(lobbyId, "host");
+  const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "host");
   return <main className="page">
     <h1>Hostbereich</h1>
     <p>Lobby: {lobbyId}</p>
     <LobbyStatus snapshot={snapshot} error={connectionError} />
     <ParticipantList snapshot={snapshot} />
-    {snapshot?.role === "host" && <p>Verbinde mindestens zwei Spieler, um das Spiel vorzubereiten.</p>}
+    {snapshot?.role === "host" && <><p>Verbinde mindestens zwei Spieler, um das Spiel vorzubereiten.</p><HostGameView snapshot={snapshot} send={send} /></>}
   </main>;
 }
 
@@ -174,7 +181,7 @@ export function JoinPage() {
     setSession(lobbyId ? readSession(lobbyId, "player") : null);
   }, [lobbyId]);
   const invalidateSession = useCallback(() => setSession(null), []);
-  const { snapshot, connectionError } = useLobbySnapshot(lobbyId, "player", joined, activeSession, invalidateSession);
+  const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "player", joined, activeSession, invalidateSession);
 
   async function joinLobby() {
     if (!lobbyId || name.trim().length > 20) {
@@ -216,28 +223,31 @@ export function JoinPage() {
     {joined && !connectionError && <p role="status">Du bist der Lobby beigetreten.</p>}
     <LobbyStatus snapshot={snapshot} error={connectionError} />
     <ParticipantList snapshot={snapshot} />
+    {snapshot?.role === "player" && <PlayerGameView snapshot={snapshot} send={send} />}
   </main>;
 }
 
 export function PlayerPage() {
   const { lobbyId } = useParams();
-  const { snapshot, connectionError } = useLobbySnapshot(lobbyId, "player");
+  const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "player");
   return <main className="page">
     <h1>Spieleransicht</h1>
     <LobbyStatus snapshot={snapshot} error={connectionError} />
     <ParticipantList snapshot={snapshot} />
+    {snapshot?.role === "player" && <PlayerGameView snapshot={snapshot} send={send} />}
   </main>;
 }
 
 export function ProjectorPage() {
   const { lobbyId } = useParams();
-  const { snapshot, connectionError } = useLobbySnapshot(lobbyId, "projector");
+  const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "projector");
   return <main className="projector" aria-labelledby="projector-title">
     <h1 id="projector-title">Projektor</h1>
     <LobbyStatus snapshot={snapshot} error={connectionError} />
     <div className="projector-layout">
       <section aria-label="Spielanzeige"><h2>Spielanzeige</h2>
-        <p>{snapshot ? `Spielphase: ${snapshot.phase}` : "Warte auf die Lobbyverbindung …"}</p>
+        {snapshot?.role === "projector" && <ProjectorGameView snapshot={snapshot} send={send} />}
+        {!snapshot && <p>Warte auf die Lobbyverbindung …</p>}
       </section>
       <ParticipantList snapshot={snapshot} label="Teilnehmerstatus" />
     </div>
