@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1142,8 +1142,27 @@
       "allowed_paths": [
         "apps/server/"
       ]
+    },
+    {
+      "id": "CHG-8",
+      "component": "web",
+      "title": "Aufloesungs-Darstellung: Schaetzen/Sortieren groesser+sortiert am Projektor, Spieler-Eval nur farblich + Werte",
+      "acceptance_criteria": "Projektor Schaetzen: Frage/Loesung groesser, Ergebnisse nach Abstand sortiert; Projektor Sortieren: richtige Reihenfolge groesser; Spieler-Eval ohne Aufloesungs-Header/Fragetext; Quiz-Marktexte weg (Farbe reicht); richtige Quiz-Antwort blinkt 3s im 0.5s-Takt tuerkis<->grau/rot",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-7"
+      ],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T16:45:22.563Z"
+  "last_updated_utc": "2026-10-27T16:58:36.125Z"
 }
