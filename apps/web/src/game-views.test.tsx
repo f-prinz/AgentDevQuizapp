@@ -230,7 +230,7 @@ describe("CHG-1 phase texts and status card", () => {
 
 describe("player answer feedback", () => {
 
-  it("labels quiz answers as neutral before evaluation and correct or wrong with text in evaluation", async () => {
+  it("labels quiz answers by colour only in evaluation, without solution box or mark texts", async () => {
     const view = renderRole("player");
     await deliver(view, snapshot("player", "playing", {
       input: { answer: { kind: "quiz", optionId: "b" }, final: true, participating: true },
@@ -245,11 +245,18 @@ describe("player answer feedback", () => {
     const wrong = screen.getByText("Lyon").closest("[data-answer-state]");
     const correct = screen.getByText("Paris").closest("[data-answer-state]");
     expect(wrong?.getAttribute("data-answer-state")).toBe("wrong");
-    expect(wrong?.textContent).toMatch(/falsch/i);
     expect(wrong?.className).toMatch(/answer-wrong/);
+    // CHG-8: Kein Marktext — Farbe reicht; Tiles enthalten nur den Optionstext.
+    expect(wrong?.textContent).toBe("Lyon");
     expect(correct?.getAttribute("data-answer-state")).toBe("correct");
-    expect(correct?.textContent).toMatch(/richtig/i);
     expect(correct?.className).toMatch(/answer-correct/);
+    expect(correct?.textContent).toBe("Paris");
+    // CHG-8: Nicht gewaehlte richtige Antwort blinkt tuerkis<->grau.
+    expect(correct?.className).toMatch(/answer-flash-missed/);
+    // CHG-8: Kein Aufloesungs-Header und kein Fragetext in der Spieler-Evaluation.
+    expect(screen.queryByText("Auflösung")).toBeNull();
+    expect(screen.queryByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeNull();
+    expect(document.querySelectorAll(".answer-mark")).toHaveLength(0);
   });
 
   it("shows the authoritative correct quiz option when the player timed out without an answer", async () => {
@@ -260,10 +267,21 @@ describe("player answer feedback", () => {
     const correct = screen.getByText("Paris").closest("[data-answer-state]");
     expect(correct?.getAttribute("data-answer-state")).toBe("correct");
     expect(correct?.className).toMatch(/answer-correct/);
-    expect(correct?.textContent).toMatch(/richtig/i);
+    expect(correct?.textContent).toBe("Paris");
+    expect(correct?.className).toMatch(/answer-flash-missed/);
     expect(screen.queryByText(/deine antwort/i)).toBeNull();
     expect(document.querySelector('[data-answer-state="wrong"]')).toBeNull();
     expect(screen.queryByText(/falsch/i)).toBeNull();
+  });
+
+  it("flashes the correct quiz option towards red when the player selected it", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "evaluation", {
+      round: { ownEvaluation: { answer: { kind: "quiz", optionId: "a" }, points: 1, distance: null, positionsCorrect: null } },
+    }));
+    const correct = screen.getByText("Paris").closest("[data-answer-state]");
+    expect(correct?.getAttribute("data-answer-state")).toBe("correct");
+    expect(correct?.className).toMatch(/answer-flash-own/);
   });
 
   it("marks sorting positions according to the player's own evaluation", async () => {
@@ -275,9 +293,12 @@ describe("player answer feedback", () => {
       },
     }));
     const ownAnswers = screen.getByRole("list", { name: /deine antwort/i });
-    expect(ownAnswers.querySelector('[data-answer-state="correct"]')?.textContent).toContain("1990");
-    expect(ownAnswers.querySelector('[data-answer-state="wrong"]')?.textContent).toContain("2000");
-    expect(ownAnswers.querySelector('[data-answer-state="wrong"]')?.textContent).toMatch(/falsch/i);
+    expect(ownAnswers.querySelector('[data-answer-state="correct"]')?.textContent).toBe("1990");
+    expect(ownAnswers.querySelector('[data-answer-state="wrong"]')?.textContent).toBe("2000");
+    // CHG-8: Kein Aufloesungs-Header, kein Fragetext, keine Marktexte beim Sortieren.
+    expect(screen.queryByText("Auflösung")).toBeNull();
+    expect(screen.queryByText(/ordne die jahre/i)).toBeNull();
+    expect(document.querySelectorAll(".answer-mark")).toHaveLength(0);
   });
 
   it("does not show private player status or answer feedback on the projector", async () => {
@@ -523,18 +544,21 @@ describe("FEAT-12 estimation views", () => {
       round: { ...estimationEval, ownEvaluation: { answer: { kind: "estimation", value: 300 }, points: 3, distance: 30, positionsCorrect: null } },
     }));
     const section = await screen.findByRole("region", { name: /spielphase/i });
-    expect(section.textContent).toContain("330");
+    // CHG-8: Keine Aufloesungs-Box ("Auflösung"/Frage/Ziel) — nur Antwort, Abstand, Punkte.
+    expect(screen.queryByText("Auflösung")).toBeNull();
+    expect(section.textContent).not.toContain("330");
     expect(section.textContent).toMatch(/300/);
-    expect(section.textContent).toMatch(/abstand/i);
     expect(section.textContent).toContain("Abstand zur Lösung: 30");
+    expect(section.textContent).toContain("Deine Punkte: 3");
   });
 
   it("lists players by rank with distance on the projector", async () => {
     const view = renderRole("projector");
     await deliver(view, snapshot("projector", "evaluation", {
+      // CHG-8: Ergebnisse werden nach geringstem Abstand sortiert — Eingang absichtlich unsortiert.
       round: { ...estimationEval, results: [
-        { playerId: "player-1", name: "Ada", points: 3, rank: 1, distance: 5, errors: null },
         { playerId: "player-2", name: "Bo", points: 1, rank: 2, distance: 42, errors: null },
+        { playerId: "player-1", name: "Ada", points: 3, rank: 1, distance: 5, errors: null },
       ] },
     }));
     await waitFor(() => expect(document.querySelector(".projector-game")).toBeTruthy());
