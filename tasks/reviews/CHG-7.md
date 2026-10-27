@@ -30,4 +30,4 @@ Reviewed the branch diff: `GameViews.tsx`, `app.css`,
 
 - Rot: `tasks/evidence/CHG-7-2026-10-27T15-55-17-238Z.json` (exit 1)
 - Gruen: `tasks/evidence/CHG-7-2026-10-27T15-59-40-792Z.json` (69/69, exit 0)
-- Lint/Typecheck: `tasks/evidence/CHG-7-<lint>.json` (exit 0)
+- Lint/Typecheck: `tasks/evidence/CHG-7-2026-10-27T16-00-01-183Z.json` (exit 0)
