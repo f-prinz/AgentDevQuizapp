@@ -69,7 +69,7 @@ describe("e2e: ranking overview lifecycle on the projector", () => {
     expect(list.textContent).toContain("Ada");
     expect(list.textContent).toContain("Bo");
 
-    // Erstes Spiel gespielt: eine Spielspalte + Uebergangs-Animation.
+    // Erstes Spiel gespielt: Rangliste nur mit Platz/Punkte/Name + Uebergangs-Animation (CHG-4).
     const afterOne = snapshot({
       revision: 2,
       catalog: catalog.map(entry => entry.id === "quiz-1" ? { ...entry, played: true } : entry),
@@ -94,8 +94,7 @@ describe("e2e: ranking overview lifecycle on the projector", () => {
     expect(table).toBeTruthy();
     await waitFor(() => expect(table.getAttribute("data-ranking-stage")).toBe("after"), { timeout: 6_000 });
     const headers = Array.from(table.querySelectorAll("th")).map(cell => cell.textContent);
-    expect(headers.slice(0, 3)).toEqual(["Platz", "Punkte", "Spielername"]);
-    expect(headers).toContain("Spiel 1");
+    expect(headers).toEqual(["Platz", "Punkte", "Spielername"]);
     const firstRow = table.querySelectorAll("tbody tr")[0];
     expect(firstRow.textContent).toContain("Ada");
     expect(firstRow.textContent).toContain("3");
@@ -105,7 +104,7 @@ describe("e2e: ranking overview lifecycle on the projector", () => {
     const playedSection = screen.getByRole("region", { name: /gespielte spiele/i });
     expect(playedSection.textContent).toContain("Quiz: Weltwissen");
 
-    // Zweites Spiel gespielt: zwei Spielspalten, neue Rangfolge.
+    // Zweites Spiel gespielt: weiterhin nur drei Spalten, neue Rangfolge.
     await view.deliver(snapshot({
       revision: 3,
       catalog: catalog.map(entry => ({ ...entry, played: true })),
@@ -116,8 +115,8 @@ describe("e2e: ranking overview lifecycle on the projector", () => {
     }));
     const grownTable = await screen.findByRole("table");
     const grownHeaders = Array.from(grownTable.querySelectorAll("th")).map(cell => cell.textContent);
-    expect(grownHeaders).toContain("Spiel 1");
-    expect(grownHeaders).toContain("Spiel 2");
+    expect(grownHeaders).toEqual(["Platz", "Punkte", "Spielername"]);
+    expect(grownHeaders).not.toContain("Spiel 1");
     const grownRows = grownTable.querySelectorAll("tbody tr");
     expect(grownRows[0].textContent).toContain("Bo");
     expect(grownRows[0].textContent).toContain("6");
