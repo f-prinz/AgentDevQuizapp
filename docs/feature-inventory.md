@@ -21,6 +21,7 @@
 | INV-22 | Spielekatalog zur Laufzeit per token-geschuetztem JSON-Upload erweitern und Spiele loeschen | server | aktiv | route: `GET /games` in `apps/server/src/app.ts`<br>route: `POST /games` in `apps/server/src/app.ts`<br>route: `DELETE /games/:gameId` in `apps/server/src/app.ts`<br>file: `apps/server/src/catalog-admin.ts`<br>test: `apps/server/test/catalog-admin.test.ts` | FEAT-16 | - |
 | INV-23 | Spielekatalog im Browser verwalten (Liste, JSON-Upload, Loeschen) | web | aktiv | file: `apps/web/src/app-routes.tsx`<br>file: `apps/web/src/routes/AdminPage.tsx`<br>test: `apps/web/src/admin-page.test.tsx` | FEAT-16 | - |
 | INV-24 | Anwendung als ein Prozess hosten (API + WS + statisches Web-Build, Remote-Datenbank) | server | aktiv | file: `Dockerfile`<br>file: `apps/server/src/app.ts`<br>file: `apps/server/src/bootstrap.ts`<br>test: `apps/server/test/static-serving.test.ts` | TECH-15 | - |
+| INV-25 | Dunkles Farbschema mit Akzentfarbe und Text-Hierarchie (Slate/Indigo) | web | aktiv | file: `apps/web/src/styles/theme.css`<br>file: `apps/web/src/styles/app.css` | CHG-10 | - |
 | INV-3 | Lobby mit getrennten Rollenlinks und Sitzungen erstellen | server | aktiv | route: `POST /lobbies` in `apps/server/src/app.ts`<br>test: `apps/server/test/lobby.test.ts` | FEAT-1 | - |
 | INV-4 | Spieler mit Namen beitreten und Teilnehmer live aktualisieren | server | aktiv | route: `POST /lobbies/:lobbyId/players` in `apps/server/src/app.ts`<br>test: `apps/server/test/lobby.test.ts` | FEAT-1 | - |
 | INV-5 | Lobby autorisiert ab zwei Spielern starten | server | aktiv | file: `apps/server/src/lobby.ts`<br>test: `apps/server/test/lobby.test.ts` | FEAT-1 | - |
@@ -29,4 +30,4 @@
 | INV-8 | Quizfragen einzeln mit einem Punkt je richtiger Antwort auswerten | server | aktiv | file: `apps/server/src/game.ts`<br>test: `apps/server/test/game-state.test.ts` | FEAT-7 | - |
 | INV-9 | Abgeschlossene Quizpunkte als Ranking und Spielkatalogstatus bereitstellen | server | aktiv | file: `apps/server/src/game.ts`<br>file: `apps/server/src/lobby.ts`<br>test: `apps/server/test/game-state.test.ts` | FEAT-5 | - |
 
-Stand: 2026-10-28T15:12:07.456Z
+Stand: 2026-10-28T15:57:53.482Z
