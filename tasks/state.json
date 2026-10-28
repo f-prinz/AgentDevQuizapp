@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -1330,15 +1330,27 @@
       "dependencies": [
         "TECH-16"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-8",
+        "INV-10",
+        "INV-11",
+        "INV-22"
+      ],
       "allowed_paths": [
         "apps/server/"
       ],
-      "implemented_by": "server_developer"
+      "implemented_by": "server_developer",
+      "test_result": "79/79 gruen auf main",
+      "review_result": "APPROVED - keine Blocker",
+      "test_evidence": "tasks/evidence/CHG-11-2026-10-28T16-26-26-398Z.json",
+      "red_evidence": "tasks/evidence/CHG-11-2026-10-28T16-16-58-969Z.json",
+      "lint_evidence": "tasks/evidence/CHG-11-2026-10-28T16-23-05-843Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/CHG-11.md"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-28T16:14:51.138Z"
+  "last_updated_utc": "2026-10-28T16:27:13.254Z"
 }
