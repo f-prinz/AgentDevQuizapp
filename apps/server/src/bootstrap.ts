@@ -3,12 +3,11 @@ import { Pool } from 'pg';
 import type { GameSeed } from '@raccoons/contracts';
 import { buildServer } from './app.ts';
 import type { ServerConfig } from './config.ts';
-import { initializeCatalog, loadSeedGames } from './catalog.ts';
+import { initializeCatalog } from './catalog.ts';
 import { createCatalogStore } from './catalog-admin.ts';
 
 export interface CatalogServerOptions {
   databaseUrl: string;
-  seedDirectory?: string;
   /** TECH-15: Remote-DB-Hosts zulassen (z. B. Railway Private Network). */
   allowRemoteDatabase?: boolean;
 }
@@ -52,9 +51,8 @@ export async function startCatalogServer(
   };
 
   try {
-    const seeds = await loadSeedGames(options.seedDirectory);
     pool = new Pool({ connectionString: options.databaseUrl });
-    const catalog = await initializeCatalog(pool, seeds);
+    const catalog = await initializeCatalog(pool);
     app = buildServer(config, { catalogStore: createCatalogStore(pool) });
     app.decorate('catalog', catalog);
     // FEAT-16: Der Pool bleibt fuer Upload/Loeschung zur Laufzeit offen und

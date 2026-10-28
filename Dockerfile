@@ -31,7 +31,6 @@ RUN npm ci --omit=dev --prefix /app/contracts \
 
 COPY --from=build /repo/contracts/dist contracts/dist
 COPY --from=build /repo/apps/server/dist apps/server/dist
-COPY --from=build /repo/apps/server/seeds apps/server/seeds
 COPY --from=build /repo/apps/server/migrations apps/server/migrations
 COPY --from=build /repo/apps/web/dist apps/web/dist
 
