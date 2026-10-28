@@ -71,6 +71,12 @@ Statisch: JSON-Dateien unter `apps/server/seeds/` (werden beim Start validiert u
 
 Das Upload-JSON entspricht einer Seed-Datei, aber **ohne `id`-Felder** — Spiel-, Fragen-, Options- und Term-IDs erzeugt der Server als UUIDs. Bei Quizfragen wird die richtige Option per `correctOptionIndex` (0-basiert) benannt; alternativ darf `correctOptionId` auf eine mitgelieferte Options-`id` verweisen.
 
+## Hosting (Docker/Railway)
+
+Das Root-`Dockerfile` baut ein All-in-One-Image: der Fastify-Server liefert das Web-Build aus `apps/web/dist` statisch aus (SPA-Fallback auf `index.html`) und bedient API + WebSocket auf einem Port. Zusätzlich wird ein Postgres-Service benötigt.
+
+Pflicht-Variablen auf der Plattform: `DATABASE_URL` (Remote-DB, z. B. `postgresql://…@postgres.railway.internal:5432/…`), `DATABASE_ALLOW_REMOTE=true` (ohne Flag lehnt der Server nicht-lokale Hosts ab), `HOST=0.0.0.0`, `PORT` (Plattform-injiziert), `STATIC_DIR` (im Image bereits auf `/app/apps/web/dist` gesetzt), `ALLOWED_ORIGINS` (öffentliche Domain für den WS-Origin-Check), optional `ADMIN_TOKEN` für die Admin-Endpunkte.
+
 ## Prüfungen
 
 ```powershell

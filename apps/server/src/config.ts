@@ -6,6 +6,7 @@ export interface ServerConfig {
   port: number;
   allowedOrigins?: string[];
   adminToken?: string;
+  staticDir?: string;
 }
 
 const hostnamePattern = /^(?=.{1,253}$)(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)(?:\.(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?))*$/;
@@ -65,6 +66,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
   const adminToken = env.ADMIN_TOKEN?.trim();
   if (adminToken) {
     config.adminToken = adminToken;
+  }
+  const staticDir = env.STATIC_DIR?.trim();
+  if (staticDir) {
+    config.staticDir = staticDir;
   }
   return config;
 }

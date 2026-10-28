@@ -15,6 +15,7 @@
     "smoke": "node --env-file-if-exists=.env scripts/smoke.ts"
   },
   "dependencies": {
+    "@fastify/static": "^10.1.8",
     "@raccoons/contracts": "file:../../contracts",
     "fastify": "5.12.7",
     "pg": "8.23.1",

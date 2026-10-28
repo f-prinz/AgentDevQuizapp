@@ -1,0 +1,15 @@
+.git
+node_modules
+**/node_modules
+**/dist
+apps/server/tmp
+apps/server/.env
+.env
+.env.*
+!.env.example
+tasks
+docs
+.devin
+.windsurf
+*.md
+!README.md
