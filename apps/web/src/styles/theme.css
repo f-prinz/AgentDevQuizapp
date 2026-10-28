@@ -1,6 +1,9 @@
 :root {
-  --color-turquoise: #48A3AE;
-  --color-red: #FE0000;
-  --color-grey: #706A6A;
-  --color-bg: #1D1D1B;
+  /* CHG-10: Slate-Palette — Akzent Indigo, weiches Danger, Text-Hierarchie. */
+  --color-turquoise: #818CF8;
+  --color-red: #F87171;
+  --color-grey: #475569;
+  --color-bg: #0F172A;
+  --color-text: #E2E8F0;
+  --color-muted: #94A3B8;
 }
