@@ -17,8 +17,7 @@ const origin = 'http://127.0.0.1:5173';
 const config = { host: '127.0.0.1', port: 0, allowedOrigins: [origin] };
 const games = [
   GameSeedSchema.parse({
-    id: 'quiz_game', kind: 'quiz', title: 'Quiz', rules: 'Answer the question.',
-    questions: [{
+    id: 'quiz_game', kind: 'quiz', title: 'Quiz',    questions: [{
       id: 'quiz_q1', question: 'Which option is correct?',
       options: [
         { id: 'a', text: 'A' }, { id: 'b', text: 'B' },
@@ -28,18 +27,15 @@ const games = [
     }],
   }),
   GameSeedSchema.parse({
-    id: 'sorting_game', kind: 'sorting', title: 'Sort', rules: 'Order the terms.',
-    question: 'Order these terms.',
+    id: 'sorting_game', kind: 'sorting', title: 'Sort',    question: 'Order these terms.',
     terms: [{ id: 'term_a', text: 'First', value: 1 }, { id: 'term_b', text: 'Second', value: 2 }],
   }),
   GameSeedSchema.parse({
-    id: 'estimate_game', kind: 'estimation', title: 'Estimate', rules: 'Estimate the value.',
-    question: 'How many?', target: 42,
+    id: 'estimate_game', kind: 'estimation', title: 'Estimate',    question: 'How many?', target: 42,
   }),
 ];
 const multiQuestionQuiz = GameSeedSchema.parse({
-  id: 'quiz_game', kind: 'quiz', title: 'Quiz', rules: 'Answer the question.',
-  questions: [
+  id: 'quiz_game', kind: 'quiz', title: 'Quiz',  questions: [
     {
       id: 'quiz_q1', question: 'Which option is correct?',
       options: [
@@ -59,12 +55,10 @@ const multiQuestionQuiz = GameSeedSchema.parse({
   ],
 });
 const estimate100Game = GameSeedSchema.parse({
-  id: 'estimate_game', kind: 'estimation', title: 'Estimate', rules: 'Estimate the value.',
-  question: 'How many?', target: 100,
+  id: 'estimate_game', kind: 'estimation', title: 'Estimate',  question: 'How many?', target: 100,
 });
 const estimateMaxGame = GameSeedSchema.parse({
-  id: 'estimate_game', kind: 'estimation', title: 'Estimate', rules: 'Estimate the value.',
-  question: 'How many?', target: Number.MAX_VALUE,
+  id: 'estimate_game', kind: 'estimation', title: 'Estimate',  question: 'How many?', target: Number.MAX_VALUE,
 });
 
 type BuildServerOptions = { now?: () => number };
@@ -556,8 +550,7 @@ describe('server game state and round timers', () => {
   it('scores sorting positions, reveals the value order, and carries points into completed ranking', async () => {
     vi.spyOn(Math, 'random').mockReturnValue(0);
     const sortingSeed = GameSeedSchema.parse({
-      id: 'sorting_game', kind: 'sorting', title: 'Sort', rules: 'Order the terms.',
-      question: 'Put the terms in value order.',
+      id: 'sorting_game', kind: 'sorting', title: 'Sort',      question: 'Put the terms in value order.',
       terms: [
         { id: 'term_b', text: 'Second', value: 2 },
         { id: 'term_c', text: 'Third', value: 3 },

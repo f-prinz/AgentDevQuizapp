@@ -6,6 +6,7 @@ import {
   CreateLobbyRequestSchema,
   ErrorCodeSchema,
   ErrorEventSchema,
+  GAME_CONFIG,
   HealthResponseSchema,
   IdSchema,
   JoinPlayerRequestSchema,
@@ -514,7 +515,7 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
   // und CatalogStore. In-Memory-Katalog und Datenbank werden synchron gehalten.
   instance.get('/games', async (request) => {
     const games = catalogOf(request.server) ?? [];
-    return { games: games.map(game => ({ id: game.id, kind: game.kind, title: game.title, rules: game.rules })) };
+    return { games: games.map(game => ({ id: game.id, kind: game.kind, title: game.title, rules: GAME_CONFIG[game.kind].rules })) };
   });
 
   const catalogStore = options.catalogStore;
@@ -539,7 +540,7 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
       }
       await catalogStore.insert(game);
       catalogOf(request.server)?.push(game);
-      return reply.code(201).send({ game: { id: game.id, kind: game.kind, title: game.title, rules: game.rules } });
+      return reply.code(201).send({ game: { id: game.id, kind: game.kind, title: game.title, rules: GAME_CONFIG[game.kind].rules } });
     });
 
     instance.delete('/games/:gameId', async (request, reply) => {

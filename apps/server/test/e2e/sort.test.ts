@@ -14,7 +14,7 @@ const sortingSeed = GameSeedSchema.parse({
   id: 'e2e_sort_game',
   kind: 'sorting',
   title: 'E2E Sortieren',
-  rules: 'Ordne die Begriffe.',
+
   question: 'Ordne die Jahre aufsteigend.',
   terms: [
     { id: 'term_a', text: 'Mondlandung', value: 1969 },

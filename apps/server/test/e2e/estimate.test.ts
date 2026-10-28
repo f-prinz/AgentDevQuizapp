@@ -14,7 +14,7 @@ const estimationSeed = GameSeedSchema.parse({
   id: 'e2e_estimate_game',
   kind: 'estimation',
   title: 'E2E Schaetzen',
-  rules: 'Schaetze den Wert.',
+
   question: 'Wie hoch ist der Eiffelturm in Metern?',
   target: 330,
 });

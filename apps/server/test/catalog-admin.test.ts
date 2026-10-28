@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { GameSeed } from '@raccoons/contracts';
+import { GAME_CONFIG, type GameSeed } from '@raccoons/contracts';
 import { buildServer } from '../src/app.ts';
 import { materializeGameDraft } from '../src/catalog-admin.ts';
 
@@ -8,7 +8,6 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 const quizDraft = {
   kind: 'quiz',
   title: 'Länder',
-  rules: 'Jede richtige Antwort gibt einen Punkt.',
   questions: [
     {
       question: 'Hauptstadt von Frankreich?',
@@ -26,7 +25,6 @@ const quizDraft = {
 const sortingDraft = {
   kind: 'sorting',
   title: 'Planeten',
-  rules: 'Aufsteigend sortieren.',
   question: 'Reihenfolge?',
   terms: [
     { text: 'Merkur', value: 1 },
@@ -37,7 +35,6 @@ const sortingDraft = {
 const estimationDraft = {
   kind: 'estimation',
   title: 'Eiffelturm',
-  rules: 'Nächste Schätzung gewinnt.',
   question: 'Höhe in Metern?',
   target: 330,
 };
@@ -122,7 +119,6 @@ const existingGame = {
   id: 'existing-game',
   kind: 'estimation',
   title: 'Bestehend',
-  rules: 'Regeln.',
   question: 'Frage?',
   target: 1,
 } satisfies GameSeed;
@@ -133,7 +129,7 @@ describe('catalog admin routes', () => {
     app.decorate('catalog', [existingGame]);
     const response = await app.inject({ method: 'GET', url: '/games' });
     expect(response.statusCode).toBe(200);
-    expect(response.json()).toEqual({ games: [{ id: 'existing-game', kind: 'estimation', title: 'Bestehend', rules: 'Regeln.' }] });
+    expect(response.json()).toEqual({ games: [{ id: 'existing-game', kind: 'estimation', title: 'Bestehend', rules: GAME_CONFIG.estimation.rules }] });
     await app.close();
   });
 
@@ -175,7 +171,7 @@ describe('catalog admin routes', () => {
     });
     expect(response.statusCode).toBe(201);
     const created = response.json().game as { id: string; kind: string; title: string; rules: string };
-    expect(created).toMatchObject({ kind: 'quiz', title: 'Länder' });
+    expect(created).toMatchObject({ kind: 'quiz', title: 'Länder', rules: GAME_CONFIG.quiz.rules });
     expect(created.id).toMatch(UUID_PATTERN);
     expect(db).toHaveLength(2);
     expect(db[1]!.id).toBe(created.id);
@@ -194,10 +190,26 @@ describe('catalog admin routes', () => {
     const response = await app.inject({
       method: 'POST', url: '/games',
       headers: { authorization: 'Bearer test-token' },
-      payload: { kind: 'estimation', title: '', rules: 'x', question: 'q', target: 'nan' },
+      payload: { kind: 'estimation', title: '', question: 'q', target: 'nan' },
     });
     expect(response.statusCode).toBe(400);
     expect(response.json()).toMatchObject({ code: 'INVALID_MESSAGE' });
+    expect(db).toHaveLength(0);
+    await app.close();
+  });
+
+  // CHG-11: Regeln gehoeren zur Spielart (GAME_CONFIG) — ein rules-Feld im
+  // Upload wird abgelehnt statt gespeichert.
+  it('rejects drafts that carry a rules field', async () => {
+    const db: GameSeed[] = [];
+    const app = buildServer(adminConfig, { catalogStore: createStore(db) });
+    app.decorate('catalog', []);
+    const response = await app.inject({
+      method: 'POST', url: '/games',
+      headers: { authorization: 'Bearer test-token' },
+      payload: { ...estimationDraft, rules: 'Eigene Regeln.' },
+    });
+    expect(response.statusCode).toBe(400);
     expect(db).toHaveLength(0);
     await app.close();
   });
