@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1213,8 +1213,27 @@
       "lint_evidence": "tasks/evidence/TECH-15-2026-10-28T10-35-47-574Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/TECH-15.md"
+    },
+    {
+      "id": "CHG-9",
+      "component": "server",
+      "title": "Initiales Seeding des Katalogs entfernen",
+      "acceptance_criteria": "Dockerfile kopiert keine Seeds mehr; AdminPage-Hinweistext verweist nicht mehr auf Seed-Dateien",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/server",
+        "Dockerfile",
+        "apps/web/src/routes/AdminPage.tsx"
+      ],
+      "implemented_by": "server_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-28T10:37:05.667Z"
+  "last_updated_utc": "2026-10-28T15:04:12.319Z"
 }
