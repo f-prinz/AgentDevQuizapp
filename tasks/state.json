@@ -1193,7 +1193,7 @@
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": false,
       "dependencies": [],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allows_dep_change": true,
@@ -1203,9 +1203,10 @@
         "Dockerfile",
         ".dockerignore",
         "README.md"
-      ]
+      ],
+      "implemented_by": "server_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-28T10:30:14.988Z"
+  "last_updated_utc": "2026-10-28T10:31:04.430Z"
 }
