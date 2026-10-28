@@ -26,7 +26,8 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .lobby-links p { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
 .link-copy { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
 .link-copy-text { font-size: 0.85rem; word-break: break-all; color: var(--color-turquoise); }
-.link-copy button { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; min-height: 2.25rem; margin: 0; padding: 0.35rem; }
+.lobby-links .link-copy button { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 2.25rem; min-height: 2.25rem; margin: 0; padding: 0.35rem; }
+.lobby-links .link-copy button svg { flex-shrink: 0; }
 .link-copied { font-size: 0.85rem; color: var(--color-turquoise); }
 .projector-lobby { display: grid; place-items: center; gap: 2rem; padding: 2rem; text-align: center; }
 .projector-lobby .player-link { font-size: clamp(1.5rem, 4vw, 3rem); font-weight: 800; word-break: break-all; }
