@@ -18,11 +18,13 @@ describe('catalog server bootstrap', () => {
     if (postgres) await postgres.stop();
   }, 30_000);
 
-  it('finishes database and seed initialization before listening', async () => {
+  it('finishes database initialization before listening with an empty catalog', async () => {
     const catalogApp = await startCatalogServer(serverConfig, { databaseUrl: postgres.connectionString });
     app = catalogApp;
 
-    expect(catalogApp.catalog.map(game => game.kind).sort()).toEqual(['estimation', 'quiz', 'sorting']);
+    // CHG-9: Kein initiales Seeding — der Katalog startet leer und wird
+    // ausschliesslich ueber die Admin-API befuellt.
+    expect(catalogApp.catalog).toEqual([]);
 
     const address = catalogApp.server.address();
     expect(address).not.toBeNull();

@@ -86,7 +86,7 @@ export function AdminPage() {
       <input type="password" value={token} autoComplete="off" onChange={event => setToken(event.target.value)} />
     </label>
     <section aria-label="Neues Spiel"><h3>Neues Spiel hochladen</h3>
-      <p className="admin-hint">JSON wie eine Seed-Datei — ohne <code>id</code>-Felder; Quiz benutzt <code>correctOptionIndex</code> (0-basiert). Alle IDs erzeugt der Server.</p>
+      <p className="admin-hint">JSON eines Spiels — ohne <code>id</code>-Felder; Quiz benutzt <code>correctOptionIndex</code> (0-basiert). Alle IDs erzeugt der Server.</p>
       <label className="admin-draft">Spiel-JSON
         <textarea rows={12} value={draft} spellCheck={false} onChange={event => setDraft(event.target.value)} />
       </label>

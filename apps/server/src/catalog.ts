@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 import { GameSeedSchema, type GameSeed } from '@raccoons/contracts';
 import type { Pool, PoolClient } from 'pg';
 
-const defaultSeedDirectory = fileURLToPath(new URL('../seeds/', import.meta.url));
 const migrationDirectory = fileURLToPath(new URL('../migrations/', import.meta.url));
 const catalogSchemaVersion = 1;
 
@@ -22,61 +21,13 @@ interface GameRow {
   content: unknown;
 }
 
-function validateSeed(value: unknown): GameSeed {
+function validateGame(value: unknown): GameSeed {
   const parsed = GameSeedSchema.safeParse(value);
   if (!parsed.success) {
-    throw new Error('Catalog seed validation failed.');
+    throw new Error('Catalog game validation failed.');
   }
 
   return parsed.data;
-}
-
-function validateUniqueIds(games: GameSeed[]): void {
-  if (new Set(games.map(game => game.id)).size !== games.length) {
-    throw new Error('Catalog seeds contain duplicate game IDs.');
-  }
-}
-
-export async function loadSeedGames(directory?: string): Promise<GameSeed[]> {
-  const seedDirectory = directory ?? defaultSeedDirectory;
-  let entries;
-
-  try {
-    entries = await readdir(seedDirectory, { withFileTypes: true });
-  } catch {
-    throw new Error('Catalog seed directory could not be read.');
-  }
-
-  const files = entries
-    .filter(entry => entry.isFile() && path.extname(entry.name).toLowerCase() === '.json')
-    .map(entry => entry.name)
-    .sort((left, right) => left.localeCompare(right));
-
-  if (files.length === 0) {
-    throw new Error('Catalog seed directory contains no JSON files.');
-  }
-
-  const games: GameSeed[] = [];
-  for (const filename of files) {
-    let content: string;
-    try {
-      content = await readFile(path.join(seedDirectory, filename), 'utf8');
-    } catch {
-      throw new Error('Catalog seed file could not be read.');
-    }
-
-    let value: unknown;
-    try {
-      value = JSON.parse(content) as unknown;
-    } catch {
-      throw new Error('Catalog seed file contains invalid JSON.');
-    }
-
-    games.push(validateSeed(value));
-  }
-
-  validateUniqueIds(games);
-  return games;
 }
 
 async function loadMigrations(): Promise<Migration[]> {
@@ -131,22 +82,6 @@ async function applyMigrations(client: PoolClient, migrations: Migration[]): Pro
   }
 }
 
-async function applySeeds(client: PoolClient, games: GameSeed[]): Promise<void> {
-  for (const game of games) {
-    await client.query(
-      `INSERT INTO games (id, kind, title, rules, schema_version, content)
-       VALUES ($1, $2, $3, $4, $5, $6::jsonb)
-       ON CONFLICT (id) DO UPDATE SET
-         kind = EXCLUDED.kind,
-         title = EXCLUDED.title,
-         rules = EXCLUDED.rules,
-         schema_version = EXCLUDED.schema_version,
-         content = EXCLUDED.content`,
-      [game.id, game.kind, game.title, game.rules, catalogSchemaVersion, JSON.stringify(game)],
-    );
-  }
-}
-
 async function readCatalogRows(client: PoolClient): Promise<GameSeed[]> {
   const result = await client.query<GameRow>(
     'SELECT id, kind, title, rules, schema_version, content FROM games ORDER BY id',
@@ -154,20 +89,13 @@ async function readCatalogRows(client: PoolClient): Promise<GameSeed[]> {
   return result.rows.map(parseGameRow);
 }
 
-export async function initializeCatalog(pool: Pool, seeds: unknown[]): Promise<GameSeed[]> {
-  if (!Array.isArray(seeds) || seeds.length === 0) {
-    throw new Error('Catalog seeds must contain at least one game.');
-  }
-
-  const games = seeds.map(validateSeed);
-  validateUniqueIds(games);
+export async function initializeCatalog(pool: Pool): Promise<GameSeed[]> {
   const migrations = await loadMigrations();
   const client = await pool.connect();
 
   try {
     await client.query('BEGIN');
     await applyMigrations(client, migrations);
-    await applySeeds(client, games);
     const catalog = await readCatalogRows(client);
     await client.query('COMMIT');
     return catalog;
@@ -189,7 +117,7 @@ function parseGameRow(row: GameRow): GameSeed {
     }
   }
 
-  const game = validateSeed(content);
+  const game = validateGame(content);
   if (row.schema_version !== catalogSchemaVersion
     || game.id !== row.id
     || game.kind !== row.kind
