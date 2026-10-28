@@ -65,6 +65,12 @@ npm --prefix apps/web run dev              # Web auf http://127.0.0.1:5173 (Prox
 
 Ablauf im Browser: Host legt unter `/` eine Lobby an, teilt Host-/Projektor-/Spieler-Links, startet die Lobby ab zwei Spielern, wählt in der Übersicht Spiele aus und steuert die Runden (Start → Auflösen → nächste Frage/beenden). Der Projektor zeigt Aufgabe, Timer, Auswertung und Rangliste; Spieler antworten auf dem eigenen Gerät.
 
+## Spiele zum Katalog hinzufügen
+
+Statisch: JSON-Dateien unter `apps/server/seeds/` (werden beim Start validiert und in den Katalog synchronisiert). Zur Laufzeit: die Admin-Seite unter `/admin` oder direkt die Endpunkte — `GET /games` (Katalog), `POST /games` (Upload), `DELETE /games/:id` (Löschen). Schreibende Endpunkte verlangen `Authorization: Bearer <ADMIN_TOKEN>` (siehe `apps/server/.env.example`; ohne gesetztes Token sind sie deaktiviert).
+
+Das Upload-JSON entspricht einer Seed-Datei, aber **ohne `id`-Felder** — Spiel-, Fragen-, Options- und Term-IDs erzeugt der Server als UUIDs. Bei Quizfragen wird die richtige Option per `correctOptionIndex` (0-basiert) benannt; alternativ darf `correctOptionId` auf eine mitgelieferte Options-`id` verweisen.
+
 ## Prüfungen
 
 ```powershell

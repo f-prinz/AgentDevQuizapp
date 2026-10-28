@@ -11,10 +11,20 @@ import {
   JoinPlayerRequestSchema,
   ServerMessageSchema,
   TimeSyncEventSchema,
+  type GameSeed,
 } from '@raccoons/contracts';
 import WebSocket, { WebSocketServer, type RawData } from 'ws';
+import { timingSafeEqual } from 'node:crypto';
 import type { ServerConfig } from './config.ts';
+import type { CatalogStore } from './catalog-admin.ts';
+import { materializeGameDraft } from './catalog-admin.ts';
 import { LobbyRegistry, type AuthenticatedSession, type LobbyErrorCode } from './lobby.ts';
+
+// FEAT-16: Der Laufzeit-Katalog wird in bootstrap.ts als Dekoration gesetzt.
+// Ohne Modul-Augmentierung bleibt app.decorate('catalog', …) untypisiert.
+function catalogOf(instance: FastifyInstance): GameSeed[] | undefined {
+  return (instance as { catalog?: GameSeed[] }).catalog;
+}
 
 const healthResponseJsonSchema = HealthResponseSchema.toJSONSchema();
 delete healthResponseJsonSchema.$schema;
@@ -22,14 +32,15 @@ delete healthResponseJsonSchema.$schema;
 function errorResponse(statusCode: number) {
   const notFound = statusCode === 404;
   const badRequest = statusCode === 400;
+  const unauthorized = statusCode === 401;
   return {
     statusCode,
     payload: ErrorEventSchema.parse({
       version: 1,
       type: 'error',
       requestId: null,
-      code: notFound ? 'LOBBY_NOT_FOUND' : badRequest ? 'INVALID_MESSAGE' : 'INTERNAL_ERROR',
-      message: notFound ? 'Resource not found.' : badRequest ? 'Invalid request.' : 'Internal server error.',
+      code: notFound ? 'LOBBY_NOT_FOUND' : badRequest ? 'INVALID_MESSAGE' : unauthorized ? 'UNAUTHORIZED' : 'INTERNAL_ERROR',
+      message: notFound ? 'Resource not found.' : badRequest ? 'Invalid request.' : unauthorized ? 'Authentication failed.' : 'Internal server error.',
     }),
   };
 }
@@ -58,6 +69,7 @@ const gameTimerIntervalMs = 100;
 export interface BuildServerOptions {
   heartbeatIntervalMs?: number;
   now?: () => number;
+  catalogStore?: CatalogStore;
 }
 
 interface ConnectionState {
@@ -493,6 +505,62 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
     broadcast(lobbyId.data);
     return reply.code(201).send(response);
   });
+
+  // FEAT-16: Katalog-Administration. GET ist oeffentlich (Host/Projektor sehen
+  // den Katalog ohnehin); POST/DELETE gibt es nur bei gesetztem ADMIN_TOKEN
+  // und CatalogStore. In-Memory-Katalog und Datenbank werden synchron gehalten.
+  app.get('/games', async (request) => {
+    const games = catalogOf(request.server) ?? [];
+    return { games: games.map(game => ({ id: game.id, kind: game.kind, title: game.title, rules: game.rules })) };
+  });
+
+  const catalogStore = options.catalogStore;
+  if (config.adminToken && catalogStore) {
+    const expected = `Bearer ${config.adminToken}`;
+    const isAuthorized = (provided: string | undefined): boolean => {
+      if (typeof provided !== 'string' || provided.length !== expected.length) return false;
+      return timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
+    };
+
+    app.post('/games', async (request, reply) => {
+      if (!isAuthorized(request.headers.authorization)) {
+        const error = errorResponse(401);
+        return reply.code(error.statusCode).send(error.payload);
+      }
+      let game: GameSeed;
+      try {
+        game = materializeGameDraft(request.body);
+      } catch {
+        const error = errorResponse(400);
+        return reply.code(error.statusCode).send(error.payload);
+      }
+      await catalogStore.insert(game);
+      catalogOf(request.server)?.push(game);
+      return reply.code(201).send({ game: { id: game.id, kind: game.kind, title: game.title, rules: game.rules } });
+    });
+
+    app.delete('/games/:gameId', async (request, reply) => {
+      if (!isAuthorized(request.headers.authorization)) {
+        const error = errorResponse(401);
+        return reply.code(error.statusCode).send(error.payload);
+      }
+      const params = isRecord(request.params) ? request.params : {};
+      const gameId = IdSchema.safeParse(params.gameId);
+      if (!gameId.success) {
+        const error = errorResponse(400);
+        return reply.code(error.statusCode).send(error.payload);
+      }
+      const removed = await catalogStore.remove(gameId.data);
+      if (!removed) {
+        const error = errorResponse(404);
+        return reply.code(error.statusCode).send(error.payload);
+      }
+      const catalog = catalogOf(request.server);
+      const index = catalog?.findIndex(game => game.id === gameId.data) ?? -1;
+      if (catalog && index >= 0) catalog.splice(index, 1);
+      return reply.code(204).send();
+    });
+  }
 
   app.setNotFoundHandler((_request, reply) => {
     const error = errorResponse(404);

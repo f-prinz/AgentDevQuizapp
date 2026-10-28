@@ -1,5 +1,6 @@
 import type { RouteObject } from "react-router";
 import { AppShell } from "./routes/AppShell";
+import { AdminPage } from "./routes/AdminPage";
 import { HomePage, HostPage, JoinPage, PlayerPage, ProjectorPage } from "./routes/Pages";
 
 export const appRoutes: RouteObject[] = [{
@@ -13,6 +14,7 @@ export const appRoutes: RouteObject[] = [{
     { path: "lobbies/:lobbyId/projector", element: <ProjectorPage /> },
     { path: "join", element: <JoinPage /> },
     { path: "player", element: <PlayerPage /> },
+    { path: "admin", element: <AdminPage /> },
     { path: "projector", element: <ProjectorPage /> },
   ],
 }];
