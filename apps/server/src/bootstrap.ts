@@ -4,6 +4,7 @@ import type { GameSeed } from '@raccoons/contracts';
 import { buildServer } from './app.ts';
 import type { ServerConfig } from './config.ts';
 import { initializeCatalog, loadSeedGames } from './catalog.ts';
+import { createCatalogStore } from './catalog-admin.ts';
 
 export interface CatalogServerOptions {
   databaseUrl: string;
@@ -48,9 +49,11 @@ export async function startCatalogServer(
     const seeds = await loadSeedGames(options.seedDirectory);
     pool = new Pool({ connectionString: options.databaseUrl });
     const catalog = await initializeCatalog(pool, seeds);
-    await closePool();
-    app = buildServer(config);
+    app = buildServer(config, { catalogStore: createCatalogStore(pool) });
     app.decorate('catalog', catalog);
+    // FEAT-16: Der Pool bleibt fuer Upload/Loeschung zur Laufzeit offen und
+    // wird erst beim Schliessen des Servers beendet.
+    app.addHook('onClose', closePool);
     await app.listen({ host: config.host, port: config.port });
     return app as CatalogServerInstance;
   } catch (err) {

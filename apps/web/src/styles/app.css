@@ -68,6 +68,16 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .sortable-dragging { opacity: 0.5; }
 .estimation-panel { max-width: 24rem; }
 .estimation-input { display: grid; gap: 0.4rem; }
+.admin-panel { display: grid; gap: 1rem; }
+.admin-token { display: grid; gap: 0.4rem; max-width: 24rem; }
+.admin-draft { display: grid; gap: 0.4rem; }
+.admin-draft textarea { font-family: ui-monospace, monospace; font-size: 0.9rem; }
+.admin-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.admin-games { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+.admin-games li { display: flex; gap: 0.75rem; align-items: baseline; flex-wrap: wrap; }
+.admin-hint { font-size: 0.9rem; opacity: 0.8; }
+.admin-error { color: var(--color-red); font-weight: 600; }
+.admin-notice { color: var(--color-turquoise); font-weight: 600; }
 .solution { padding: 0.85rem; border-inline-start: 0.25rem solid var(--color-turquoise); }
 /* CHG-8: Auf dem Projektor Frage und Aufloesung deutlich groesser darstellen. */
 .projector-question, .projector-game .solution { font-size: 1.8rem; }

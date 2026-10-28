@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { GameSeed } from '@raccoons/contracts';
-import { initializeCatalog, loadSeedGames, readCatalog } from '../src/catalog.ts';
+import { deleteGame, initializeCatalog, insertGame, loadSeedGames, readCatalog } from '../src/catalog.ts';
 import { startEphemeralPostgres, type EphemeralPostgres } from './helpers/postgres.ts';
 
 let postgres: EphemeralPostgres;
@@ -142,5 +142,25 @@ describe('PostgreSQL game catalog', () => {
 
     const persisted = await pool.query<{ content: unknown }>('SELECT content FROM games WHERE id = $1', [foreignGame.id]);
     expect(persisted.rows[0]?.content).toEqual(corruptedForeignGame);
+  });
+
+  it('inserts and deletes single games via the catalog store functions', async () => {
+    const seeds = await loadSeedGames();
+    await initializeCatalog(pool, seeds);
+
+    const uploaded: GameSeed = {
+      id: 'uploaded-catalog-game',
+      kind: 'estimation',
+      title: 'Hochgeladen',
+      rules: 'Regeln.',
+      question: 'Frage?',
+      target: 7,
+    };
+    await insertGame(pool, uploaded);
+    expect(byId(await readCatalog(pool))).toContainEqual(uploaded);
+
+    expect(await deleteGame(pool, 'unknown-game')).toBe(false);
+    expect(await deleteGame(pool, uploaded.id)).toBe(true);
+    expect(byId(await readCatalog(pool))).toEqual(byId(seeds));
   });
 });

@@ -5,6 +5,7 @@ export interface ServerConfig {
   host: string;
   port: number;
   allowedOrigins?: string[];
+  adminToken?: string;
 }
 
 const hostnamePattern = /^(?=.{1,253}$)(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)(?:\.(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?))*$/;
@@ -60,6 +61,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
   const config: ServerConfig = { host, port };
   if (env.ALLOWED_ORIGINS !== undefined) {
     config.allowedOrigins = parseAllowedOrigins(env.ALLOWED_ORIGINS);
+  }
+  const adminToken = env.ADMIN_TOKEN?.trim();
+  if (adminToken) {
+    config.adminToken = adminToken;
   }
   return config;
 }

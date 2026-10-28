@@ -201,6 +201,19 @@ function parseGameRow(row: GameRow): GameSeed {
   return game;
 }
 
+export async function insertGame(pool: Pool, game: GameSeed): Promise<void> {
+  await pool.query(
+    `INSERT INTO games (id, kind, title, rules, schema_version, content)
+     VALUES ($1, $2, $3, $4, $5, $6::jsonb)`,
+    [game.id, game.kind, game.title, game.rules, catalogSchemaVersion, JSON.stringify(game)],
+  );
+}
+
+export async function deleteGame(pool: Pool, id: string): Promise<boolean> {
+  const result = await pool.query('DELETE FROM games WHERE id = $1', [id]);
+  return (result.rowCount ?? 0) > 0;
+}
+
 export async function readCatalog(pool: Pool): Promise<GameSeed[]> {
   try {
     const result = await pool.query<GameRow>(
