@@ -15,6 +15,8 @@ import {
 } from '@raccoons/contracts';
 import WebSocket, { WebSocketServer, type RawData } from 'ws';
 import { timingSafeEqual } from 'node:crypto';
+import { resolve } from 'node:path';
+import fastifyStatic from '@fastify/static';
 import type { ServerConfig } from './config.ts';
 import type { CatalogStore } from './catalog-admin.ts';
 import { materializeGameDraft } from './catalog-admin.ts';
@@ -470,13 +472,14 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
     });
   });
 
-  app.get('/health', {
+  const registerApiRoutes = (instance: FastifyInstance): void => {
+  instance.get('/health', {
     schema: {
       response: { 200: healthResponseJsonSchema },
     },
   }, async () => HealthResponseSchema.parse({ status: 'ok', version: 1 }));
 
-  app.post('/lobbies', async (request, reply) => {
+  instance.post('/lobbies', async (request, reply) => {
     const body = CreateLobbyRequestSchema.safeParse(request.body);
     if (!body.success) {
       const error = errorResponse(400);
@@ -485,7 +488,7 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
     return reply.code(201).send(registry.create());
   });
 
-  app.post('/lobbies/:lobbyId/players', async (request, reply) => {
+  instance.post('/lobbies/:lobbyId/players', async (request, reply) => {
     const params = isRecord(request.params) ? request.params : {};
     const lobbyId = IdSchema.safeParse(params.lobbyId);
     const body = JoinPlayerRequestSchema.safeParse(request.body);
@@ -509,7 +512,7 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
   // FEAT-16: Katalog-Administration. GET ist oeffentlich (Host/Projektor sehen
   // den Katalog ohnehin); POST/DELETE gibt es nur bei gesetztem ADMIN_TOKEN
   // und CatalogStore. In-Memory-Katalog und Datenbank werden synchron gehalten.
-  app.get('/games', async (request) => {
+  instance.get('/games', async (request) => {
     const games = catalogOf(request.server) ?? [];
     return { games: games.map(game => ({ id: game.id, kind: game.kind, title: game.title, rules: game.rules })) };
   });
@@ -522,7 +525,7 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
       return timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
     };
 
-    app.post('/games', async (request, reply) => {
+    instance.post('/games', async (request, reply) => {
       if (!isAuthorized(request.headers.authorization)) {
         const error = errorResponse(401);
         return reply.code(error.statusCode).send(error.payload);
@@ -539,7 +542,7 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
       return reply.code(201).send({ game: { id: game.id, kind: game.kind, title: game.title, rules: game.rules } });
     });
 
-    app.delete('/games/:gameId', async (request, reply) => {
+    instance.delete('/games/:gameId', async (request, reply) => {
       if (!isAuthorized(request.headers.authorization)) {
         const error = errorResponse(401);
         return reply.code(error.statusCode).send(error.payload);
@@ -561,8 +564,26 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
       return reply.code(204).send();
     });
   }
+  };
 
-  app.setNotFoundHandler((_request, reply) => {
+  // TECH-15: Das Frontend ruft /api/* auf (lokal strippt der Vite-Proxy, in
+  // Produktion gibt es keinen Proxy) — beide Varianten werden registriert.
+  app.register(registerApiRoutes);
+  app.register(registerApiRoutes, { prefix: '/api' });
+
+  // TECH-15: Produktionsmodus — Web-Build statisch ausliefern; der
+  // NotFoundHandler fängt Browser-Navigation auf SPA-Routen ab.
+  if (config.staticDir) {
+    app.register(fastifyStatic, { root: resolve(config.staticDir) });
+  }
+
+  app.setNotFoundHandler((request, reply) => {
+    const acceptsHtml = request.method === 'GET'
+      && typeof request.headers.accept === 'string'
+      && request.headers.accept.includes('text/html');
+    if (config.staticDir && acceptsHtml && !request.url.startsWith('/api')) {
+      return reply.sendFile('index.html');
+    }
     const error = errorResponse(404);
     return reply.code(error.statusCode).send(error.payload);
   });

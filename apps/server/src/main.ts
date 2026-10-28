@@ -9,7 +9,11 @@ export async function main(): Promise<void> {
     throw new Error('A local DATABASE_URL is required.');
   }
 
-  const app = await startCatalogServer(loadConfig(), { databaseUrl });
+  const app = await startCatalogServer(loadConfig(), {
+    databaseUrl,
+    // TECH-15: Remote-DB (z. B. Railway Private Network) nur per Opt-in.
+    allowRemoteDatabase: process.env.DATABASE_ALLOW_REMOTE === 'true',
+  });
   let shutdown: Promise<void> | undefined;
 
   const close = (): Promise<void> => {

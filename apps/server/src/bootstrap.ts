@@ -9,22 +9,28 @@ import { createCatalogStore } from './catalog-admin.ts';
 export interface CatalogServerOptions {
   databaseUrl: string;
   seedDirectory?: string;
+  /** TECH-15: Remote-DB-Hosts zulassen (z. B. Railway Private Network). */
+  allowRemoteDatabase?: boolean;
 }
 
 export type CatalogServerInstance = FastifyInstance & { readonly catalog: GameSeed[] };
 
-function validateDatabaseUrl(databaseUrl: string): void {
+export function validateDatabaseUrl(databaseUrl: string, allowRemote = false): void {
   let parsed: URL;
   try {
     parsed = new URL(databaseUrl);
   } catch {
-    throw new Error('A valid local DATABASE_URL is required.');
+    throw new Error('A valid DATABASE_URL is required.');
   }
 
   const localHosts = new Set(['localhost', '127.0.0.1', '[::1]']);
-  if ((parsed.protocol !== 'postgres:' && parsed.protocol !== 'postgresql:')
-    || !localHosts.has(parsed.hostname.toLowerCase())
-    || parsed.search !== '') {
+  if (parsed.protocol !== 'postgres:' && parsed.protocol !== 'postgresql:') {
+    throw new Error('A valid DATABASE_URL is required.');
+  }
+  // Lokal: nur localhost-Hosts und keine Query-Parameter. Remote-Hosts nur mit
+  // explizitem Opt-in (DATABASE_ALLOW_REMOTE) fuer gehostete Umgebungen.
+  if (!allowRemote
+    && (!localHosts.has(parsed.hostname.toLowerCase()) || parsed.search !== '')) {
     throw new Error('A valid local DATABASE_URL is required.');
   }
 }
@@ -33,7 +39,7 @@ export async function startCatalogServer(
   config: ServerConfig,
   options: CatalogServerOptions,
 ): Promise<CatalogServerInstance> {
-  validateDatabaseUrl(options.databaseUrl);
+  validateDatabaseUrl(options.databaseUrl, options.allowRemoteDatabase === true);
 
   let pool: Pool | undefined;
   let app: FastifyInstance | undefined;

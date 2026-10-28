@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
-import { startCatalogServer } from '../src/bootstrap.ts';
+import { startCatalogServer, validateDatabaseUrl } from '../src/bootstrap.ts';
 import type { ServerConfig } from '../src/config.ts';
 import { startEphemeralPostgres, type EphemeralPostgres } from './helpers/postgres.ts';
 
@@ -38,5 +38,13 @@ describe('catalog server bootstrap', () => {
     await expect(startCatalogServer(serverConfig, {
       databaseUrl: 'postgresql://user:password@example.com/database',
     })).rejects.toThrow('local DATABASE_URL');
+  });
+
+  it('accepts remote database URLs when allowRemoteDatabase is set', () => {
+    // TECH-15: Railway-Deployment — die Private-Network-URL ist nicht lokal.
+    expect(() => validateDatabaseUrl('postgresql://user:password@example.com/database', true)).not.toThrow();
+    expect(() => validateDatabaseUrl('postgresql://postgres:x@postgres.railway.internal:5432/railway', true)).not.toThrow();
+    expect(() => validateDatabaseUrl('postgresql://user:password@example.com/database', false)).toThrow('local DATABASE_URL');
+    expect(() => validateDatabaseUrl('not-a-url', true)).toThrow('DATABASE_URL');
   });
 });
