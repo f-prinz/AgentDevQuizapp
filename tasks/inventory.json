@@ -50,7 +50,7 @@
       ],
       "introduced_by": "TECH-4",
       "removed_by": null,
-      "notes": "Nur Katalog persistent; Seed-Upserts idempotent, vorhandene Fremdeintraege erhalten; echte isolierte PostgreSQL-Tests, keine Loesungsroute"
+      "notes": "Nur Katalog persistent; kein initiales Seeding mehr (CHG-9) — Katalog startet leer, Befuellung via Admin-API; Fremdeintraege bleiben erhalten; echte isolierte PostgreSQL-Tests"
     },
     {
       "id": "INV-3",
@@ -528,5 +528,5 @@
       "notes": "API-Routen doppelt registriert (unprefixed + /api via Plugin-Prefix); @fastify/static liefert STATIC_DIR aus, SPA-Fallback index.html bei GET+Accept:html ausserhalb /api; validateDatabaseUrl akzeptiert Remote-Hosts nur mit allowRemoteDatabase (Env DATABASE_ALLOW_REMOTE); Dockerfile baut contracts/web/server und startet dist/main.js."
     }
   ],
-  "last_updated_utc": "2026-10-28T10:40:00.000Z"
+  "last_updated_utc": "2026-10-28T15:12:07.456Z"
 }

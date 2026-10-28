@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -1223,17 +1223,27 @@
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": true,
       "dependencies": [],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-2"
+      ],
       "allowed_paths": [
         "apps/server",
         "Dockerfile",
-        "apps/web/src/routes/AdminPage.tsx"
+        "apps/web/src/routes/AdminPage.tsx",
+        "apps/server/"
       ],
-      "implemented_by": "server_developer"
+      "implemented_by": "server_developer",
+      "test_result": "78/78 gruen auf main",
+      "review_result": "APPROVED - keine Blocker",
+      "test_evidence": "tasks/evidence/CHG-9-2026-10-28T15-30-47-919Z.json",
+      "red_evidence": "tasks/evidence/CHG-9-2026-10-28T15-05-52-771Z.json",
+      "lint_evidence": "tasks/evidence/CHG-9-2026-10-28T15-08-11-288Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/CHG-9.md"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-28T15:04:12.319Z"
+  "last_updated_utc": "2026-10-28T15:31:46.449Z"
 }
