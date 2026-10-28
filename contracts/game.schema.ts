@@ -67,13 +67,16 @@ export const PlayerRoundSchema = z.discriminatedUnion('phase', [StartRoundSchema
   z.strictObject({ ...EvaluationBase, ownEvaluation: OwnEvaluationSchema }),
 ]);
 // Catalog-only seed model. Never serialize these objects as a wire snapshot.
+// TECH-16: Seeds enthalten kein rules — der Regeltext haengt an der Spielart
+// (GAME_CONFIG), nicht am einzelnen Spiel. strictObject lehnt rules im Upload ab.
 export const QuizQuestionSeedSchema = z.strictObject({ id: IdSchema, question: TextSchema, options: FourOptionsSchema, correctOptionId: IdSchema })
   .refine(value => value.options.some(option => option.id === value.correctOptionId), 'correct option must exist');
+const GameSeedBaseSchema = z.strictObject({ id: IdSchema, kind: GameKindSchema, title: TextSchema });
 export const GameSeedSchema = z.discriminatedUnion('kind', [
-  GameMetadataSchema.extend({ kind: z.literal('quiz'), questions: z.array(QuizQuestionSeedSchema).min(1).refine(uniqueIds, 'question IDs must be unique') }),
-  GameMetadataSchema.extend({ kind: z.literal('sorting'), question: TextSchema, terms: z.array(TermSchema.extend({ value: FiniteNumberSchema })).min(2)
+  GameSeedBaseSchema.extend({ kind: z.literal('quiz'), questions: z.array(QuizQuestionSeedSchema).min(1).refine(uniqueIds, 'question IDs must be unique') }),
+  GameSeedBaseSchema.extend({ kind: z.literal('sorting'), question: TextSchema, terms: z.array(TermSchema.extend({ value: FiniteNumberSchema })).min(2)
     .refine(uniqueIds, 'term IDs must be unique').refine(items => new Set(items.map(item => item.value)).size === items.length, 'sorting values must be unique') }),
-  GameMetadataSchema.extend({ kind: z.literal('estimation'), question: TextSchema, target: FiniteNumberSchema }),
+  GameSeedBaseSchema.extend({ kind: z.literal('estimation'), question: TextSchema, target: FiniteNumberSchema }),
 ]);
 export type GameSeed = z.infer<typeof GameSeedSchema>;
 export type GameMetadata = z.infer<typeof GameMetadataSchema>;

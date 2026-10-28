@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ClientMessageSchema, ServerMessageSchema, SnapshotSchema, TimerSchema, GameSeedSchema, CreateLobbyResponseSchema } from '../dist/index.js';
+import { ClientMessageSchema, ServerMessageSchema, SnapshotSchema, TimerSchema, GameSeedSchema, CreateLobbyResponseSchema, GAME_CONFIG } from '../dist/index.js';
 
 const options = ['a','b','c','d'].map(id => ({id,text:id.toUpperCase()}));
 const game = {id:'g1',kind:'quiz',title:'Quiz',rules:'1 point'};
@@ -34,8 +34,8 @@ test('game.start must identify the round being started so a delayed command cann
 
 test('wire snapshots validate each role and reject solution/private field leakage', () => {
   assert.equal(SnapshotSchema.safeParse(player).success,true);
-  assert.equal(ServerMessageSchema.safeParse({...base,role:'host',round:null,canStartLobby:false}).success,true);
-  assert.equal(ServerMessageSchema.safeParse({...base,role:'projector',round:null}).success,true);
+  assert.equal(ServerMessageSchema.safeParse({...base,role:'host',round:null,canStartLobby:false,links:{player:'/lobbies/l1/join',projector:'/lobbies/l1/projector'}}).success,true);
+  assert.equal(ServerMessageSchema.safeParse({...base,role:'projector',round:null,playerLink:'/lobbies/l1/join'}).success,true);
   for(const field of ['correctOptionId','target','value','token']) {
     assert.equal(SnapshotSchema.safeParse({...player,round:{...round,task:{...round.task,[field]:'secret'}}}).success,false,field);
   }
@@ -46,18 +46,36 @@ test('wire snapshots validate each role and reject solution/private field leakag
 });
 
 test('all game seeds enforce correct option, unique IDs, unique sorting values and finite numbers', () => {
-  const quiz = {...game,questions:[{id:'q1',question:'Q',options,correctOptionId:'a'}]};
+  const quiz = {id:'g1',kind:'quiz',title:'Quiz',questions:[{id:'q1',question:'Q',options,correctOptionId:'a'}]};
   assert.equal(GameSeedSchema.safeParse(quiz).success,true);
   assert.equal(GameSeedSchema.safeParse({...quiz,questions:[{...quiz.questions[0],correctOptionId:'missing'}]}).success,false);
   assert.equal(GameSeedSchema.safeParse({...quiz,questions:[{...quiz.questions[0],options:options.slice(1)}]}).success,false);
   assert.equal(GameSeedSchema.safeParse({...quiz,questions:[{...quiz.questions[0],options:[options[0],options[0],options[2],options[3]]}]}).success,false);
-  const sort={id:'s',kind:'sorting',title:'Sort',rules:'sort',question:'Q',terms:[{id:'a',text:'A',value:1},{id:'b',text:'B',value:2}]};
+  const sort={id:'s',kind:'sorting',title:'Sort',question:'Q',terms:[{id:'a',text:'A',value:1},{id:'b',text:'B',value:2}]};
   assert.equal(GameSeedSchema.safeParse(sort).success,true);
   assert.equal(GameSeedSchema.safeParse({...sort,terms:sort.terms.map(t=>({...t,value:1}))}).success,false);
-  const estimate={id:'e',kind:'estimation',title:'Estimate',rules:'number',question:'Q',target:2};
+  const estimate={id:'e',kind:'estimation',title:'Estimate',question:'Q',target:2};
   assert.equal(GameSeedSchema.safeParse(estimate).success,true);
   assert.equal(GameSeedSchema.safeParse({...estimate,target:Infinity}).success,false);
+  // TECH-16: Regeln gehoeren zur Spielart (GAME_CONFIG), nicht in den Upload/die DB.
+  assert.equal(GameSeedSchema.safeParse({...quiz,rules:'custom'}).success,false,'seeds with rules must be rejected');
   assert.equal(ClientMessageSchema.safeParse({version:1,requestId:'x',type:'answer.set',roundId:'r',answer:{kind:'estimation',value:NaN}}).success,false);
+});
+
+test('GAME_CONFIG provides rules text and scoring parameters for every game kind', () => {
+  for (const kind of ['quiz','sorting','estimation']) {
+    const config = GAME_CONFIG[kind];
+    assert.ok(config, `missing config for ${kind}`);
+    assert.equal(typeof config.rules, 'string');
+    assert.ok(config.rules.length > 0);
+    assert.ok(config.scoring && typeof config.scoring === 'object', `missing scoring for ${kind}`);
+  }
+  assert.equal(GAME_CONFIG.quiz.scoring.pointsPerCorrectAnswer, 1);
+  assert.equal(GAME_CONFIG.sorting.scoring.pointsPerCorrectPosition, 1);
+  assert.equal(GAME_CONFIG.estimation.scoring.upperThird, 3);
+  assert.equal(GAME_CONFIG.estimation.scoring.middleThird, 1);
+  assert.equal(GAME_CONFIG.estimation.scoring.lowerThird, 0);
+  assert.equal(GAME_CONFIG.estimation.scoring.bestBonus, 2);
 });
 
 test('timer enforces inclusive two-second acceptance deadline and reveal state', () => {
@@ -70,7 +88,7 @@ test('evaluation exposes solutions only with role-appropriate own or aggregate r
   const solution={kind:'quiz',question:'Q',options,correctOptionId:'a'};
   const evaluation={roundId:'r1',game,questionIndex:0,questionCount:2,phase:'evaluation',solution,hasNextQuestion:true};
   assert.equal(SnapshotSchema.safeParse({...player,phase:'evaluation',round:{...evaluation,ownEvaluation:{answer:{kind:'quiz',optionId:'b'},points:0,distance:null,positionsCorrect:null}}}).success,true);
-  assert.equal(SnapshotSchema.safeParse({...base,phase:'evaluation',role:'projector',round:{...evaluation,results:[]}}).success,true);
+  assert.equal(SnapshotSchema.safeParse({...base,phase:'evaluation',role:'projector',playerLink:'/lobbies/l1/join',round:{...evaluation,results:[]}}).success,true);
   assert.equal(SnapshotSchema.safeParse({...player,phase:'evaluation',round:{...evaluation,results:[]}}).success,false);
 });
 
