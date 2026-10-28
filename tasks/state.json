@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1268,8 +1268,25 @@
       "lint_evidence": "tasks/evidence/BUG-4-2026-10-28T15-40-30-794Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/BUG-4.md"
+    },
+    {
+      "id": "CHG-10",
+      "component": "web",
+      "title": "Farbschema Slate/Indigo mit Text-Hierarchie",
+      "acceptance_criteria": "Body-Text nutzt --color-text, sekundaerer Text --color-muted; gewaehlte Antwort markiert Akzent statt Rot",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": false,
+      "dependencies": [],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-28T15:43:05.141Z"
+  "last_updated_utc": "2026-10-28T15:55:56.741Z"
 }
