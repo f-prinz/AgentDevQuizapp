@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1183,8 +1183,29 @@
       "lint_evidence": "tasks/evidence/CHG-8-2026-10-27T17-00-31-454Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/CHG-8.md"
+    },
+    {
+      "id": "TECH-15",
+      "component": "server",
+      "title": "Railway-Vorbereitung: Static-Serving, Remote-DB-Flag, Dockerfile",
+      "acceptance_criteria": "Static aus apps/web/dist bei STATIC_DIR mit SPA-Fallback; /api-Strip serverseitig; DATABASE_ALLOW_REMOTE fuer Remote-DB-Hosts; Dockerfile baut contracts web server und startet dist/main.js; .env.example dokumentiert; lokale Pfade unveraendert",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": false,
+      "dependencies": [],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allows_dep_change": true,
+      "classification": "CURRENT_STACK_ONLY",
+      "allowed_paths": [
+        "apps/server/",
+        "Dockerfile",
+        ".dockerignore",
+        "README.md"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-28T08:28:15.530Z"
+  "last_updated_utc": "2026-10-28T10:30:14.988Z"
 }
