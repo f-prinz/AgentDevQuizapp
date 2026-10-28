@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -1136,15 +1136,25 @@
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": true,
       "dependencies": [],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-23",
+        "INV-22"
+      ],
       "allowed_paths": [
         "apps/server/",
         "apps/web/",
         "README.md"
       ],
-      "implemented_by": "server_developer"
+      "implemented_by": "server_developer",
+      "test_result": "73/73 Server-Tests + 75/75 Web-Tests gruen",
+      "review_result": "APPROVED; keine Blocker",
+      "test_evidence": "tasks/evidence/FEAT-16-2026-10-28T08-07-00-459Z.json",
+      "red_evidence": "tasks/evidence/FEAT-16-2026-10-28T07-10-24-013Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-16-2026-10-28T08-13-57-157Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/FEAT-16.md"
     },
     {
       "id": "CHG-8",
@@ -1176,5 +1186,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-28T07:07:50.456Z"
+  "last_updated_utc": "2026-10-28T08:28:15.530Z"
 }

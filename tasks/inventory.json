@@ -442,7 +442,64 @@
       "introduced_by": "CHG-2",
       "removed_by": null,
       "notes": "CopyLinkButton mit clipboard.writeText + execCommand-Fallback und 'Kopiert'-Feedback; QR via react-qr-code (absolute URL); Link+QR nur in Lobbyphase; Spieler sehen ohne Runde nur 'Das Spiel beginnt gleich …'"
+    },
+    {
+      "id": "INV-22",
+      "capability": "Spielekatalog zur Laufzeit per token-geschuetztem JSON-Upload erweitern und Spiele loeschen",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "route",
+          "file": "apps/server/src/app.ts",
+          "ref": "GET /games"
+        },
+        {
+          "type": "route",
+          "file": "apps/server/src/app.ts",
+          "ref": "POST /games"
+        },
+        {
+          "type": "route",
+          "file": "apps/server/src/app.ts",
+          "ref": "DELETE /games/:gameId"
+        },
+        {
+          "type": "file",
+          "ref": "apps/server/src/catalog-admin.ts"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/catalog-admin.test.ts"
+        }
+      ],
+      "introduced_by": "FEAT-16",
+      "removed_by": null,
+      "notes": "POST akzeptiert Seed-aehnliches JSON ohne ids; Server generiert Spiel-/Fragen-/Options-/Term-ids als UUID (Quiz: correctOptionIndex oder correctOptionId-Verweis wird auf generierte id gemappt), validiert via GameSeedSchema, persistiert in games-Tabelle und haelt In-Memory-Katalog synchron. Bearer-Token ADMIN_TOKEN (timingSafeEqual); ohne Token/Store sind POST/DELETE nicht registriert (404); GET ist oeffentlich und liefert {id,kind,title,rules}."
+    },
+    {
+      "id": "INV-23",
+      "capability": "Spielekatalog im Browser verwalten (Liste, JSON-Upload, Loeschen)",
+      "component": "web",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "file",
+          "ref": "apps/web/src/app-routes.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/routes/AdminPage.tsx"
+        },
+        {
+          "type": "test",
+          "ref": "apps/web/src/admin-page.test.tsx"
+        }
+      ],
+      "introduced_by": "FEAT-16",
+      "removed_by": null,
+      "notes": "Admin-Seite /admin: Token-Eingabe (Bearer), Textarea + Datei-Picker fuer Spiel-JSON (ohne ids), Upload via POST /api/games, Katalogliste mit Loesch-Buttons via DELETE /api/games/:id; Fehler-/Statusmeldungen fuer 401, Schemafehler und Netzwerkfehler."
     }
   ],
-  "last_updated_utc": "2026-10-27T12:30:00.000Z"
+  "last_updated_utc": "2026-10-28T08:20:00.000Z"
 }
