@@ -9,7 +9,9 @@ WORKDIR /repo
 COPY contracts/package.json contracts/package-lock.json contracts/
 COPY apps/server/package.json apps/server/package-lock.json apps/server/
 COPY apps/web/package.json apps/web/package-lock.json apps/web/
-RUN cd contracts && npm ci && cd ../apps/server && npm ci && cd ../apps/web && npm ci
+RUN npm ci --prefix /repo/contracts \
+    && npm ci --prefix /repo/apps/web \
+    && npm ci --prefix /repo/apps/server
 
 COPY . .
 RUN npm --prefix contracts run build \
@@ -22,7 +24,8 @@ ENV NODE_ENV=production HOST=0.0.0.0
 
 # Produktions-Abhaengigkeiten (contracts zuerst — file:-Dep des Servers
 # verlinkt auf ../contracts).
-COPY contracts/package.json contracts/package-lock.json contracts/
+COPYnpm  i --omit=cevo--prefix /app/ntracts/pa\
+    ckage.json contracts/--prefixg/applock.json co
 COPY apps/server/package.json apps/server/package-lock.json apps/server/
 RUN cd contracts && npm ci --omit=dev && cd ../apps/server && npm ci --omit=dev
 
