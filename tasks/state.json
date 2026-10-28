@@ -1242,8 +1242,34 @@
       "lint_evidence": "tasks/evidence/CHG-9-2026-10-28T15-08-11-288Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/CHG-9.md"
+    },
+    {
+      "id": "BUG-4",
+      "component": "web",
+      "title": "Host-Lobby: Copy-Icon nicht sichtbar, Link ohne Domain",
+      "acceptance_criteria": "Copy-Icon im Host-Lobby-Linkbereich sichtbar (CSS-Konflikt .game-view button vs .link-copy button behoben, robustes Icon)",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "DONE",
+      "fix_retries": 0,
+      "inventory_refs": [
+        "INV-21"
+      ],
+      "allowed_paths": [
+        "apps/web/"
+      ],
+      "implemented_by": "web_developer",
+      "test_result": "75/75 gruen auf main",
+      "review_result": "APPROVED - keine Blocker",
+      "test_evidence": "tasks/evidence/BUG-4-2026-10-28T15-42-30-620Z.json",
+      "red_evidence": "tasks/evidence/BUG-4-2026-10-28T15-39-39-548Z.json",
+      "lint_evidence": "tasks/evidence/BUG-4-2026-10-28T15-40-30-794Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/BUG-4.md"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-28T15:31:46.449Z"
+  "last_updated_utc": "2026-10-28T15:43:05.141Z"
 }
