@@ -1140,7 +1140,9 @@
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
-        "apps/server/"
+        "apps/server/",
+        "apps/web/",
+        "README.md"
       ]
     },
     {
