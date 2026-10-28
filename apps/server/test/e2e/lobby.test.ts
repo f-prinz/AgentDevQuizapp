@@ -14,7 +14,7 @@ const quizSeed = GameSeedSchema.parse({
   id: 'e2e_lobby_quiz',
   kind: 'quiz',
   title: 'E2E Quiz',
-  rules: 'Waehle die richtige Antwort.',
+
   questions: [{
     id: 'q1',
     question: 'Testfrage?',

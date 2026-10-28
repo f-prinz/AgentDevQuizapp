@@ -36,8 +36,13 @@ export function materializeGameDraft(input: unknown): GameSeed {
   if (!isRecord(input)) {
     throw new Error('Game draft must be an object.');
   }
+  // CHG-11: Regeltexte haengen an der Spielart (GAME_CONFIG) — ein rules-Feld
+  // im Upload wird abgelehnt statt gespeichert.
+  if ('rules' in input) {
+    throw new Error('Game draft must not contain rules; they are defined per game kind.');
+  }
 
-  const base = { id: randomUUID(), kind: input.kind, title: input.title, rules: input.rules };
+  const base = { id: randomUUID(), kind: input.kind, title: input.title };
   let candidate: unknown;
 
   if (input.kind === 'quiz') {

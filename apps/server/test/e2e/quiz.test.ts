@@ -14,7 +14,7 @@ const quizSeed = GameSeedSchema.parse({
   id: 'e2e_quiz_game',
   kind: 'quiz',
   title: 'E2E Zwei Fragen',
-  rules: 'Waehle die richtige Antwort.',
+
   questions: [
     {
       id: 'q1', question: 'Erste Frage?',

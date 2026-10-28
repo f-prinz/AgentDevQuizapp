@@ -2,6 +2,7 @@ import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypt
 import {
   CatalogEntrySchema,
   CreateLobbyResponseSchema,
+  GAME_CONFIG,
   ErrorCodeSchema,
   GameSeedSchema,
   HostSnapshotSchema,
@@ -93,8 +94,8 @@ function publicCatalog(
   return catalog.flatMap((value: unknown) => {
     const seed = GameSeedSchema.safeParse(value);
     if (!seed.success) return [];
-    const { id, kind, title, rules } = seed.data;
-    const entry = CatalogEntrySchema.safeParse({ id, kind, title, rules, played: playedGameIds.has(id) });
+    const { id, kind, title } = seed.data;
+    const entry = CatalogEntrySchema.safeParse({ id, kind, title, rules: GAME_CONFIG[kind].rules, played: playedGameIds.has(id) });
     return entry.success ? [entry.data] : [];
   });
 }

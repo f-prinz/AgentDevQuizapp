@@ -16,7 +16,6 @@ interface GameRow {
   id: string;
   kind: string;
   title: string;
-  rules: string;
   schema_version: number;
   content: unknown;
 }
@@ -84,7 +83,7 @@ async function applyMigrations(client: PoolClient, migrations: Migration[]): Pro
 
 async function readCatalogRows(client: PoolClient): Promise<GameSeed[]> {
   const result = await client.query<GameRow>(
-    'SELECT id, kind, title, rules, schema_version, content FROM games ORDER BY id',
+    'SELECT id, kind, title, schema_version, content FROM games ORDER BY id',
   );
   return result.rows.map(parseGameRow);
 }
@@ -121,8 +120,7 @@ function parseGameRow(row: GameRow): GameSeed {
   if (row.schema_version !== catalogSchemaVersion
     || game.id !== row.id
     || game.kind !== row.kind
-    || game.title !== row.title
-    || game.rules !== row.rules) {
+    || game.title !== row.title) {
     throw new Error('Catalog contains inconsistent stored game data.');
   }
 
@@ -131,9 +129,9 @@ function parseGameRow(row: GameRow): GameSeed {
 
 export async function insertGame(pool: Pool, game: GameSeed): Promise<void> {
   await pool.query(
-    `INSERT INTO games (id, kind, title, rules, schema_version, content)
-     VALUES ($1, $2, $3, $4, $5, $6::jsonb)`,
-    [game.id, game.kind, game.title, game.rules, catalogSchemaVersion, JSON.stringify(game)],
+    `INSERT INTO games (id, kind, title, schema_version, content)
+     VALUES ($1, $2, $3, $4, $5::jsonb)`,
+    [game.id, game.kind, game.title, catalogSchemaVersion, JSON.stringify(game)],
   );
 }
 
@@ -145,7 +143,7 @@ export async function deleteGame(pool: Pool, id: string): Promise<boolean> {
 export async function readCatalog(pool: Pool): Promise<GameSeed[]> {
   try {
     const result = await pool.query<GameRow>(
-      'SELECT id, kind, title, rules, schema_version, content FROM games ORDER BY id',
+      'SELECT id, kind, title, schema_version, content FROM games ORDER BY id',
     );
     return result.rows.map(parseGameRow);
   } catch {

@@ -16,7 +16,7 @@ const privateCatalogGame = GameSeedSchema.parse({
   id: 'lobby_private_quiz',
   kind: 'quiz',
   title: 'Public quiz title',
-  rules: 'Public rules.',
+
   questions: [{
     id: 'question_1',
     question: 'PRIVATE_QUESTION_TEXT',

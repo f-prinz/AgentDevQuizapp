@@ -11,7 +11,6 @@ const quizGame: GameSeed = {
   id: 'catalog_quiz_game',
   kind: 'quiz',
   title: 'Katalog-Quiz',
-  rules: 'Regeln.',
   questions: [
     {
       id: 'q1',
@@ -31,7 +30,6 @@ const estimationGame: GameSeed = {
   id: 'catalog_estimation_game',
   kind: 'estimation',
   title: 'Katalog-Schaetzfrage',
-  rules: 'Regeln.',
   question: 'Wie viele?',
   target: 42,
 };
@@ -46,8 +44,8 @@ function byId(games: GameSeed[]): GameSeed[] {
 
 async function insertRow(game: GameSeed, content: unknown = game): Promise<void> {
   await pool.query(
-    'INSERT INTO games (id, kind, title, rules, schema_version, content) VALUES ($1, $2, $3, $4, $5, $6::jsonb)',
-    [game.id, game.kind, game.title, game.rules, 1, JSON.stringify(content)],
+    'INSERT INTO games (id, kind, title, schema_version, content) VALUES ($1, $2, $3, $4, $5::jsonb)',
+    [game.id, game.kind, game.title, 1, JSON.stringify(content)],
   );
 }
 
@@ -76,6 +74,13 @@ describe('PostgreSQL game catalog', () => {
       "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' ORDER BY table_name",
     );
     expect(tables.rows.map(row => row.table_name)).toEqual(['games', 'schema_migrations']);
+
+    // CHG-11: Regeln haengen an der Spielart (GAME_CONFIG) — die games-Tabelle
+    // fuehrt keine rules-Spalte mehr.
+    const columns = await pool.query<{ column_name: string }>(
+      "SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'games'",
+    );
+    expect(columns.rows.map(row => row.column_name)).not.toContain('rules');
   });
 
   it('applies migrations idempotently and preserves existing catalog rows', async () => {

@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import {
   AnswerSchema,
   ErrorCodeSchema,
+  GAME_CONFIG,
   GameMetadataSchema,
   GameSeedSchema,
   TimerSchema,
@@ -253,7 +254,7 @@ function parsedAnswer(answer: Answer): Answer {
 function questionPoints(round: ActiveGameRound, answer: Answer | null): number {
   if (round.seed.kind !== 'quiz' || answer?.kind !== 'quiz') return 0;
   const correctOptionId = round.seed.questions[round.questionIndex]?.correctOptionId;
-  return answer.optionId === correctOptionId ? 1 : 0;
+  return answer.optionId === correctOptionId ? GAME_CONFIG.quiz.scoring.pointsPerCorrectAnswer : 0;
 }
 
 function sortingTermsByValue(round: ActiveGameRound) {
@@ -269,7 +270,7 @@ function sortingEvaluation(round: ActiveGameRound, answer: Answer | null) {
   const correctOrder = sortingTermsByValue(round).map(term => term.id);
   const positionsCorrect = answer.termIds.map((termId, index) => termId === correctOrder[index]);
   return {
-    points: positionsCorrect.filter(Boolean).length,
+    points: positionsCorrect.filter(Boolean).length * GAME_CONFIG.sorting.scoring.pointsPerCorrectPosition,
     positionsCorrect,
   };
 }
@@ -329,11 +330,12 @@ function estimateScores(lobby: GameLobbyState, round: ActiveGameRound): Map<stri
   return new Map(estimates.map(estimate => {
     const rank = 1 + estimates.filter(other =>
       compareEstimateDistances(other.distance, estimate.distance) < 0).length;
-    const tierPoints = rank <= upperBoundary ? 3 : rank > lowerBoundary ? 0 : 1;
+    const scoring = GAME_CONFIG.estimation.scoring;
+    const tierPoints = rank <= upperBoundary ? scoring.upperThird : rank > lowerBoundary ? scoring.lowerThird : scoring.middleThird;
     return [estimate.playerId, {
       rank,
       distance: estimate.distance.output,
-      points: tierPoints + (compareEstimateDistances(estimate.distance, minimumDistance) === 0 ? 2 : 0),
+      points: tierPoints + (compareEstimateDistances(estimate.distance, minimumDistance) === 0 ? scoring.bestBonus : 0),
     }] as const;
   }));
 }
@@ -464,7 +466,7 @@ export function projectRound(
     id: round.seed.id,
     kind: round.seed.kind,
     title: round.seed.title,
-    rules: round.seed.rules,
+    rules: GAME_CONFIG[round.seed.kind].rules,
   });
   const base = {
     roundId: round.roundId,
