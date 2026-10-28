@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1293,8 +1293,25 @@
       "lint_evidence": "tasks/evidence/CHG-10-2026-10-28T15-56-59-900Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/CHG-10.md"
+    },
+    {
+      "id": "TECH-16",
+      "component": "contracts",
+      "title": "CONTRACT_CHANGE: GAME_CONFIG (Regeln+Scoring pro Spielart), GameSeedSchema ohne rules",
+      "acceptance_criteria": "GameSeedSchema (Upload/DB-Modell) enthaelt kein rules-Feld mehr — strict, Upload mit rules schlaegt fehl; GameMetadataSchema (Wire) behaelt rules",
+      "test_command": "npm --prefix contracts test",
+      "lint_command": "npm --prefix contracts run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "contracts/"
+      ],
+      "implemented_by": "contracts_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-28T15:58:03.053Z"
+  "last_updated_utc": "2026-10-28T16:08:56.000Z"
 }
