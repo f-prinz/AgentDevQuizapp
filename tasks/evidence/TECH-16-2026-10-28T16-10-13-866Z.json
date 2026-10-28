@@ -1,0 +1,10 @@
+{
+  "task_id": "TECH-16",
+  "command": "npm --prefix contracts test",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/contracts@1.0.0 test\n> npm run build && node --test test/*.test.mjs\n\n\n> @raccoons/contracts@1.0.0 build\n> tsc -p tsconfig.json\n\nfile:///C:/dev/Bedburg/AgentDevQuizapp/contracts/test/protocol.test.mjs:3\nimport { ClientMessageSchema, ServerMessageSchema, SnapshotSchema, TimerSchema, GameSeedSchema, CreateLobbyResponseSchema, GAME_CONFIG } from '../dist/index.js';\n                                                                                                                           ^^^^^^^^^^^\nSyntaxError: The requested module '../dist/index.js' does not provide an export named 'GAME_CONFIG'\n    at #asyncInstantiate (node:internal/modules/esm/module_job:455:21)\n    at async ModuleJob.run (node:internal/modules/esm/module_job:553:5)\n    at async node:internal/modules/esm/loader:647:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v24.22.1\n✖ test\\protocol.test.mjs (1753.0263ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1788.4955\n\n✖ failing tests:\n\ntest at test\\protocol.test.mjs:1:1\n✖ test\\protocol.test.mjs (1753.0263ms)\n  'test failed'\n",
+  "stderr_tail": "",
+  "started": "2026-10-28T16:10:13.866Z",
+  "finished": "2026-10-28T16:10:18.776Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
