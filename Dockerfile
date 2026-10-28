@@ -24,10 +24,10 @@ ENV NODE_ENV=production HOST=0.0.0.0
 
 # Produktions-Abhaengigkeiten (contracts zuerst — file:-Dep des Servers
 # verlinkt auf ../contracts).
-COPYnpm  i --omit=cevo--prefix /app/ntracts/pa\
-    ckage.json contracts/--prefixg/applock.json co
+COPY contracts/package.json contracts/package-lock.json contracts/
 COPY apps/server/package.json apps/server/package-lock.json apps/server/
-RUN cd contracts && npm ci --omit=dev && cd ../apps/server && npm ci --omit=dev
+RUN npm ci --omit=dev --prefix /app/contracts \
+    && npm ci --omit=dev --prefix /app/apps/server
 
 COPY --from=build /repo/contracts/dist contracts/dist
 COPY --from=build /repo/apps/server/dist apps/server/dist
