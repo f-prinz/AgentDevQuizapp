@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -1193,9 +1193,11 @@
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": false,
       "dependencies": [],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-24"
+      ],
       "allows_dep_change": true,
       "classification": "CURRENT_STACK_ONLY",
       "allowed_paths": [
@@ -1204,9 +1206,15 @@
         ".dockerignore",
         "README.md"
       ],
-      "implemented_by": "server_developer"
+      "implemented_by": "server_developer",
+      "test_result": "79/79 Server-Tests gruen",
+      "review_result": "APPROVED; Docker-Build nicht lokal verifiziert (kein Docker)",
+      "test_evidence": "tasks/evidence/TECH-15-2026-10-28T10-34-47-424Z.json",
+      "lint_evidence": "tasks/evidence/TECH-15-2026-10-28T10-35-47-574Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/TECH-15.md"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-28T10:31:04.430Z"
+  "last_updated_utc": "2026-10-28T10:37:05.667Z"
 }

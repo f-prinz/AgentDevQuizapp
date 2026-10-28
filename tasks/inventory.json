@@ -499,7 +499,34 @@
       "introduced_by": "FEAT-16",
       "removed_by": null,
       "notes": "Admin-Seite /admin: Token-Eingabe (Bearer), Textarea + Datei-Picker fuer Spiel-JSON (ohne ids), Upload via POST /api/games, Katalogliste mit Loesch-Buttons via DELETE /api/games/:id; Fehler-/Statusmeldungen fuer 401, Schemafehler und Netzwerkfehler."
+    },
+    {
+      "id": "INV-24",
+      "capability": "Anwendung als ein Prozess hosten (API + WS + statisches Web-Build, Remote-Datenbank)",
+      "component": "server",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "file",
+          "ref": "Dockerfile"
+        },
+        {
+          "type": "file",
+          "ref": "apps/server/src/app.ts"
+        },
+        {
+          "type": "file",
+          "ref": "apps/server/src/bootstrap.ts"
+        },
+        {
+          "type": "test",
+          "ref": "apps/server/test/static-serving.test.ts"
+        }
+      ],
+      "introduced_by": "TECH-15",
+      "removed_by": null,
+      "notes": "API-Routen doppelt registriert (unprefixed + /api via Plugin-Prefix); @fastify/static liefert STATIC_DIR aus, SPA-Fallback index.html bei GET+Accept:html ausserhalb /api; validateDatabaseUrl akzeptiert Remote-Hosts nur mit allowRemoteDatabase (Env DATABASE_ALLOW_REMOTE); Dockerfile baut contracts/web/server und startet dist/main.js."
     }
   ],
-  "last_updated_utc": "2026-10-28T08:20:00.000Z"
+  "last_updated_utc": "2026-10-28T10:40:00.000Z"
 }
