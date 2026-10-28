@@ -1136,14 +1136,15 @@
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": true,
       "dependencies": [],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
         "apps/server/",
         "apps/web/",
         "README.md"
-      ]
+      ],
+      "implemented_by": "server_developer"
     },
     {
       "id": "CHG-8",
@@ -1175,5 +1176,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-27T17:01:40.084Z"
+  "last_updated_utc": "2026-10-28T07:07:50.456Z"
 }
