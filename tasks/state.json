@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1318,8 +1318,27 @@
       "lint_evidence": "tasks/evidence/TECH-16-2026-10-28T16-13-31-453Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/TECH-16.md"
+    },
+    {
+      "id": "CHG-11",
+      "component": "server",
+      "title": "Regeln+Punktvergabe aus GAME_CONFIG lesen statt aus Datei/DB",
+      "acceptance_criteria": "Admin-Upload mit rules-Feld wird mit 400 abgelehnt; Migration 002 droppt games.rules und entfernt content.rules",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "TECH-16"
+      ],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/server/"
+      ],
+      "implemented_by": "server_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-28T16:14:31.716Z"
+  "last_updated_utc": "2026-10-28T16:14:51.138Z"
 }
