@@ -49,9 +49,12 @@ function CopyLinkButton({ label, link }: { label: string; link: string }) {
   const [copied, setCopied] = useState(false);
   const url = new URL(link, window.location.origin).href;
   return <span className="link-copy">
-    <code className="link-copy-text">{link}</code>
+    <code className="link-copy-text">{url}</code>
     <button type="button" aria-label={`${label} kopieren`} onClick={() => { void copyText(url).then(ok => { if (ok) { setCopied(true); window.setTimeout(() => setCopied(false), 1600); } }); }}>
-      <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M9 9h2V7H9a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-2h-2v2H9V9Zm5-5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-6Zm0 2h6v9h-6V6Z"/></svg>
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+      </svg>
     </button>
     {copied && <span className="link-copied" role="status">Kopiert</span>}
   </span>;
@@ -297,7 +300,7 @@ export function ProjectorGameView({ snapshot }: { snapshot: ProjectorSnapshot; s
     if (snapshot.phase === "lobby") {
       const joinUrl = new URL(snapshot.playerLink, window.location.origin).href;
       return <section className="projector-lobby" aria-label="Spielerbeitritt">
-        <p className="player-link">{snapshot.playerLink}</p>
+        <p className="player-link">{joinUrl}</p>
         <div role="img" aria-label="QR-Code zum Spieler-Link"><QRCode value={joinUrl} size={256} /></div>
       </section>;
     }

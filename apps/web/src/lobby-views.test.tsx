@@ -310,6 +310,10 @@ describe("CHG-2 lobby flow", () => {
     const socket = FakeWebSocket.instances.at(-1)!;
     await act(async () => socket.deliver(snapshot("host")));
 
+    // BUG-4: Der angezeigte Link muss absolut sein (Domain aus window.location.origin).
+    expect(await screen.findByText(`${window.location.origin}/lobbies/${lobbyId}/join`)).toBeTruthy();
+    expect(screen.getByText(new RegExp(`^${window.location.origin}/lobbies/${lobbyId}/projector`))).toBeTruthy();
+
     const playerCopy = await screen.findByRole("button", { name: /spieler.*link.*kopieren|link.*kopieren.*spieler/i });
     fireEvent.click(playerCopy);
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining(`/lobbies/${lobbyId}/join`));
@@ -325,12 +329,12 @@ describe("CHG-2 lobby flow", () => {
     const socket = FakeWebSocket.instances.at(-1)!;
     await act(async () => socket.deliver(snapshot("projector")));
 
-    expect(await screen.findByText(`/lobbies/${lobbyId}/join`)).toBeTruthy();
+    expect(await screen.findByText(`${window.location.origin}/lobbies/${lobbyId}/join`)).toBeTruthy();
     expect(screen.getByRole("img", { name: /qr/i })).toBeTruthy();
 
     await act(async () => socket.deliver({ ...snapshot("projector"), revision: 2, phase: "overview" }));
     await waitFor(() => expect(screen.queryByRole("img", { name: /qr/i })).toBeNull());
-    expect(screen.queryByText(`/lobbies/${lobbyId}/join`)).toBeNull();
+    expect(screen.queryByText(`${window.location.origin}/lobbies/${lobbyId}/join`)).toBeNull();
   });
 
   it("hides the participant list from the host after the lobby starts", async () => {
