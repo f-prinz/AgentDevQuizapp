@@ -1406,8 +1406,26 @@
       "lint_evidence": "tasks/evidence/CHG-13-2026-10-29T10-16-24-463Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/CHG-13.md"
+    },
+    {
+      "id": "FEAT-17",
+      "component": "web",
+      "title": "Light/Dark-Theme-Toggle: Sonne/Mond-Icon oben rechts auf jeder Ansicht",
+      "acceptance_criteria": "Icon-Button fixed oben rechts in allen Ansichten; wechselt Dark/Light via CSS-Variablen; Wahl in localStorage persistiert; Initial prefers-color-scheme, sonst Dark",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-16"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-29T10:24:43.822Z"
+  "last_updated_utc": "2026-10-29T10:28:46.270Z"
 }
