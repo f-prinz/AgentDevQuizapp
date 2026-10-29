@@ -141,7 +141,7 @@ function TimerDisplay({ timer, size }: { timer: Timer; size: "compact" | "large"
   return <p className={`game-timer timer-${size}`} role="timer" aria-label={`Verbleibende Zeit: ${remaining} Sekunden`}>{remaining} s</p>;
 }
 
-function Results({ kind, results }: { kind: "quiz" | "sorting" | "estimation"; results: Array<{ playerId: string; name: string; points: number; rank: number | null; distance: number | null; errors: number | null }> }) {
+export function Results({ kind, results }: { kind: "quiz" | "sorting" | "estimation"; results: Array<{ playerId: string; name: string; points: number; rank: number | null; distance: number | null; errors: number | null }> }) {
   if (results.length === 0) return <section className="results" aria-label="Ergebnisse"><h3>Ergebnisse</h3><p>Noch keine Ergebnisse vorhanden.</p></section>;
   // CHG-13: Ergebnisse als kompakte Tabelle (bis 25 Spieler) — sortiert nach
   // Platzierung, bei Spielen ohne Rang (Quiz) nach Punkten absteigend.
@@ -333,8 +333,9 @@ export function ProjectorGameView({ snapshot }: { snapshot: ProjectorSnapshot; s
     </section>;
   }
   // CHG-13: '.projector-stage' ist in allen Phasen derselbe Slot — Regeltext,
-  // Frage und Aufloesungs-Frage stehen an identischer Position. In der
-  // Auswertung steht die Aufloesung links und die Ergebnis-Tabelle rechts.
+  // Frage und Aufloesungs-Frage stehen an identischer Position.
+  // CHG-14: Die Aufloesung bleibt unter der Frage im Spielbereich; die
+  // Ergebnis-Tabelle haengt ProjectorPage als eigene Layout-Spalte an.
   return <div className="projector-game">
     {round.game.kind !== "sorting" && <h3>{round.game.title}</h3>}
     {round.phase === "start" && <><p className="projector-stage">{round.game.rules}</p><p>Das Spiel beginnt gleich …</p></>}
@@ -344,10 +345,7 @@ export function ProjectorGameView({ snapshot }: { snapshot: ProjectorSnapshot; s
     </>}
     {round.phase === "evaluation" && <>
       <p className="projector-stage projector-question"><span className="projector-count">Frage {round.questionIndex + 1} von {round.questionCount}</span>{round.solution.question}</p>
-      <div className="projector-eval">
-        <SolutionContent solution={round.solution} />
-        <Results kind={round.game.kind} results={round.results} />
-      </div>
+      <SolutionContent solution={round.solution} />
     </>}
   </div>;
 }

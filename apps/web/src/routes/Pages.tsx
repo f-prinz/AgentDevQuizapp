@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { CreateLobbyResponseSchema, JoinPlayerResponseSchema, ServerMessageSchema, SessionSchema, type Session, type Snapshot } from "@raccoons/contracts";
-import { HostGameView, PlayerGameView, ProjectorGameView, ProjectorRanking } from "../GameViews";
+import { HostGameView, PlayerGameView, ProjectorGameView, ProjectorRanking, Results } from "../GameViews";
 
 type Role = "host" | "player" | "projector";
 
@@ -229,13 +229,15 @@ export function PlayerPage() {
 export function ProjectorPage() {
   const { lobbyId } = useParams();
   const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "projector");
+  // CHG-14: In der Aufloesung bekommen die Ergebnisse eine eigene Spalte
+  // zwischen Spielbereich und Rangliste; sonst bleibt das Layout zweispaltig.
+  const evalRound = snapshot?.role === "projector" && snapshot.round?.phase === "evaluation" ? snapshot.round : null;
   return <main className="projector" aria-label="Projektor">
     <LobbyStatus error={connectionError} />
-    <div className="projector-layout">
-      
-        {snapshot?.role === "projector" && <ProjectorGameView snapshot={snapshot} send={send} />}
-        {!snapshot && <p>Warte auf die Lobbyverbindung …</p>}
-      
+    <div className={`projector-layout${evalRound ? " projector-layout-eval" : ""}`}>
+      {snapshot?.role === "projector" && <ProjectorGameView snapshot={snapshot} send={send} />}
+      {!snapshot && <p>Warte auf die Lobbyverbindung …</p>}
+      {evalRound && <Results kind={evalRound.game.kind} results={evalRound.results} />}
       <section className="projector-ranking" aria-label="Rangliste"><h2>Rangliste</h2>
         {snapshot?.role === "projector" && <ProjectorRanking snapshot={snapshot} />}
         {!snapshot && <p>Warte auf die Lobbyverbindung …</p>}
