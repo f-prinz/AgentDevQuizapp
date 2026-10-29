@@ -1359,14 +1359,23 @@
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": true,
       "dependencies": [],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-9",
+        "INV-17"
+      ],
       "allowed_paths": [
         "apps/server",
         "apps/server/"
       ],
-      "implemented_by": "server_test_engineer"
+      "implemented_by": "server_developer",
+      "test_result": "79/79 gruen (sequentiell, --no-file-parallelism wg. Parallel-Timeouts)",
+      "review_result": "Keine Blocker; Live-Ranking + Transition pro Aufloesung korrekt, Scope/Stack ok",
+      "test_evidence": "tasks/evidence/CHG-12-2026-10-29T09-53-47-839Z.json",
+      "red_evidence": "tasks/evidence/CHG-12-2026-10-29T08-41-09-989Z.json",
+      "lint_evidence": "tasks/evidence/CHG-12-2026-10-29T09-51-14-917Z.json",
+      "reviewed_by": "code_reviewer"
     },
     {
       "id": "CHG-13",
@@ -1389,5 +1398,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-29T09:53:00.336Z"
+  "last_updated_utc": "2026-10-29T09:55:48.256Z"
 }
