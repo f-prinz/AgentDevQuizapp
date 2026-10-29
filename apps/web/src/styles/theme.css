@@ -7,3 +7,16 @@
   --color-text: #E2E8F0;
   --color-muted: #94A3B8;
 }
+
+/* FEAT-17: Light-Theme — gleiche Palette, helle Basis; Akzent/Danger dunkler
+   fuer ausreichenden Kontrast auf hellem Grund. */
+:root[data-theme="dark"] { color-scheme: dark; }
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-turquoise: #4F46E5;
+  --color-red: #DC2626;
+  --color-grey: #CBD5E1;
+  --color-bg: #F8FAFC;
+  --color-text: #0F172A;
+  --color-muted: #475569;
+}
