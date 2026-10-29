@@ -1363,7 +1363,8 @@
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
-        "apps/server"
+        "apps/server",
+        "apps/server/"
       ],
       "implemented_by": "server_test_engineer"
     },
@@ -1388,5 +1389,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-29T08:36:00.670Z"
+  "last_updated_utc": "2026-10-29T09:53:00.336Z"
 }
