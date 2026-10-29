@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -1418,7 +1418,7 @@
       "dependencies": [
         "FEAT-16"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
       "inventory_refs": [
         "INV-26"
@@ -1426,9 +1426,16 @@
       "allowed_paths": [
         "apps/web/"
       ],
-      "implemented_by": "web_test_engineer"
+      "implemented_by": "web_developer",
+      "test_result": "86/86 web tests, 7 Dateien",
+      "review_result": "pass - keine Blocker",
+      "test_evidence": "tasks/evidence/FEAT-17-2026-10-29T10-35-11-609Z.json",
+      "red_evidence": "tasks/evidence/FEAT-17-2026-10-29T10-30-53-021Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-17-2026-10-29T10-32-15-438Z.json",
+      "reviewed_by": "code_reviewer",
+      "review_file": "tasks/reviews/FEAT-17.md"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-29T10:34:21.503Z"
+  "last_updated_utc": "2026-10-29T10:35:53.615Z"
 }
