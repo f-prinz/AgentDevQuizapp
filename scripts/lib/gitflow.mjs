@@ -80,8 +80,14 @@ export const syncMain = () => {
   if (local === remoteSha) return { synced: true, reason: 'bereits aktuell' };
   const behind = git(`rev-list --count ${main}..${upstream}`);
   const ahead = git(`rev-list --count ${upstream}..${main}`);
-  if (ahead !== '0') {
-    return { synced: false, reason: `lokaler ${main} ist ${ahead} Commit(s) voraus — Divergenz, Nutzerentscheidung noetig`, diverged: true };
+  // Divergenz nur, wenn der Remote neue Commits hat und lokal vorgearbeitet
+  // wurde. Rein lokaler Vorsprung ist erwartbar (main wird nie gepusht) und
+  // hat nichts zu synchronisieren.
+  if (behind !== '0' && ahead !== '0') {
+    return { synced: false, reason: `lokaler ${main} ist ${ahead} voraus und ${behind} zurueck — Divergenz, Nutzerentscheidung noetig`, diverged: true };
+  }
+  if (behind === '0') {
+    return { synced: true, reason: `lokaler ${main} ${ahead} Commit(s) voraus — nichts zu holen` };
   }
   git(`checkout ${main}`);
   git(`pull --ff-only ${remote} ${main}`);
