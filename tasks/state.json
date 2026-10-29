@@ -1434,8 +1434,26 @@
       "lint_evidence": "tasks/evidence/FEAT-17-2026-10-29T10-32-15-438Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/FEAT-17.md"
+    },
+    {
+      "id": "CHG-14",
+      "component": "web",
+      "title": "Projektor: Ergebnisse als eigene Spalte neben Frage/Aufloesung; Rangliste feste Breite rechts",
+      "acceptance_criteria": "Aufloesung: .results ist Grid-Kind von .projector-layout zwischen Spielbereich und .projector-ranking (nicht mehr in .projector-eval); Rangliste-Spur konstante Breite (vw-basiert); Ergebnis-Spalte etwas breiter, gleiche Hoehe wie Rangliste; Frage/Aufloesung gestapelt und schmaler",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-13"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-29T10:35:53.615Z"
+  "last_updated_utc": "2026-10-29T11:05:39.794Z"
 }
