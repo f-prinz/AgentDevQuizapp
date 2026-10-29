@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { appRoutes } from "./app-routes";
 
 function renderAt(path: string) {
@@ -26,5 +26,43 @@ describe("role route smoke checks", () => {
     expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
     expect(screen.getByRole("main").className).toContain("projector");
     expect(document.querySelector(".projector-layout")).toBeTruthy();
+  });
+});
+
+describe("FEAT-17 theme toggle", () => {
+  afterEach(() => {
+    localStorage.clear();
+    document.documentElement.removeAttribute("data-theme");
+    vi.unstubAllGlobals();
+  });
+
+  it.each(["/", "/projector", "/admin"])("renders the toggle button on %s", path => {
+    renderAt(path);
+    expect(screen.getByRole("button", { name: /modus/i })).toBeTruthy();
+  });
+
+  it("defaults to dark, switches to light on click and persists the choice", () => {
+    renderAt("/");
+    expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
+    fireEvent.click(screen.getByRole("button", { name: /hellen modus/i }));
+    expect(document.documentElement.getAttribute("data-theme")).toBe("light");
+    expect(localStorage.getItem("theme")).toBe("light");
+    expect(screen.getByRole("button", { name: /dunklen modus/i })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /dunklen modus/i }));
+    expect(document.documentElement.getAttribute("data-theme")).toBe("dark");
+    expect(localStorage.getItem("theme")).toBe("dark");
+  });
+
+  it("restores a persisted light choice", () => {
+    localStorage.setItem("theme", "light");
+    renderAt("/");
+    expect(document.documentElement.getAttribute("data-theme")).toBe("light");
+    expect(screen.getByRole("button", { name: /dunklen modus/i })).toBeTruthy();
+  });
+
+  it("follows prefers-color-scheme when nothing is persisted", () => {
+    vi.stubGlobal("matchMedia", (query: string) => ({ matches: /light/.test(query), media: query, addEventListener: () => {}, removeEventListener: () => {} }));
+    renderAt("/");
+    expect(document.documentElement.getAttribute("data-theme")).toBe("light");
   });
 });

@@ -6,6 +6,10 @@ body { min-width: 20rem; min-height: 100vh; margin: 0; background: var(--color-b
 a { color: var(--color-turquoise); text-underline-offset: 0.2em; }
 a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem; }
 .app-shell { min-height: 100vh; }
+/* FEAT-17: Theme-Toggle immer oben rechts, auf jeder Ansicht. */
+.theme-toggle { position: fixed; top: 0.75rem; right: 0.75rem; z-index: 50; display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border: 1px solid var(--color-grey); border-radius: 50%; color: var(--color-text); background: var(--color-bg); cursor: pointer; }
+.theme-toggle svg { width: 1.25rem; height: 1.25rem; }
+.theme-toggle:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.15rem; }
 .page { width: min(100% - 2rem, 48rem); margin-inline: auto; }
 .page h1 { margin-top: 0; font-size: clamp(2rem, 8vw, 3.5rem); }
 .page p, .projector-layout p { max-width: 65ch; color: var(--color-muted); line-height: 1.6; }
