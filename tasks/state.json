@@ -1349,8 +1349,43 @@
       "lint_evidence": "tasks/evidence/CHG-11-2026-10-28T16-23-05-843Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/CHG-11.md"
+    },
+    {
+      "id": "CHG-12",
+      "component": "server",
+      "title": "Rangliste live: alle Spieler immer, laufende Runde eingerechnet",
+      "acceptance_criteria": "rankingTransition bleibt kompatibel",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/server"
+      ]
+    },
+    {
+      "id": "CHG-13",
+      "component": "web",
+      "title": "Projektor: Rangliste immer als Tabelle mit Icon-Headern, Frage gross an Regel-Position, Ergebnis-Tabelle rechts",
+      "acceptance_criteria": "Tabelle fuer 25 Spieler tauglich, nach Punkten/Platz sortiert",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-12"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allows_dep_change": true,
+      "allowed_paths": [
+        "apps/web"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-28T16:27:13.254Z"
+  "last_updated_utc": "2026-10-29T08:35:29.522Z"
 }
