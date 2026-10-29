@@ -120,24 +120,33 @@ describe("FEAT-6 projector overview", () => {
     const view = renderRole("projector");
     await deliver(view, snapshot("projector", { ranking }));
     const table = screen.getByRole("table");
-    const headers = Array.from(table.querySelectorAll("th")).map(cell => cell.textContent);
+    // CHG-13: Koepfe zeigen Icons; die Labels bleiben als aria-label.
+    const headers = Array.from(table.querySelectorAll("th"));
     expect(headers).toHaveLength(3);
-    expect(headers[0]).toMatch(/platz/i);
-    expect(headers[1]).toMatch(/punkte/i);
-    expect(headers[2]).toMatch(/name|spieler/i);
+    expect(headers.map(cell => cell.getAttribute("aria-label"))).toEqual(["Platz", "Punkte", "Spielername"]);
+    expect(headers.every(cell => cell.querySelector("svg") !== null)).toBe(true);
     const rows = table.querySelectorAll("tbody tr");
     expect(rows).toHaveLength(2);
     expect(rows[0].textContent).toContain("Ada");
     expect(rows[0].textContent).toContain("5");
   });
 
-  it("shows only the player names when no game has been played", async () => {
+  it("shows all players at zero in the ranking table before any game", async () => {
     const view = renderRole("projector");
-    await deliver(view, snapshot("projector", { catalog: catalog.map(entry => ({ ...entry, played: false })) }));
-    expect(screen.queryByRole("table")).toBeNull();
+    await deliver(view, snapshot("projector", {
+      catalog: catalog.map(entry => ({ ...entry, played: false })),
+      // CHG-12/13: Alle Spieler mit 0 Punkten — die Tabelle ist immer sichtbar.
+      ranking: [
+        { playerId: "player-1", name: "Ada", rank: 1, total: 0, games: [] },
+        { playerId: "player-2", name: "Bo", rank: 1, total: 0, games: [] },
+      ],
+    }));
     const list = await screen.findByRole("region", { name: /rangliste/i });
+    expect(list.querySelector("table")).toBeTruthy();
     expect(list.textContent).toContain("Ada");
     expect(list.textContent).toContain("Bo");
+    expect(list.querySelectorAll("tbody tr")).toHaveLength(2);
+    expect(list.querySelector("ol.ranking-names")).toBeNull();
   });
 
   it("animates the ranking transition: previous standings first, then updated totals and order", async () => {

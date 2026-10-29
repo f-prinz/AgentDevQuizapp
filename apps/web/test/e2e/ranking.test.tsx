@@ -62,12 +62,16 @@ describe("e2e: ranking overview lifecycle on the projector", () => {
   it("grows the ranking table over two finished games with a transition", async () => {
     const view = await renderProjector();
 
-    // Leere Uebersicht: keine Tabelle, nur Spielernamen.
-    await view.deliver(snapshot());
-    expect(screen.queryByRole("table")).toBeNull();
+    // CHG-12/13: Tabelle ist von Anfang an da — alle Spieler mit 0 Punkten.
+    await view.deliver(snapshot({ ranking: [
+      { playerId: "player-1", name: "Ada", rank: 1, total: 0, games: [] },
+      { playerId: "player-2", name: "Bo", rank: 1, total: 0, games: [] },
+    ] }));
     const list = await screen.findByRole("region", { name: /rangliste/i });
+    expect(list.querySelector("table")).toBeTruthy();
     expect(list.textContent).toContain("Ada");
     expect(list.textContent).toContain("Bo");
+    expect(list.querySelector("ol.ranking-names")).toBeNull();
 
     // Erstes Spiel gespielt: Rangliste nur mit Platz/Punkte/Name + Uebergangs-Animation (CHG-4).
     const afterOne = snapshot({
@@ -93,8 +97,8 @@ describe("e2e: ranking overview lifecycle on the projector", () => {
     const table = await screen.findByRole("table");
     expect(table).toBeTruthy();
     await waitFor(() => expect(table.getAttribute("data-ranking-stage")).toBe("after"), { timeout: 6_000 });
-    const headers = Array.from(table.querySelectorAll("th")).map(cell => cell.textContent);
-    expect(headers).toEqual(["Platz", "Punkte", "Spielername"]);
+    const headers = Array.from(table.querySelectorAll("th"));
+    expect(headers.map(cell => cell.getAttribute("aria-label"))).toEqual(["Platz", "Punkte", "Spielername"]);
     const firstRow = table.querySelectorAll("tbody tr")[0];
     expect(firstRow.textContent).toContain("Ada");
     expect(firstRow.textContent).toContain("3");
@@ -114,9 +118,8 @@ describe("e2e: ranking overview lifecycle on the projector", () => {
       ],
     }));
     const grownTable = await screen.findByRole("table");
-    const grownHeaders = Array.from(grownTable.querySelectorAll("th")).map(cell => cell.textContent);
-    expect(grownHeaders).toEqual(["Platz", "Punkte", "Spielername"]);
-    expect(grownHeaders).not.toContain("Spiel 1");
+    const grownHeaders = Array.from(grownTable.querySelectorAll("th"));
+    expect(grownHeaders.map(cell => cell.getAttribute("aria-label"))).toEqual(["Platz", "Punkte", "Spielername"]);
     const grownRows = grownTable.querySelectorAll("tbody tr");
     expect(grownRows[0].textContent).toContain("Bo");
     expect(grownRows[0].textContent).toContain("6");
