@@ -375,8 +375,10 @@ describe("CHG-3 game phase views", () => {
     const ranking = await screen.findByRole("region", { name: /rangliste/i });
     expect(ranking.textContent).toContain("Ada");
     expect(ranking.textContent).toContain("5");
-    const headers = Array.from(ranking.querySelectorAll("th")).map(cell => cell.textContent);
-    expect(headers).toEqual(["Platz", "Punkte", "Spielername"]);
+    // CHG-13: Tabellenkoepfe zeigen Icons; die Labels bleiben als aria-label.
+    const headers = Array.from(ranking.querySelectorAll("th"));
+    expect(headers.map(cell => cell.getAttribute("aria-label"))).toEqual(["Platz", "Punkte", "Spielername"]);
+    expect(headers.every(cell => cell.querySelector("svg") !== null)).toBe(true);
     expect(screen.queryByRole("region", { name: /teilnehmerstatus/i })).toBeNull();
     expect(screen.queryByText(/verbunden|getrennt/i)).toBeNull();
     expect(await screen.findByText(/Welche Stadt/)).toBeTruthy();
@@ -491,12 +493,12 @@ describe("FEAT-10 sorting views", () => {
     expect(await screen.findByText(/Ordne die Jahre/)).toBeTruthy();
   });
 
-  it("shows the solution order with values and per-player errors on the projector", async () => {
+  it("shows the solution order and a rank-sorted results table on the projector", async () => {
     const view = renderRole("projector");
     await deliver(view, snapshot("projector", "evaluation", {
       round: { ...sortingEval, results: [
-        { playerId: "player-1", name: "Ada", points: 3, rank: 1, distance: null, errors: 0 },
         { playerId: "player-2", name: "Bo", points: 1, rank: 2, distance: null, errors: 2 },
+        { playerId: "player-1", name: "Ada", points: 3, rank: 1, distance: null, errors: 0 },
       ] },
     }));
     await waitFor(() => expect(document.querySelector(".projector-game")).toBeTruthy());
@@ -505,8 +507,12 @@ describe("FEAT-10 sorting views", () => {
     expect(orderedTerms[0]).toContain("Mondlandung");
     expect(orderedTerms[0]).toContain("1969");
     expect(orderedTerms[2]).toContain("Internet");
-    expect(display.textContent).toMatch(/Ada.*0\s*Fehler|Ada.*\b0\b/i);
-    expect(display.textContent).toMatch(/Bo.*2\s*Fehler/i);
+    // CHG-13: Ergebnisse als Tabelle — Platzierung, Punkte, Spielername; nach Platz sortiert.
+    const headers = Array.from(display.querySelectorAll(".results-table th"));
+    expect(headers.map(cell => cell.getAttribute("aria-label"))).toEqual(["Platzierung", "Punkte", "Spielername"]);
+    const rows = Array.from(display.querySelectorAll(".results-table tbody tr"));
+    expect(rows[0].textContent).toContain("Ada");
+    expect(rows[1].textContent).toContain("Bo");
   });
 
   it("keeps the sorting terms secret from the projector during play", async () => {
@@ -555,7 +561,6 @@ describe("FEAT-12 estimation views", () => {
   it("lists players by rank with distance on the projector", async () => {
     const view = renderRole("projector");
     await deliver(view, snapshot("projector", "evaluation", {
-      // CHG-8: Ergebnisse werden nach geringstem Abstand sortiert — Eingang absichtlich unsortiert.
       round: { ...estimationEval, results: [
         { playerId: "player-2", name: "Bo", points: 1, rank: 2, distance: 42, errors: null },
         { playerId: "player-1", name: "Ada", points: 3, rank: 1, distance: 5, errors: null },
@@ -564,12 +569,15 @@ describe("FEAT-12 estimation views", () => {
     await waitFor(() => expect(document.querySelector(".projector-game")).toBeTruthy());
     const display = document.querySelector(".projector-game")!;
     expect(display.textContent).toContain("330");
-    const resultRows = display.querySelectorAll("ol li");
+    // CHG-13: Schaetz-Ergebnisse als Tabelle — Platzierung, Punkte, Differenz,
+    // Spielername; nach Platzierung sortiert (Eingang absichtlich unsortiert).
+    const headers = Array.from(display.querySelectorAll(".results-table th"));
+    expect(headers.map(cell => cell.getAttribute("aria-label"))).toEqual(["Platzierung", "Punkte", "Differenz", "Spielername"]);
+    const resultRows = display.querySelectorAll(".results-table tbody tr");
     expect(resultRows[0].textContent).toContain("Ada");
-    expect(resultRows[0].textContent).toMatch(/platz\s*1/i);
-    expect(resultRows[0].textContent).toMatch(/abstand\s*5/i);
+    expect(resultRows[0].textContent).toContain("5");
     expect(resultRows[1].textContent).toContain("Bo");
-    expect(resultRows[1].textContent).toMatch(/abstand\s*42/i);
+    expect(resultRows[1].textContent).toContain("42");
   });
 });
 
@@ -609,5 +617,78 @@ describe("FEAT-8 quiz views", () => {
     for (const option of ["Paris", "Lyon", "Marseille", "Toulouse"]) {
       expect(screen.queryByText(option)).toBeNull();
     }
+  });
+});
+
+describe("CHG-13 projector ranking and result tables", () => {
+  it("shows all players at zero points as a table before the first game", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "start", {
+      ranking: [
+        { playerId: "player-1", name: "Ada", rank: 1, total: 0, games: [] },
+        { playerId: "player-2", name: "Bo", rank: 1, total: 0, games: [] },
+        { playerId: "player-3", name: "Cyd", rank: 1, total: 0, games: [] },
+      ],
+    }));
+    const ranking = await screen.findByRole("region", { name: /rangliste/i });
+    const rows = Array.from(ranking.querySelectorAll("table tbody tr")).map(row => row.textContent);
+    expect(rows).toHaveLength(3);
+    for (const row of rows) expect(row).toContain("0");
+    expect(rows.map(row => row).join()).toMatch(/Ada|Bo|Cyd/);
+    expect(ranking.querySelector("ol.ranking-names")).toBeNull();
+  });
+
+  it("keeps the table element even when the ranking is empty", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "start"));
+    const ranking = await screen.findByRole("region", { name: /rangliste/i });
+    expect(ranking.querySelector("table")).toBeTruthy();
+    expect(ranking.querySelector("ol.ranking-names")).toBeNull();
+  });
+
+  it("renders quiz results as a points-sorted table (Punkte, Spielername)", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "evaluation", {
+      round: { results: [
+        { playerId: "player-1", name: "Ada", points: 0, rank: null, distance: null, errors: null },
+        { playerId: "player-2", name: "Bo", points: 2, rank: null, distance: null, errors: null },
+      ] },
+    }));
+    await waitFor(() => expect(document.querySelector(".results-table")).toBeTruthy());
+    const table = document.querySelector(".results-table")!;
+    const headers = Array.from(table.querySelectorAll("th"));
+    expect(headers.map(cell => cell.getAttribute("aria-label"))).toEqual(["Punkte", "Spielername"]);
+    const rows = Array.from(table.querySelectorAll("tbody tr"));
+    expect(rows[0].textContent).toContain("Bo");
+    expect(rows[1].textContent).toContain("Ada");
+  });
+
+  it("keeps the question in the stage slot like the rules text in every phase", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "start"));
+    const stageStart = document.querySelector(".projector-game .projector-stage")!;
+    expect(stageStart.textContent).toContain("Eine Antwort");
+    await deliver(view, snapshot("projector", "playing", {
+      revision: 2,
+      round: { task: { kind: "quiz", question: "Welche Stadt ist die Hauptstadt von Frankreich?" } },
+    }));
+    const stagePlaying = document.querySelector(".projector-game .projector-stage")!;
+    expect(stagePlaying.textContent).toContain("Welche Stadt");
+    expect(stagePlaying.querySelector(".projector-count")?.textContent).toContain("Frage 1 von 2");
+  });
+
+  it("keeps the question on top and shows solution left plus results table right in evaluation", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "evaluation", {
+      round: { results: [
+        { playerId: "player-1", name: "Ada", points: 1, rank: null, distance: null, errors: null },
+      ] },
+    }));
+    await waitFor(() => expect(document.querySelector(".projector-eval")).toBeTruthy());
+    const stage = document.querySelector(".projector-game .projector-stage")!;
+    expect(stage.textContent).toContain("Welche Stadt");
+    const evalGrid = document.querySelector(".projector-eval")!;
+    expect(evalGrid.firstElementChild?.className).toContain("solution");
+    expect(evalGrid.lastElementChild?.querySelector(".results-table")).toBeTruthy();
   });
 });

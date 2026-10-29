@@ -4,6 +4,7 @@ import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, v
 import { CSS } from "@dnd-kit/utilities";
 import * as QRCodeModule from "react-qr-code";
 import type { QRCodeProps } from "react-qr-code";
+import { Podium, Ruler, Star, User } from "lucide-react";
 import type { Answer, HostSnapshot, PlayerSnapshot, ProjectorSnapshot, RankingEntry, Snapshot, Timer } from "@raccoons/contracts";
 
 // BUG-2: react-qr-code ist reines CJS — je nach Interop (Vite-Dev vs. Vitest)
@@ -93,9 +94,14 @@ function RankingTable({ ranking, transition }: { ranking: RankingEntry[]; transi
     return next ? Math.round(entry.total + (next.total - entry.total) * progress) : entry.total;
   };
 
-  if (shown.length === 0) return null;
+  // CHG-13: Die Tabelle bleibt immer sichtbar (kein Flackern bei leeren
+  // Snapshots); Koepfe zeigen Icons, Labels bleiben als aria-label.
   return <table className={`ranking-table ranking-${stage}`} data-ranking-stage={stage}>
-    <thead><tr><th>Platz</th><th>Punkte</th><th>Spielername</th></tr></thead>
+    <thead><tr>
+      <th aria-label="Platz"><Podium aria-hidden size="1em" /></th>
+      <th aria-label="Punkte"><Star aria-hidden size="1em" /></th>
+      <th aria-label="Spielername"><User aria-hidden size="1em" /></th>
+    </tr></thead>
     <tbody>{shown.map(entry => <tr key={entry.playerId} className={stage === "after" && transition ? "ranking-row-final" : ""}>
       <td>{entry.rank}</td><td>{displayTotal(entry)}</td><td>{entry.name}</td>
     </tr>)}</tbody>
@@ -135,16 +141,28 @@ function TimerDisplay({ timer, size }: { timer: Timer; size: "compact" | "large"
   return <p className={`game-timer timer-${size}`} role="timer" aria-label={`Verbleibende Zeit: ${remaining} Sekunden`}>{remaining} s</p>;
 }
 
-function Results({ results }: { results: Array<{ playerId: string; name: string; points: number; rank: number | null; distance: number | null; errors: number | null }> }) {
-  if (results.length === 0) return <p>Noch keine Ergebnisse vorhanden.</p>;
-  // CHG-8: Ergebnisse mit Abstand (Schaetzen) aufsteigend nach Abstand sortieren;
-  // Eintraege ohne Abstand (Quiz/Sortieren) bleiben in ihrer Reihenfolge.
-  const sorted = [...results].sort((a, b) => (a.distance ?? Number.MAX_SAFE_INTEGER) - (b.distance ?? Number.MAX_SAFE_INTEGER));
-  return <section aria-label="Ergebnisse"><h3>Ergebnisse</h3><ol>{sorted.map(result => <li key={result.playerId}>
-    {result.name}: {result.points} Punkte{result.rank ? `, Platz ${result.rank}` : ""}
-    {result.distance !== null ? `, Abstand ${result.distance}` : ""}
-    {result.errors !== null ? `, ${result.errors} Fehler` : ""}
-  </li>)}</ol></section>;
+function Results({ kind, results }: { kind: "quiz" | "sorting" | "estimation"; results: Array<{ playerId: string; name: string; points: number; rank: number | null; distance: number | null; errors: number | null }> }) {
+  if (results.length === 0) return <section className="results" aria-label="Ergebnisse"><h3>Ergebnisse</h3><p>Noch keine Ergebnisse vorhanden.</p></section>;
+  // CHG-13: Ergebnisse als kompakte Tabelle (bis 25 Spieler) — sortiert nach
+  // Platzierung, bei Spielen ohne Rang (Quiz) nach Punkten absteigend.
+  const sorted = [...results].sort((a, b) =>
+    (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER) || b.points - a.points);
+  const withRank = kind !== "quiz";
+  const withDistance = kind === "estimation";
+  return <section className="results" aria-label="Ergebnisse"><h3>Ergebnisse</h3>
+    <table className="results-table"><thead><tr>
+      {withRank && <th aria-label="Platzierung"><Podium aria-hidden size="1em" /></th>}
+      <th aria-label="Punkte"><Star aria-hidden size="1em" /></th>
+      {withDistance && <th aria-label="Differenz"><Ruler aria-hidden size="1em" /></th>}
+      <th aria-label="Spielername"><User aria-hidden size="1em" /></th>
+    </tr></thead>
+    <tbody>{sorted.map(result => <tr key={result.playerId}>
+      {withRank && <td>{result.rank ?? "–"}</td>}
+      <td>{result.points}</td>
+      {withDistance && <td>{result.distance ?? "–"}</td>}
+      <td>{result.name}</td>
+    </tr>)}</tbody></table>
+  </section>;
 }
 
 export function HostGameView({ snapshot, send }: { snapshot: HostSnapshot; send: Send }) {
@@ -178,7 +196,8 @@ export function HostGameView({ snapshot, send }: { snapshot: HostSnapshot; send:
 }
 
 function SolutionContent({ solution }: { solution: { kind: "quiz"; question: string; options: Array<{ id: string; text: string }>; correctOptionId: string } | { kind: "sorting"; question: string; terms: Array<{ id: string; text: string; value: number }> } | { kind: "estimation"; question: string; target: number } }) {
-  return <div className="solution"><h3>Auflösung</h3><p>{solution.question}</p>
+  // CHG-13: Die Frage steht im Stage-Slot ueber dem Eval-Grid, nicht in der Box.
+  return <div className="solution"><h3>Auflösung</h3>
     {solution.kind === "quiz" && <ul className="answer-feedback" aria-label="Auflösung der Antworten">{solution.options.map(option => {
       const correct = option.id === solution.correctOptionId;
       const state = correct ? "correct" : "neutral";
@@ -288,10 +307,9 @@ function answerLabel(answer: Answer, options: Array<{ id: string; text: string }
 }
 
 export function ProjectorRanking({ snapshot }: { snapshot: ProjectorSnapshot }) {
-  return <>
-    <RankingTable ranking={snapshot.ranking} transition={snapshot.rankingTransition} />
-    {snapshot.ranking.length === 0 && <ol className="ranking-names">{snapshot.participants.map(participant => <li key={participant.id}>{participant.name || `Spieler ${participant.number}`}</li>)}</ol>}
-  </>;
+  // CHG-13: Kein Namenslisten-Fallback mehr — die Tabelle ist immer da und
+  // zeigt seit CHG-12 alle Spieler auch vor dem ersten Spiel mit 0 Punkten.
+  return <RankingTable ranking={snapshot.ranking} transition={snapshot.rankingTransition} />;
 }
 
 export function ProjectorGameView({ snapshot }: { snapshot: ProjectorSnapshot; send: Send }) {
@@ -314,10 +332,22 @@ export function ProjectorGameView({ snapshot }: { snapshot: ProjectorSnapshot; s
       </div>
     </section>;
   }
+  // CHG-13: '.projector-stage' ist in allen Phasen derselbe Slot — Regeltext,
+  // Frage und Aufloesungs-Frage stehen an identischer Position. In der
+  // Auswertung steht die Aufloesung links und die Ergebnis-Tabelle rechts.
   return <div className="projector-game">
     {round.game.kind !== "sorting" && <h3>{round.game.title}</h3>}
-    {round.phase === "start" && <><p>{round.game.rules}</p><p>Das Spiel beginnt gleich …</p></>}
-    {round.phase === "playing" && <><h4>Frage {round.questionIndex + 1} von {round.questionCount}</h4><p className="projector-question">{round.task.question}</p><TimerDisplay timer={round.timer} size="large" /></>}
-    {round.phase === "evaluation" && <><SolutionContent solution={round.solution} /><Results results={round.results} /></>}
+    {round.phase === "start" && <><p className="projector-stage">{round.game.rules}</p><p>Das Spiel beginnt gleich …</p></>}
+    {round.phase === "playing" && <>
+      <p className="projector-stage projector-question"><span className="projector-count">Frage {round.questionIndex + 1} von {round.questionCount}</span>{round.task.question}</p>
+      <TimerDisplay timer={round.timer} size="large" />
+    </>}
+    {round.phase === "evaluation" && <>
+      <p className="projector-stage projector-question"><span className="projector-count">Frage {round.questionIndex + 1} von {round.questionCount}</span>{round.solution.question}</p>
+      <div className="projector-eval">
+        <SolutionContent solution={round.solution} />
+        <Results kind={round.game.kind} results={round.results} />
+      </div>
+    </>}
   </div>;
 }

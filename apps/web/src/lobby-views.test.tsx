@@ -34,9 +34,11 @@ function snapshot(role: "host" | "player" | "projector") {
     serverTime: Date.now(),
     phase: "lobby",
     participants: [{ id: "player-1", name: "Spieler 1", number: 1, connected: true, waiting: false }],
+  // CHG-12/13: Der Server liefert alle Spieler immer im Ranking — auch in der
+  // Lobby und vor dem ersten Spiel.
+  ranking: [{ playerId: "player-1", name: "Spieler 1", rank: 1, total: 0, games: [] }],
     catalog: [],
     selectedGameId: null,
-    ranking: [],
     rankingTransition: null,
     role,
     ...(role === "host" ? { canStartLobby: false, links: { player: `/lobbies/${lobbyId}/join`, projector: `/lobbies/${lobbyId}/projector#sessionId=projector-session&token=${"x".repeat(43)}` } } : {}),
@@ -274,7 +276,8 @@ describe("CHG-1 shell and player base", () => {
     expect(screen.queryByRole("region", { name: /teilnehmer/i })).toBeNull();
     expect(screen.queryByRole("region", { name: /dein spielstand/i })).toBeNull();
     // CHG-6: Der Name steht nur noch in der Identitätszeile — keine Statuskarte.
-    const nameOccurrences = screen.queryAllByText("Spieler 1");
+    // CHG-12/13: Die Zeile enthaelt jetzt auch Punkte/Rang ("Spieler 1 - 0 (1)").
+    const nameOccurrences = screen.queryAllByText(/Spieler 1/);
     expect(nameOccurrences.every(el => el.classList.contains("player-identity"))).toBe(true);
     expect(nameOccurrences).toHaveLength(1);
   });
