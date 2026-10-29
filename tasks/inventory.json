@@ -545,7 +545,22 @@
       "introduced_by": "CHG-10",
       "removed_by": null,
       "notes": "Tokens: bg/text/muted/accent/danger; gewaehlte Antwort = Akzent, falsch = Danger"
+    },
+    {
+      "id": "INV-26",
+      "capability": "Light/Dark-Theme-Umschaltung per Icon-Button (Sonne/Mond) oben rechts auf allen Ansichten, persistiert in localStorage",
+      "component": "web",
+      "status": "active",
+      "anchors": [
+        {
+          "type": "test",
+          "ref": "apps/web/src/app-routes.test.tsx"
+        }
+      ],
+      "introduced_by": "FEAT-17",
+      "removed_by": null,
+      "notes": ""
     }
   ],
-  "last_updated_utc": "2026-10-28T15:57:53.482Z"
+  "last_updated_utc": "2026-10-29T10:33:33.594Z"
 }
