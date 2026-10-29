@@ -169,7 +169,10 @@ describe('e2e: estimation round flow', () => {
     expect(projEval.round.solution.kind).toBe('estimation');
     expect(projEval.round.results.find(result => result.name === 'Ada')?.distance).toBe(10);
 
-    const backToOverview = projector.inbox.waitFor(m => m.type === 'snapshot' && m.phase === 'overview' && m.ranking.length > 0);
+    // CHG-12: ranking.length > 0 ist seit dem Live-Ranking immer wahr —
+    // auf den played-Status des Spiels warten.
+    const backToOverview = projector.inbox.waitFor(m => m.type === 'snapshot' && m.phase === 'overview'
+      && m.catalog.find(game => game.id === 'e2e_estimate_game')?.played === true);
     await send(host.socket, host.inbox, 'finish', { type: 'game.finish', roundId });
     const final = await backToOverview;
     if (final.type !== 'snapshot') throw new Error('Expected overview snapshot.');
