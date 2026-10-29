@@ -1388,15 +1388,17 @@
       "dependencies": [
         "CHG-12"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allows_dep_change": true,
       "allowed_paths": [
-        "apps/web"
-      ]
+        "apps/web",
+        "apps/web/"
+      ],
+      "implemented_by": "web_test_engineer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-29T09:55:48.256Z"
+  "last_updated_utc": "2026-10-29T09:56:16.185Z"
 }
