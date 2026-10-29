@@ -403,12 +403,18 @@ describe('server game state and round timers', () => {
 
     expect((await command(host, 'lobby.start')).type).toBe('ack');
     const initialOverview = await snapshot(host, value => value.phase === 'overview');
-    expect(initialOverview.ranking).toEqual([]);
+    // CHG-12: Die Rangliste enthaelt alle Spieler auch vor dem ersten Spiel.
+    const initialRanking = [
+      { playerId: playerIds[0], name: 'Player one', rank: 1, total: 0, games: [] },
+      { playerId: playerIds[1], name: 'Player two', rank: 1, total: 0, games: [] },
+      { playerId: playerIds[2], name: 'Player three', rank: 1, total: 0, games: [] },
+    ];
+    expect(initialOverview.ranking).toEqual(initialRanking);
     const initialPlayerSnapshots = await Promise.all(players.map(player => snapshot(player,
       value => value.phase === 'overview')));
-    for (const playerSnapshot of initialPlayerSnapshots) {
+    for (const [index, playerSnapshot] of initialPlayerSnapshots.entries()) {
       expect(playerSnapshot.role).toBe('player');
-      expect(playerSnapshot.ranking).toEqual([]);
+      expect(playerSnapshot.ranking).toEqual([initialRanking[index]]);
     }
     expect(initialOverview.catalog.find(game => game.id === 'quiz_game')?.played).toBe(false);
     expect(initialOverview.catalog.find(game => game.id === 'sorting_game')?.played).toBe(false);
@@ -434,8 +440,19 @@ describe('server game state and round timers', () => {
     expect((await command(host, 'game.reveal', { roundId: firstRoundId })).type).toBe('ack');
     const firstEvaluation = await snapshot(host, value => value.phase === 'evaluation'
       && value.round?.roundId === firstRoundId);
-    expect(firstEvaluation.ranking).toEqual([]);
-    expect(firstEvaluation.rankingTransition).toBeNull();
+    // CHG-12: Waehrend der Runde enthaelt games einen Eintrag fuer das laufende Spiel.
+    const preparedRanking = initialRanking.map(entry => ({ ...entry, games: [{ gameId: 'quiz_game', points: 0 }] }));
+    const firstRanking = [
+      { playerId: playerIds[0], name: 'Player one', rank: 1, total: 1, games: [{ gameId: 'quiz_game', points: 1 }] },
+      { playerId: playerIds[1], name: 'Player two', rank: 1, total: 1, games: [{ gameId: 'quiz_game', points: 1 }] },
+      { playerId: playerIds[2], name: 'Player three', rank: 3, total: 0, games: [{ gameId: 'quiz_game', points: 0 }] },
+    ];
+    expect(firstEvaluation.ranking).toEqual(firstRanking);
+    expect(firstEvaluation.rankingTransition).toMatchObject({
+      gameId: 'quiz_game',
+      previous: preparedRanking,
+      current: firstRanking,
+    });
     expect(firstEvaluation.catalog.find(game => game.id === 'quiz_game')?.played).toBe(false);
 
     clock.set(clock.now() + 1_000);
@@ -450,8 +467,16 @@ describe('server game state and round timers', () => {
     expect((await command(host, 'game.reveal', { roundId: secondRoundId })).type).toBe('ack');
     const finalEvaluation = await snapshot(host, value => value.phase === 'evaluation'
       && value.round?.roundId === secondRoundId);
-    expect(finalEvaluation.ranking).toEqual([]);
-    expect(finalEvaluation.rankingTransition).toBeNull();
+    const expectedRanking = [
+      { playerId: playerIds[0], name: 'Player one', rank: 1, total: 2, games: [{ gameId: 'quiz_game', points: 2 }] },
+      { playerId: playerIds[1], name: 'Player two', rank: 1, total: 2, games: [{ gameId: 'quiz_game', points: 2 }] },
+      { playerId: playerIds[2], name: 'Player three', rank: 3, total: 0, games: [{ gameId: 'quiz_game', points: 0 }] },
+    ];
+    expect(finalEvaluation.ranking).toEqual(expectedRanking);
+    expect(finalEvaluation.rankingTransition).toMatchObject({
+      previous: firstRanking,
+      current: expectedRanking,
+    });
     expect(finalEvaluation.catalog.find(game => game.id === 'quiz_game')?.played).toBe(false);
 
     expect((await command(host, 'game.finish', { roundId: secondRoundId })).type).toBe('ack');
@@ -463,11 +488,6 @@ describe('server game state and round timers', () => {
       throw new Error('Expected completed ranking snapshots for host and projector.');
     }
 
-    const expectedRanking = [
-      { playerId: playerIds[0], name: 'Player one', rank: 1, total: 2, games: [{ gameId: 'quiz_game', points: 2 }] },
-      { playerId: playerIds[1], name: 'Player two', rank: 1, total: 2, games: [{ gameId: 'quiz_game', points: 2 }] },
-      { playerId: playerIds[2], name: 'Player three', rank: 3, total: 0, games: [{ gameId: 'quiz_game', points: 0 }] },
-    ];
     expect(completedHost.ranking).toEqual(expectedRanking);
     expect(completedProjector.ranking).toEqual(expectedRanking);
     const completedPlayerSnapshots = await Promise.all(players.map(player => snapshot(player,
@@ -479,8 +499,8 @@ describe('server game state and round timers', () => {
     }
     expect(completedHost.rankingTransition).not.toBeNull();
     expect(completedProjector.rankingTransition).not.toBeNull();
-    expect(completedHost.rankingTransition?.previous).toEqual([]);
-    expect(completedProjector.rankingTransition?.previous).toEqual([]);
+    expect(completedHost.rankingTransition?.previous).toEqual(firstRanking);
+    expect(completedProjector.rankingTransition?.previous).toEqual(firstRanking);
     expect(completedHost.rankingTransition?.current).toEqual(expectedRanking);
     expect(completedProjector.rankingTransition?.current).toEqual(expectedRanking);
     expect(completedHost.rankingTransition?.resultId).toBe(completedProjector.rankingTransition?.resultId);
@@ -518,8 +538,10 @@ describe('server game state and round timers', () => {
     ]);
     expect(hostEvaluation.catalog.find(game => game.id === 'sorting_game')?.played).toBe(false);
     expect(projectorEvaluation.catalog.find(game => game.id === 'sorting_game')?.played).toBe(false);
-    expect(hostEvaluation.rankingTransition).toBeNull();
-    expect(projectorEvaluation.rankingTransition).toBeNull();
+    // CHG-12: Die Transition feuert bereits bei der Aufloesung — die Rangliste
+    // aktualisiert sich pro Frage statt erst beim Beenden des Spiels.
+    expect(hostEvaluation.rankingTransition).not.toBeNull();
+    expect(projectorEvaluation.rankingTransition).not.toBeNull();
 
     expect((await command(round.host, 'game.finish', { roundId: round.roundId })).type).toBe('ack');
     const [completedHost, completedProjector] = await Promise.all([
@@ -536,8 +558,13 @@ describe('server game state and round timers', () => {
     expect(completedProjector.ranking).toEqual(completedHost.ranking);
     expect(completedHost.rankingTransition).not.toBeNull();
     expect(completedProjector.rankingTransition).not.toBeNull();
-    expect(completedHost.rankingTransition?.previous).toEqual([]);
-    expect(completedProjector.rankingTransition?.previous).toEqual([]);
+    // CHG-12: previous ist der angezeigte Stand vor der Aufloesung — alle
+    // Spieler mit 0 Punkten, das laufende Spiel bereits als games-Eintrag.
+    const beforeReveal = completedHost.ranking.map(entry => ({
+      ...entry, rank: 1, total: 0, games: [{ gameId: 'sorting_game', points: 0 }],
+    }));
+    expect(completedHost.rankingTransition?.previous).toEqual(beforeReveal);
+    expect(completedProjector.rankingTransition?.previous).toEqual(beforeReveal);
     expect(completedHost.rankingTransition?.current).toEqual(completedHost.ranking);
     expect(completedProjector.rankingTransition?.current).toEqual(completedProjector.ranking);
     expect(completedHost.rankingTransition?.resultId).toBe(completedProjector.rankingTransition?.resultId);

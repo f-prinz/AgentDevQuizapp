@@ -353,6 +353,9 @@ export function revealGame(
   const round = lobby.round;
   if (!round || round.roundId !== roundId) return error('STALE_ROUND');
   if (lobby.phase !== 'playing' || !round.inputClosed) return error('INVALID_PHASE');
+  // CHG-12: Die Rangliste aktualisiert sich pro Frage — die Transition wird
+  // hier bei jeder Aufloesung gesetzt (previous = zuletzt angezeigter Stand).
+  const previous = projectRanking(lobby);
   const estimates = estimateScores(lobby, round);
   for (const playerId of round.participantIds) {
     const player = lobby.players.find(item => item.id === playerId);
@@ -360,6 +363,14 @@ export function revealGame(
       ? estimates.get(playerId)?.points ?? 0
       : answerPoints(round, player?.answer ?? null);
     round.totalPoints.set(playerId, (round.totalPoints.get(playerId) ?? 0) + points);
+  }
+  if (lobby.selectedGameId) {
+    lobby.rankingTransition = {
+      resultId: randomUUID(),
+      gameId: lobby.selectedGameId,
+      previous,
+      current: projectRanking(lobby),
+    };
   }
   lobby.phase = 'evaluation';
   lobby.revision += 1;
@@ -411,16 +422,10 @@ export function finishGame(
 
   if (lobby.selectedGameId) {
     lobby.playedGameIds.add(lobby.selectedGameId);
-    const previous = projectRanking(lobby);
     const scores = new Map(lobby.players.map(player => [player.id, round.totalPoints.get(player.id) ?? 0] as const));
     lobby.completedGames.set(lobby.selectedGameId, scores);
-    const current = projectRanking(lobby);
-    lobby.rankingTransition = {
-      resultId: randomUUID(),
-      gameId: lobby.selectedGameId,
-      previous,
-      current,
-    };
+    // CHG-12: Keine neue Transition beim Beenden — die letzte Aufloesung hat
+    // den finalen Stand bereits als current publiziert.
   }
   lobby.selectedGameId = null;
   lobby.round = null;
@@ -434,13 +439,18 @@ export function finishGame(
 }
 
 export function projectRanking(lobby: GameLobbyState): RankingEntry[] {
-  if (lobby.completedGames.size === 0) return [];
-
+  // CHG-12: Immer alle Spieler liefern (auch vor dem ersten abgeschlossenen
+  // Spiel) und die laufende Runde als games-Eintrag mitfuehren — so wird die
+  // Rangliste nie leer und aktualisiert sich nach jeder Aufloesung.
+  const liveRound = lobby.round;
   const totals = lobby.players.map(player => {
     const games = [...lobby.completedGames].map(([gameId, scores]) => ({
       gameId,
       points: scores.get(player.id) ?? 0,
     }));
+    if (liveRound) {
+      games.push({ gameId: liveRound.seed.id, points: liveRound.totalPoints.get(player.id) ?? 0 });
+    }
     return {
       playerId: player.id,
       name: player.name || `Spieler ${player.number}`,

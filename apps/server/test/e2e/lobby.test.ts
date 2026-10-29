@@ -178,7 +178,10 @@ describe('e2e: lobby and reconnect flow', () => {
     expect(adaEval.round.ownEvaluation.points).toBe(1);
 
     // Spielende -> Uebersicht mit gespieltem Katalogeintrag und Ranking.
-    const backToOverview = projector.inbox.waitFor(m => m.type === 'snapshot' && m.phase === 'overview' && m.ranking.length > 0);
+    // CHG-12: ranking.length > 0 ist seit dem Live-Ranking immer wahr —
+    // auf den played-Status des Spiels warten.
+    const backToOverview = projector.inbox.waitFor(m => m.type === 'snapshot' && m.phase === 'overview'
+      && m.catalog.find(game => game.id === 'e2e_lobby_quiz')?.played === true);
     await send(host.socket, host.inbox, 'finish', { type: 'game.finish', roundId });
     const final = await backToOverview;
     if (final.type !== 'snapshot') throw new Error('Expected overview snapshot.');
