@@ -214,14 +214,24 @@ export function HostGameView({ snapshot, send }: { snapshot: HostSnapshot; send:
   </section>;
 }
 
-function SolutionContent({ solution }: { solution: { kind: "quiz"; question: string; options: Array<{ id: string; text: string }>; correctOptionId: string } | { kind: "sorting"; question: string; terms: Array<{ id: string; text: string; value: number }> } | { kind: "estimation"; question: string; target: number } }) {
+function SolutionContent({ solution }: { solution: { kind: "quiz"; question: string; options: Array<{ id: string; text: string; value?: number }>; correctOptionId: string } | { kind: "sorting"; question: string; terms: Array<{ id: string; text: string; value: number }> } | { kind: "estimation"; question: string; target: number } }) {
   // CHG-13: Die Frage steht im Stage-Slot ueber dem Eval-Grid, nicht in der Box.
   return <div className="solution"><h3>Auflösung</h3>
-    {solution.kind === "quiz" && <ul className="answer-feedback" aria-label="Auflösung der Antworten">{solution.options.map(option => {
-      const correct = option.id === solution.correctOptionId;
-      const state = correct ? "correct" : "neutral";
-      return <li key={option.id} className={`answer-marked answer-${state}`} data-answer-state={state}>{option.text}<span className="answer-mark">{correct ? "Richtig" : ""}</span></li>;
-    })}</ul>}
+    {/* CHG-22: Traegt mind. eine Option einen value (TECH-19), zeigt die
+        Aufloesung eine Tabelle ohne Header — Text | Wert | 'Richtig'-Marker;
+        ohne value bleibt die bisherige markierte Liste. */}
+    {solution.kind === "quiz" && (solution.options.some(option => option.value !== undefined)
+      ? <table className="solution-table"><tbody>{solution.options.map(option => {
+          const correct = option.id === solution.correctOptionId;
+          return <tr key={option.id}>
+            <td>{option.text}</td><td>{option.value ?? ""}</td><td>{correct ? "Richtig" : ""}</td>
+          </tr>;
+        })}</tbody></table>
+      : <ul className="answer-feedback" aria-label="Auflösung der Antworten">{solution.options.map(option => {
+          const correct = option.id === solution.correctOptionId;
+          const state = correct ? "correct" : "neutral";
+          return <li key={option.id} className={`answer-marked answer-${state}`} data-answer-state={state}>{option.text}<span className="answer-mark">{correct ? "Richtig" : ""}</span></li>;
+        })}</ul>)}
     {/* CHG-21: Sortier-Aufloesung tabellarisch ohne Header — Spalten
         Position (1..n), Text, Wert; aufsteigend nach Wert. */}
     {solution.kind === "sorting" && <table className="solution-table"><tbody>
