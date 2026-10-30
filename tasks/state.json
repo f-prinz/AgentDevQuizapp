@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1780,8 +1780,22 @@
       "red_evidence": "tasks/evidence/BUG-8-2026-10-30T11-07-39-672Z.json",
       "lint_evidence": "tasks/evidence/BUG-8-2026-10-30T11-09-56-167Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "CHG-20",
+      "component": "web",
+      "title": "Host: Lobbymenue als aufklappbares Accordion auf jeder Phase",
+      "acceptance_criteria": "'Lobby: <id>' wird durch Accordion 'Lobby' ersetzt; Inhalt = bisheriges Lobbymenue (Hinweis, Links, Start-Button) + Lobby-ID; default offen, schliessbar; in jeder Host-Phase sichtbar; kein Duplikat in der Lobbyphase",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T11:13:00.254Z"
+  "last_updated_utc": "2026-10-30T11:18:51.109Z"
 }
