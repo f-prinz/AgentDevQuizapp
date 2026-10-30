@@ -1518,16 +1518,21 @@
       "lint_command": "npm --prefix apps/server run lint",
       "red_evidence_required": true,
       "dependencies": [],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
         "contracts/",
         "apps/server/"
       ],
-      "implemented_by": "integration_engineer"
+      "implemented_by": "integration_engineer",
+      "review_result": "Freigabe ohne Blocker; Quiz-Scoring 3 Punkte wirkt via questionPoints, Tests config-getrieben, dist-Rebuild beachtet",
+      "test_evidence": "tasks/evidence/TECH-17-2026-10-30T08-06-48-044Z.json",
+      "red_evidence": "tasks/evidence/TECH-17-2026-10-30T07-54-40-285Z.json",
+      "lint_evidence": "tasks/evidence/TECH-17-2026-10-30T07-59-40-088Z.json",
+      "reviewed_by": "code_reviewer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T07:50:32.539Z"
+  "last_updated_utc": "2026-10-30T08:08:08.895Z"
 }
