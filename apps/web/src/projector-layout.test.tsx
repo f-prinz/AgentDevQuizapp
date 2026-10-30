@@ -112,3 +112,37 @@ describe("neutral card text colour token", () => {
     expect(allStyles()).toMatch(/\.answer-option[^}]*color:\s*var\(--color-on-grey\)/);
   });
 });
+
+// CHG-17: Projektor-Tabellen — Basis kleiner als bisher, die ersten drei
+// Zeilen (beste Spieler) gestaffelt groesser: Platz 1 > 2 > 3 > Rest.
+describe("projector table row sizing", () => {
+  const styles = () => styleElements.map(el => el.textContent).join("\n");
+  const fontSizeOf = (selector: string) => {
+    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const match = styles().match(new RegExp(escaped + "[^{}]*\\{[^}]*font-size:\\s*([^;}]+)"));
+    return match?.[1]?.trim() ?? null;
+  };
+  const tables = [".projector-ranking .ranking-table", ".projector-layout .results-table"];
+
+  it("shrinks the projector table base font below the former minimum", () => {
+    for (const table of tables) {
+      const size = fontSizeOf(table);
+      expect(size, `${table} hat keine Basis-font-size`).toBeTruthy();
+      // Bisherige Mindestgroessen waren 1.05rem (Rangliste) bzw. 1rem (Ergebnisse).
+      const min = size!.match(/[\d.]+/)?.[0];
+      expect(parseFloat(min!), `${table} Basis nicht kleiner`).toBeLessThanOrEqual(0.95);
+    }
+  });
+
+  it("scales the first three table rows down by position", () => {
+    for (const table of tables) {
+      const sizes = [1, 2, 3].map(n => fontSizeOf(`${table} tbody tr:nth-child(${n})`));
+      sizes.forEach((size, i) => expect(size, `${table} Zeile ${i + 1} ohne Regel`).toBeTruthy());
+      const em = sizes.map(size => parseFloat(size!));
+      expect(em[0]).toBeGreaterThan(em[1]);
+      expect(em[1]).toBeGreaterThan(em[2]);
+      // Alle drei bleiben groesser als die Basis-Zeilen.
+      expect(em[2]).toBeGreaterThan(1);
+    }
+  });
+});
