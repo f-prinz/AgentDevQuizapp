@@ -3,6 +3,7 @@ import WebSocket from 'ws';
 import {
   CreateLobbyResponseSchema,
   ErrorEventSchema,
+  GAME_CONFIG,
   GameSeedSchema,
   JoinPlayerResponseSchema,
   ServerMessageSchema,
@@ -326,14 +327,16 @@ describe('server game state and round timers', () => {
       round.playing[2].role === 'player' ? round.playing[2].playerId : '',
       round.players[1].snapshot.role === 'player' ? round.players[1].snapshot.playerId : '',
     ]);
-    expect(firstEvaluation.round.results.map(result => result.points)).toEqual([1, 0]);
+    // TECH-17: Erwartung aus der Spielart-Konfiguration ableiten statt hart.
+    const quizPoints = GAME_CONFIG.quiz.scoring.pointsPerCorrectAnswer;
+    expect(firstEvaluation.round.results.map(result => result.points)).toEqual([quizPoints, 0]);
     const firstPlayerEvaluation = await snapshot(round.players[0], value => value.phase === 'evaluation'
       && value.round?.roundId === round.roundId);
     if (firstPlayerEvaluation.role !== 'player' || firstPlayerEvaluation.round?.phase !== 'evaluation') {
       throw new Error('Expected the first player quiz evaluation.');
     }
     expect(firstPlayerEvaluation.round.ownEvaluation).toMatchObject({
-      answer: { kind: 'quiz', optionId: 'c' }, points: 1,
+      answer: { kind: 'quiz', optionId: 'c' }, points: quizPoints,
     });
     expect(ErrorEventSchema.parse(await command(round.host, 'game.reveal', { roundId: round.roundId })))
       .toMatchObject({ code: 'INVALID_PHASE' });
@@ -374,7 +377,7 @@ describe('server game state and round timers', () => {
     expect(lastEvaluation.round.questionIndex).toBe(1);
     expect(lastEvaluation.round.solution.correctOptionId).toBe('b2');
     expect(lastEvaluation.round.hasNextQuestion).toBe(false);
-    expect(lastEvaluation.round.results.map(result => result.points)).toEqual([0, 1]);
+    expect(lastEvaluation.round.results.map(result => result.points)).toEqual([0, quizPoints]);
     expect(ErrorEventSchema.parse(await command(round.host, 'game.next', { roundId: secondRoundId })))
       .toMatchObject({ code: 'INVALID_PHASE' });
     expect((await command(round.host, 'game.finish', { roundId: secondRoundId })).type).toBe('ack');
@@ -442,9 +445,11 @@ describe('server game state and round timers', () => {
       && value.round?.roundId === firstRoundId);
     // CHG-12: Waehrend der Runde enthaelt games einen Eintrag fuer das laufende Spiel.
     const preparedRanking = initialRanking.map(entry => ({ ...entry, games: [{ gameId: 'quiz_game', points: 0 }] }));
+    // TECH-17: Quiz-Punktzahl aus der Spielart-Konfiguration ableiten statt hart.
+    const quizPoints = GAME_CONFIG.quiz.scoring.pointsPerCorrectAnswer;
     const firstRanking = [
-      { playerId: playerIds[0], name: 'Player one', rank: 1, total: 1, games: [{ gameId: 'quiz_game', points: 1 }] },
-      { playerId: playerIds[1], name: 'Player two', rank: 1, total: 1, games: [{ gameId: 'quiz_game', points: 1 }] },
+      { playerId: playerIds[0], name: 'Player one', rank: 1, total: quizPoints, games: [{ gameId: 'quiz_game', points: quizPoints }] },
+      { playerId: playerIds[1], name: 'Player two', rank: 1, total: quizPoints, games: [{ gameId: 'quiz_game', points: quizPoints }] },
       { playerId: playerIds[2], name: 'Player three', rank: 3, total: 0, games: [{ gameId: 'quiz_game', points: 0 }] },
     ];
     expect(firstEvaluation.ranking).toEqual(firstRanking);
@@ -468,8 +473,8 @@ describe('server game state and round timers', () => {
     const finalEvaluation = await snapshot(host, value => value.phase === 'evaluation'
       && value.round?.roundId === secondRoundId);
     const expectedRanking = [
-      { playerId: playerIds[0], name: 'Player one', rank: 1, total: 2, games: [{ gameId: 'quiz_game', points: 2 }] },
-      { playerId: playerIds[1], name: 'Player two', rank: 1, total: 2, games: [{ gameId: 'quiz_game', points: 2 }] },
+      { playerId: playerIds[0], name: 'Player one', rank: 1, total: 2 * quizPoints, games: [{ gameId: 'quiz_game', points: 2 * quizPoints }] },
+      { playerId: playerIds[1], name: 'Player two', rank: 1, total: 2 * quizPoints, games: [{ gameId: 'quiz_game', points: 2 * quizPoints }] },
       { playerId: playerIds[2], name: 'Player three', rank: 3, total: 0, games: [{ gameId: 'quiz_game', points: 0 }] },
     ];
     expect(finalEvaluation.ranking).toEqual(expectedRanking);

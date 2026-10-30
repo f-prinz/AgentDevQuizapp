@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import WebSocket from 'ws';
 import {
   CreateLobbyResponseSchema,
+  GAME_CONFIG,
   GameSeedSchema,
   JoinPlayerResponseSchema,
   ServerMessageSchema,
@@ -156,11 +157,13 @@ describe('e2e: quiz round flow', () => {
     expect(evaluation1.round.solution.kind).toBe('quiz');
     if (evaluation1.round.solution.kind !== 'quiz') throw new Error('Expected quiz solution.');
     expect(evaluation1.round.solution.correctOptionId).toBe('a');
-    expect(evaluation1.round.results.find(r => r.name === 'Ada')?.points).toBe(1);
+    // TECH-17: Erwartung aus der Spielart-Konfiguration ableiten statt hart.
+    const quizPoints = GAME_CONFIG.quiz.scoring.pointsPerCorrectAnswer;
+    expect(evaluation1.round.results.find(r => r.name === 'Ada')?.points).toBe(quizPoints);
     expect(evaluation1.round.results.find(r => r.name === 'Bo')?.points).toBe(0);
     const adaEval1 = await eval1Ada;
     if (adaEval1.type !== 'snapshot' || adaEval1.role !== 'player' || adaEval1.round?.phase !== 'evaluation') throw new Error('Expected player evaluation.');
-    expect(adaEval1.round.ownEvaluation.points).toBe(1);
+    expect(adaEval1.round.ownEvaluation.points).toBe(quizPoints);
     expect(adaEval1.round.ownEvaluation.answer).toMatchObject({ kind: 'quiz', optionId: 'a' });
 
     // Frage 2: niemand antwortet — Aufloesung ist bis zum Eingabeende gesperrt.
