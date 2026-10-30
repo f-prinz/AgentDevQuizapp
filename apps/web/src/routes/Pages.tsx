@@ -33,16 +33,40 @@ function readSession(lobbyId: string, role: Role, fragment = ""): Session | null
   }
 }
 
+// FEAT-20: Begrenzter Auto-Reconnect — Budget und Backoff sind Konstanten,
+// damit AK und Tests dieselben Werte teilen (max. 3, dann Fehler + Button).
+const RECONNECT_DELAYS = [2000, 5000, 10000];
+const MAX_RECONNECT_ATTEMPTS = RECONNECT_DELAYS.length;
+
 function useLobbySnapshot(lobbyId: string | undefined, role: Role, enabled = true, sessionOverride: Session | null = null, onSessionInvalidated?: () => void) {
   const location = useLocation();
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [connectionError, setConnectionError] = useState("");
+  // FEAT-20: true wenn das Retry-Budget erschoepft ist — LobbyStatus zeigt
+  // dann den manuellen Reconnect-Button.
+  const [connectionLost, setConnectionLost] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const socketRef = useRef<WebSocket | null>(null);
+  const retriesRef = useRef(0);
+  const retryTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     setSnapshot(null);
     setConnectionError("");
+    setConnectionLost(false);
+    retriesRef.current = 0;
+    if (retryTimerRef.current !== null) { window.clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
   }, [lobbyId, role]);
+
+  // FEAT-20: manueller Reconnect setzt Budget und Fehler zurueck und
+  // loest ueber attempt einen neuen Socket-Lauf aus.
+  const reconnect = useCallback(() => {
+    retriesRef.current = 0;
+    if (retryTimerRef.current !== null) { window.clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
+    setConnectionLost(false);
+    setConnectionError("");
+    setAttempt(value => value + 1);
+  }, []);
 
   useEffect(() => {
     if (!lobbyId || !enabled) return;
@@ -65,9 +89,42 @@ function useLobbySnapshot(lobbyId: string | undefined, role: Role, enabled = tru
     }
     socketRef.current = socket;
     let lastRevision = -1;
+    // FEAT-20: closedByUs sperrt Retries nach Cleanup; sessionGone nach
+    // fatalen Fehlern (Sitzung/Lobby ungueltig) — dafuer gibt es keinen Retry.
+    let closedByUs = false;
+    let sessionGone = false;
+
+    const exhausted = () => {
+      setConnectionError("Verbindung zur Lobby verloren.");
+      setConnectionLost(true);
+    };
+    const scheduleRetry = () => {
+      if (closedByUs || sessionGone) return;
+      if (retriesRef.current >= MAX_RECONNECT_ATTEMPTS) { exhausted(); return; }
+      const delay = RECONNECT_DELAYS[retriesRef.current] ?? RECONNECT_DELAYS[RECONNECT_DELAYS.length - 1]!;
+      retriesRef.current += 1;
+      setConnectionError("Verbindung unterbrochen — neuer Verbindungsaufbau läuft …");
+      retryTimerRef.current = window.setTimeout(() => {
+        retryTimerRef.current = null;
+        setAttempt(value => value + 1);
+      }, delay);
+    };
+
+    // FEAT-20: Wird die Seite wieder sichtbar/online, wird nicht auf den
+    // Backoff gewartet — ein toter Socket loest sofort einen Retry aus.
+    const checkAlive = () => {
+      if (closedByUs || sessionGone || document.visibilityState === "hidden") return;
+      const current = socketRef.current;
+      if (current && current.readyState !== WebSocket.CLOSED && current.readyState !== WebSocket.CLOSING) return;
+      if (retryTimerRef.current !== null) { window.clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
+      if (retriesRef.current >= MAX_RECONNECT_ATTEMPTS) { exhausted(); return; }
+      setAttempt(value => value + 1);
+    };
+
     socket.onopen = () => {
       socket.send(JSON.stringify({ version: 1, type: "auth", requestId: crypto.randomUUID(), lobbyId, sessionId: session.sessionId, token: session.token }));
       setConnectionError("");
+      setConnectionLost(false);
     };
     socket.onmessage = (event) => {
       try {
@@ -76,6 +133,8 @@ function useLobbySnapshot(lobbyId: string | undefined, role: Role, enabled = tru
         if (!parsed.success) return;
         if (parsed.data.type === "error") {
           if (parsed.data.code === "LOBBY_NOT_FOUND" || parsed.data.code === "UNAUTHORIZED") {
+            sessionGone = true;
+            if (retryTimerRef.current !== null) { window.clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
             try { localStorage.removeItem(sessionStorageKey(lobbyId, role)); } catch { /* Storage may be disabled. */ }
             setSnapshot(null);
             onSessionInvalidated?.();
@@ -89,20 +148,37 @@ function useLobbySnapshot(lobbyId: string | undefined, role: Role, enabled = tru
         }
         if (parsed.data.type !== "snapshot" || parsed.data.role !== role || parsed.data.lobbyId !== lobbyId || parsed.data.revision <= lastRevision) return;
         lastRevision = parsed.data.revision;
+        // FEAT-20: stabile Verbindung bewiesen — Budget zuruecksetzen.
+        retriesRef.current = 0;
+        setConnectionLost(false);
         setSnapshot(parsed.data);
       } catch {
         setConnectionError("Lobby-Antwort konnte nicht verarbeitet werden.");
       }
     };
-    socket.onerror = () => setConnectionError("Verbindung zur Lobby fehlgeschlagen.");
-    return () => { socketRef.current = null; socket.close(); };
-  }, [lobbyId, role, enabled, sessionOverride, onSessionInvalidated, location.hash, location.pathname, location.search]);
+    // FEAT-20: onclose ersetzt das bisherige onerror-Flag — jeder Abbruch
+    // loest den begrenzten Retry aus (bzw. den finalen Fehler).
+    socket.onclose = () => { socketRef.current = null; scheduleRetry(); };
+    document.addEventListener("visibilitychange", checkAlive);
+    window.addEventListener("online", checkAlive);
+    window.addEventListener("pageshow", checkAlive);
+    return () => {
+      closedByUs = true;
+      document.removeEventListener("visibilitychange", checkAlive);
+      window.removeEventListener("online", checkAlive);
+      window.removeEventListener("pageshow", checkAlive);
+      if (retryTimerRef.current !== null) { window.clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
+      socket.onclose = null;
+      socketRef.current = null;
+      socket.close();
+    };
+  }, [lobbyId, role, enabled, sessionOverride, onSessionInvalidated, location.hash, location.pathname, location.search, attempt]);
 
   const send = useCallback((message: Record<string, unknown>) => {
     const socket = socketRef.current;
     if (socket?.readyState === WebSocket.OPEN) socket.send(JSON.stringify(message));
   }, []);
-  return { snapshot, connectionError, send };
+  return { snapshot, connectionError, connectionLost, send, reconnect };
 }
 
 // FEAT-19: Host-Statusliste — immer sichtbar (letztes Element der Host-Seite),
@@ -146,9 +222,12 @@ function ParticipantList({ snapshot, send }: { snapshot: Snapshot | null; send: 
   </section>;
 }
 
-function LobbyStatus({ error }: { error: string }) {
+// FEAT-20: Zeigt neben der Fehlermeldung einen Reconnect-Button, sobald
+// das Auto-Retry-Budget erschoepft ist (onReconnect nur dann gesetzt).
+function LobbyStatus({ error, onReconnect }: { error: string; onReconnect?: () => void }) {
   return <>
     {error && <p className="error-message" role="status">{error}</p>}
+    {error && onReconnect && <button type="button" onClick={onReconnect}>Erneut verbinden</button>}
   </>;
 }
 
@@ -183,13 +262,13 @@ export function HomePage() {
 
 export function HostPage() {
   const { lobbyId } = useParams();
-  const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "host");
+  const { snapshot, connectionError, connectionLost, send, reconnect } = useLobbySnapshot(lobbyId, "host");
   return <main className="page">
     <h1>Hostbereich</h1>
     {/* CHG-20: 'Lobby: <id>'-Zeile -> aufklappbares Lobbymenue, in jeder
         Host-Phase verfuegbar (Links bleiben erreichbar). */}
     {snapshot?.role === "host" && <LobbyAccordion lobbyId={lobbyId!} snapshot={snapshot} send={send} />}
-    <LobbyStatus error={connectionError} />
+    <LobbyStatus error={connectionError} onReconnect={connectionLost ? reconnect : undefined} />
     {snapshot?.role === "host" && <HostGameView snapshot={snapshot} send={send} />}
     {snapshot && <ParticipantList snapshot={snapshot} send={send} />}
   </main>;
@@ -206,7 +285,7 @@ export function JoinPage() {
     setSession(lobbyId ? readSession(lobbyId, "player") : null);
   }, [lobbyId]);
   const invalidateSession = useCallback(() => setSession(null), []);
-  const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "player", joined, activeSession, invalidateSession);
+  const { snapshot, connectionError, connectionLost, send, reconnect } = useLobbySnapshot(lobbyId, "player", joined, activeSession, invalidateSession);
 
   async function joinLobby() {
     // CHG-15: Pflichtfeld min. 3 Zeichen (Max. 20 bleibt) — gilt auch bei
@@ -247,29 +326,29 @@ export function JoinPage() {
       <button type="submit" disabled={name.trim().length < 3}>Beitreten</button>
     </form>}
     {error && <p className="error-message" role="alert">{error}</p>}
-    <LobbyStatus error={connectionError} />
+    <LobbyStatus error={connectionError} onReconnect={connectionLost ? reconnect : undefined} />
     {snapshot?.role === "player" && <PlayerGameView snapshot={snapshot} send={send} />}
   </main>;
 }
 
 export function PlayerPage() {
   const { lobbyId } = useParams();
-  const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "player");
+  const { snapshot, connectionError, connectionLost, send, reconnect } = useLobbySnapshot(lobbyId, "player");
   return <main className="page">
     <h1>Spieleransicht</h1>
-    <LobbyStatus error={connectionError} />
+    <LobbyStatus error={connectionError} onReconnect={connectionLost ? reconnect : undefined} />
     {snapshot?.role === "player" && <PlayerGameView snapshot={snapshot} send={send} />}
   </main>;
 }
 
 export function ProjectorPage() {
   const { lobbyId } = useParams();
-  const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "projector");
+  const { snapshot, connectionError, connectionLost, send, reconnect } = useLobbySnapshot(lobbyId, "projector");
   // CHG-14: In der Aufloesung bekommen die Ergebnisse eine eigene Spalte
   // zwischen Spielbereich und Rangliste; sonst bleibt das Layout zweispaltig.
   const evalRound = snapshot?.role === "projector" && snapshot.round?.phase === "evaluation" ? snapshot.round : null;
   return <main className="projector" aria-label="Projektor">
-    <LobbyStatus error={connectionError} />
+    <LobbyStatus error={connectionError} onReconnect={connectionLost ? reconnect : undefined} />
     <div className={`projector-layout${evalRound ? " projector-layout-eval" : ""}`}>
       {snapshot?.role === "projector" && <ProjectorGameView snapshot={snapshot} send={send} />}
       {!snapshot && <p>Warte auf die Lobbyverbindung …</p>}
