@@ -9,7 +9,9 @@ export const SessionSchema = z.strictObject({ lobbyId: IdSchema, sessionId: IdSc
 export const CreateLobbyResponseSchema = z.strictObject({ version: ProtocolVersionSchema, lobbyId: IdSchema, host: SessionSchema.extend({ role: z.literal('host') }), projector: SessionSchema.extend({ role: z.literal('projector') }), links: z.strictObject({ host: z.string().min(1), player: z.string().min(1), projector: z.string().min(1) }) });
 export const JoinPlayerResponseSchema = z.strictObject({ version: ProtocolVersionSchema, session: SessionSchema.extend({ role: z.literal('player') }) });
 export const HealthResponseSchema = z.strictObject({ status: z.literal('ok'), version: ProtocolVersionSchema });
-export const ParticipantSchema = z.strictObject({ id: IdSchema, name: TextSchema.max(20), number: z.number().int().positive(), connected: z.boolean(), waiting: z.boolean() });
+// TECH-18: submitted markiert Teilnehmer mit abgeschlossener Antwort (Host-Ansicht;
+// optional, damit aeltere/teiltypisierte Snapshots weiter valide bleiben).
+export const ParticipantSchema = z.strictObject({ id: IdSchema, name: TextSchema.max(20), number: z.number().int().positive(), connected: z.boolean(), waiting: z.boolean(), submitted: z.boolean().optional() });
 export const RankingEntrySchema = z.strictObject({ playerId: IdSchema, name: TextSchema.max(20), rank: z.number().int().positive(), total: z.number().int().nonnegative(), games: z.array(z.strictObject({ gameId: IdSchema, points: z.number().int().nonnegative() })) });
 export const RankingTransitionSchema = z.strictObject({ resultId: IdSchema, gameId: IdSchema, previous: z.array(RankingEntrySchema), current: z.array(RankingEntrySchema) });
 const SnapshotBase = { version: ProtocolVersionSchema, type: z.literal('snapshot'), lobbyId: IdSchema, revision: z.number().int().nonnegative(), serverTime: TimestampSchema, phase: PhaseSchema, participants: z.array(ParticipantSchema), catalog: z.array(CatalogEntrySchema), selectedGameId: IdSchema.nullable(), ranking: z.array(RankingEntrySchema), rankingTransition: RankingTransitionSchema.nullable() };
@@ -22,8 +24,9 @@ export const SnapshotSchema = z.discriminatedUnion('role', [HostSnapshotSchema, 
 export const AuthCommandSchema = z.strictObject({ ...CommandBase, type: z.literal('auth'), lobbyId: IdSchema, sessionId: IdSchema, token: TokenSchema });
 export const LobbyStartCommandSchema = z.strictObject({ ...CommandBase, type: z.literal('lobby.start') });
 export const PlayerNameCommandSchema = z.strictObject({ ...CommandBase, type: z.literal('player.name'), name: NameSchema });
-export const ClientMessageSchema = z.union([AuthCommandSchema, LobbyStartCommandSchema, PlayerNameCommandSchema, GameSelectCommandSchema, GameActionCommandSchema, AnswerCommandSchema, TimeSyncCommandSchema]);
-export const ErrorCodeSchema = z.enum(['INVALID_MESSAGE', 'UNAUTHORIZED', 'FORBIDDEN', 'LOBBY_NOT_FOUND', 'INVALID_PHASE', 'NOT_ENOUGH_PLAYERS', 'GAME_NOT_FOUND', 'GAME_ALREADY_PLAYED', 'STALE_ROUND', 'INPUT_CLOSED', 'INVALID_ANSWER', 'NOT_PARTICIPATING', 'INTERNAL_ERROR']);
+export const PlayerRemoveCommandSchema = z.strictObject({ ...CommandBase, type: z.literal('player.remove'), playerId: IdSchema });
+export const ClientMessageSchema = z.union([AuthCommandSchema, LobbyStartCommandSchema, PlayerNameCommandSchema, GameSelectCommandSchema, GameActionCommandSchema, AnswerCommandSchema, PlayerRemoveCommandSchema, TimeSyncCommandSchema]);
+export const ErrorCodeSchema = z.enum(['INVALID_MESSAGE', 'UNAUTHORIZED', 'FORBIDDEN', 'LOBBY_NOT_FOUND', 'INVALID_PHASE', 'NOT_ENOUGH_PLAYERS', 'GAME_NOT_FOUND', 'GAME_ALREADY_PLAYED', 'STALE_ROUND', 'INPUT_CLOSED', 'INVALID_ANSWER', 'NOT_PARTICIPATING', 'PLAYER_NOT_FOUND', 'INTERNAL_ERROR']);
 export const ErrorEventSchema = z.strictObject({ version: ProtocolVersionSchema, type: z.literal('error'), requestId: IdSchema.nullable(), code: ErrorCodeSchema, message: TextSchema });
 export const AckEventSchema = z.strictObject({ ...CommandBase, type: z.literal('ack'), revision: z.number().int().nonnegative() });
 export const ServerMessageSchema = z.union([SnapshotSchema, ErrorEventSchema, AckEventSchema, TimeSyncEventSchema]);
