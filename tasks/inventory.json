@@ -376,7 +376,7 @@
       ],
       "introduced_by": "FEAT-10",
       "removed_by": null,
-      "notes": ""
+      "notes": "Auswertung: eigene markierte Antwort im Spieler-View (CHG-8); Projektor-Loesung seit CHG-21 als Tabelle ohne Header (Position|Text|Wert, aufsteigend nach value), Ergebnis-Tabelle nach Platz."
     },
     {
       "id": "INV-19",
@@ -581,5 +581,5 @@
       "notes": "Budget-Reset bei stabilem Snapshot; sessionGone-Guard bei LOBBY_NOT_FOUND/UNAUTHORIZED; gilt fuer Host/Spieler/Projektor via LobbyStatus"
     }
   ],
-  "last_updated_utc": "2026-10-30T11:45:26.226Z"
+  "last_updated_utc": "2026-10-30T13:04:13.625Z"
 }

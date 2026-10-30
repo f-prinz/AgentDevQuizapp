@@ -32,4 +32,4 @@
 | INV-8 | Quizfragen einzeln mit einem Punkt je richtiger Antwort auswerten | server | aktiv | file: `apps/server/src/game.ts`<br>test: `apps/server/test/game-state.test.ts` | FEAT-7 | - |
 | INV-9 | Abgeschlossene Quizpunkte als Ranking und Spielkatalogstatus bereitstellen | server | aktiv | file: `apps/server/src/game.ts`<br>file: `apps/server/src/lobby.ts`<br>test: `apps/server/test/game-state.test.ts` | FEAT-5 | - |
 
-Stand: 2026-10-30T11:45:26.226Z
+Stand: 2026-10-30T13:04:13.625Z
