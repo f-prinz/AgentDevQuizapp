@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1759,8 +1759,22 @@
       "red_evidence": "tasks/evidence/BUG-7-2026-10-30T10-22-18-648Z.json",
       "lint_evidence": "tasks/evidence/BUG-7-2026-10-30T10-23-16-871Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "BUG-8",
+      "component": "server",
+      "title": "Sorting-Ergebnisse ohne Platzierung (rank null -> '-')",
+      "acceptance_criteria": "Sorting-results tragen rank aus Punkten (Ties teilen Rang); Estimation unveraendert; Quiz weiterhin null",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "implemented_by": "server_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T10:37:59.036Z"
+  "last_updated_utc": "2026-10-30T11:06:54.184Z"
 }
