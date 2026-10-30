@@ -1490,8 +1490,43 @@
       "lint_evidence": "tasks/evidence/CHG-15-2026-10-30T07-39-56-230Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/CHG-15.md"
+    },
+    {
+      "id": "CHG-16",
+      "component": "web",
+      "title": "Projektor-Headings vereinheitlichen + Light-Mode-Kartenlesbarkeit + Player-Identity mit Icons",
+      "acceptance_criteria": "Rangliste- und Ergebnisse-Headings identisch gestylt; neutrale Antwortkarten im Light-Mode lesbar via --color-on-grey (dunkler Text statt weiss); player-identity zeigt 'Name - Podium Rang Star Punkte' mit Icons statt 'Punkte (Rang)'",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-14"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ]
+    },
+    {
+      "id": "TECH-17",
+      "component": "contracts",
+      "title": "GAME_CONFIG: Quiz 3 Punkte richtige Antwort + Regeltexte",
+      "acceptance_criteria": "pointsPerCorrectAnswer=3 wirkt in questionPoints; Quiz-Regeltext konsistent (3 Punkte); Sortier-/Schaetz-Regeltexte wie gewuenscht; Server-Tests erwarten neue Punktzahlen",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "contracts/",
+        "apps/server/"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T07:42:48.629Z"
+  "last_updated_utc": "2026-10-30T07:50:18.584Z"
 }
