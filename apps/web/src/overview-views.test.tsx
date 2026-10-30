@@ -175,4 +175,33 @@ describe("FEAT-6 projector overview", () => {
       expect(rows[0].textContent).toContain("6");
     }, { timeout: 4000 });
   });
+
+  // BUG-6: Die Transition wird einmal pro Auswertung animiert — nicht bei
+  // jeder weiteren Snapshot-Auslieferung mit derselben resultId. Erst eine
+  // neue resultId loest die Animation erneut aus.
+  it("replays the transition animation only for a new resultId", async () => {
+    const view = renderRole("projector");
+    const previous = [
+      { playerId: "player-2", name: "Bo", rank: 1, total: 3, games: [{ gameId: "sort-1", points: 3 }] },
+      { playerId: "player-1", name: "Ada", rank: 2, total: 1, games: [{ gameId: "sort-1", points: 1 }] },
+    ];
+    const current = [
+      { playerId: "player-1", name: "Ada", rank: 1, total: 6, games: [{ gameId: "sort-1", points: 1 }, { gameId: "quiz-1", points: 5 }] },
+      { playerId: "player-2", name: "Bo", rank: 2, total: 3, games: [{ gameId: "sort-1", points: 3 }, { gameId: "quiz-1", points: 0 }] },
+    ];
+    const transition = { resultId: "result-1", gameId: "quiz-1", previous, current };
+    await deliver(view, snapshot("projector", { ranking: current, rankingTransition: transition }));
+    const table = await screen.findByRole("table");
+    await waitFor(() => expect(table.dataset.rankingStage).toBe("after"), { timeout: 4000 });
+
+    // Dieselbe Transition nochmals ausgeliefert (z. B. Host-Aktion, die einen
+    // neuen Snapshot sendet): keine erneute Animation.
+    await deliver(view, snapshot("projector", { revision: 2, ranking: current, rankingTransition: { ...transition } }));
+    await new Promise(resolve => setTimeout(resolve, 500));
+    expect(table.dataset.rankingStage).toBe("after");
+
+    // Neue resultId (naechste Auswertung): Animation startet wieder.
+    await deliver(view, snapshot("projector", { revision: 3, ranking: current, rankingTransition: { ...transition, resultId: "result-2" } }));
+    await waitFor(() => expect(table.dataset.rankingStage).not.toBe("after"));
+  });
 });

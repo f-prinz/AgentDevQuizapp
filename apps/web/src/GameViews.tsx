@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -70,13 +70,19 @@ function GameList({ games, label }: { games: Snapshot["catalog"]; label: string 
 function RankingTable({ ranking, transition }: { ranking: RankingEntry[]; transition: NonNullable<Snapshot["rankingTransition"]> | null }) {
   const [stage, setStage] = useState<"before" | "counting" | "after">("after");
   const [progress, setProgress] = useState(1);
+  // BUG-6: Die Animation haengt an der resultId, nicht an der Objekt-Identitaet —
+  // erneut ausgelieferte Snapshots mit derselben Transition starten sie nicht
+  // neu. transitionRef liefert dem Effekt immer das aktuelle Objekt.
+  const transitionRef = useRef(transition);
+  useEffect(() => { transitionRef.current = transition; });
+  const resultId = transition?.resultId ?? null;
   useEffect(() => {
-    if (!transition) { setStage("after"); return; }
+    if (!transitionRef.current) { setStage("after"); return; }
     setStage("before");
     const counting = window.setTimeout(() => setStage("counting"), 800);
     const after = window.setTimeout(() => setStage("after"), 2400);
     return () => { window.clearTimeout(counting); window.clearTimeout(after); };
-  }, [transition]);
+  }, [resultId]);
   useEffect(() => {
     if (stage !== "counting") { setProgress(1); return; }
     setProgress(0);
