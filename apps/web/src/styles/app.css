@@ -48,7 +48,14 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .projector-ranking, .projector-layout > .results { align-content: start; max-height: calc(100vh - clamp(3rem, 8vw, 8rem)); overflow-y: auto; }
 .projector-layout section { min-height: 12rem; padding: clamp(1rem, 3vw, 2rem); border: 1px solid var(--color-grey); border-radius: 0.75rem; }
 .projector .participants li { font-size: clamp(1.1rem, 2vw, 1.8rem); }
-.projector-ranking .ranking-table { font-size: clamp(1.05rem, 1.8vw, 1.6rem); }
+/* CHG-17: Projektor-Tabellen kleiner (bisher min 1.05rem/1rem, max 1.6rem/1.5rem);
+   die ersten drei Zeilen werden per nth-child-Gradient wieder gestaffelt
+   vergroessert (Platz 1 > 2 > 3 > Rest). */
+.projector-ranking .ranking-table { font-size: clamp(0.9rem, 1.4vw, 1.2rem); }
+.projector-layout .results-table { font-size: clamp(0.9rem, 1.4vw, 1.2rem); }
+.projector-ranking .ranking-table tbody tr:nth-child(1), .projector-layout .results-table tbody tr:nth-child(1) { font-size: 1.55em; }
+.projector-ranking .ranking-table tbody tr:nth-child(2), .projector-layout .results-table tbody tr:nth-child(2) { font-size: 1.3em; }
+.projector-ranking .ranking-table tbody tr:nth-child(3), .projector-layout .results-table tbody tr:nth-child(3) { font-size: 1.15em; }
 /* CHG-16: Rangliste und Ergebnisse teilen eine Regel — identische
    Ueberschriften-Optik statt h2-Default neben 2.2rem-h3. */
 .projector-ranking h2, .results h2 { margin-top: 0; font-size: 2.2rem; }
@@ -100,7 +107,7 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .projector-eval { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; }
 .results { min-width: 0; max-height: 70vh; overflow-y: auto; }
 .results h2 { margin-top: 0; font-size: 2.2rem; }
-.results-table { width: 100%; border-collapse: collapse; font-size: clamp(1rem, 1.8vw, 1.5rem); }
+.results-table { width: 100%; border-collapse: collapse; }
 .results-table th, .results-table td { padding: 0.35rem 0.6rem; border-bottom: 1px solid var(--color-grey); text-align: left; font-variant-numeric: tabular-nums; }
 .results-table th { color: var(--color-muted); }
 .ranking-table th svg, .results-table th svg { display: inline-block; vertical-align: -0.15em; }
