@@ -76,6 +76,11 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
    Ueberschriften-Optik statt h2-Default neben 2.2rem-h3. */
 .projector-ranking h2, .results h2 { margin-top: 0; margin-bottom: 0; font-size: 2.2rem; }
 .game-view { display: grid; gap: 0.8rem; margin-block: 1.5rem; padding: 1rem; border: 1px solid var(--color-grey); border-radius: 0.75rem; }
+/* CHG-20: Lobbymenue als Accordion — summary ist der klickbare Titel,
+   h2 inline damit es wie die bisherige Sektion aussieht. */
+.lobby-accordion summary { cursor: pointer; list-style-position: inside; }
+.lobby-accordion summary h2 { display: inline; margin: 0; }
+.lobby-accordion[open] summary { margin-bottom: 0.8rem; }
 .game-view h2, .game-view h3, .game-view p { margin-block: 0.35rem; }
 .game-view button, .game-view input { min-height: 2.75rem; padding: 0.65rem 0.85rem; border: 1px solid var(--color-grey); border-radius: 0.4rem; color: var(--color-turquoise); background: var(--color-bg); font: inherit; }
 .game-view button { cursor: pointer; }
