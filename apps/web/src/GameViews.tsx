@@ -171,18 +171,31 @@ export function Results({ kind, results }: { kind: "quiz" | "sorting" | "estimat
   </section>;
 }
 
+// CHG-20: Lobbymenue als Accordion — auf jeder Host-Phase verfuegbar
+// (HostPage), nicht mehr nur in der Lobbyphase. Default offen, Zustand
+// nicht persistiert; Inhalt = bisheriges Menue + Lobby-ID.
+export function LobbyAccordion({ lobbyId, snapshot, send }: { lobbyId: string; snapshot: HostSnapshot; send: Send }) {
+  const [open, setOpen] = useState(true);
+  return <details className="game-view lobby-accordion" open={open}
+    onToggle={event => setOpen(event.currentTarget.open)}>
+    <summary><h2>Lobby</h2></summary>
+    <p>Lobby-ID: {lobbyId}</p>
+    <p>Sobald mindestens zwei Spieler beigetreten sind, kannst du die Lobby zur Übersicht starten.</p>
+    <div className="lobby-links">
+      <p>Spieler-Link: <CopyLinkButton label="Spieler-Link" link={snapshot.links.player} /></p>
+      <p>Projektor-Link: <CopyLinkButton label="Projektor-Link" link={snapshot.links.projector} /></p>
+    </div>
+    <button type="button" disabled={!snapshot.canStartLobby} onClick={() => send({ version: 1, type: "lobby.start", requestId: crypto.randomUUID() })}>Lobby starten</button>
+  </details>;
+}
+
 export function HostGameView({ snapshot, send }: { snapshot: HostSnapshot; send: Send }) {
   const round = snapshot.round;
   if (!round) {
     if (snapshot.phase === "overview") return <HostOverview snapshot={snapshot} send={send} />;
-    return <section className="game-view" aria-label="Lobbyphase"><h2>Lobby</h2>
-      <p>Sobald mindestens zwei Spieler beigetreten sind, kannst du die Lobby zur Übersicht starten.</p>
-      <div className="lobby-links">
-        <p>Spieler-Link: <CopyLinkButton label="Spieler-Link" link={snapshot.links.player} /></p>
-        <p>Projektor-Link: <CopyLinkButton label="Projektor-Link" link={snapshot.links.projector} /></p>
-      </div>
-      <button type="button" disabled={!snapshot.canStartLobby} onClick={() => send({ version: 1, type: "lobby.start", requestId: crypto.randomUUID() })}>Lobby starten</button>
-    </section>;
+    // CHG-20: In der Lobbyphase traegt das LobbyAccordion das Menue —
+    // kein dupliziertes Inline-Menue mehr.
+    return null;
   }
   const command = (type: string) => send({ version: 1, type, requestId: crypto.randomUUID(), roundId: round.roundId });
   return <section className="game-view" aria-label="Spielphase">

@@ -1,0 +1,10 @@
+{
+  "task_id": "CHG-20",
+  "command": "npm --prefix apps/web run lint",
+  "exit_code": 2,
+  "stdout_tail": "\n> @raccoons/web@1.0.0 lint\n> eslint . && npm run typecheck\n\n\n> @raccoons/web@1.0.0 typecheck\n> tsc --noEmit\n\nsrc/game-views.test.tsx(831,19): error TS2345: Argument of type 'Element' is not assignable to parameter of type 'HTMLElement'.\r\n  Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 131 more.\r\n",
+  "stderr_tail": "",
+  "started": "2026-10-30T11:25:56.016Z",
+  "finished": "2026-10-30T11:26:29.752Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

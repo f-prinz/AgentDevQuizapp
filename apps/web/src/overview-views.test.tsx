@@ -100,7 +100,9 @@ describe("FEAT-6 host overview", () => {
     const selected = screen.getByRole("button", { name: /Weltwissen/i });
     expect(selected.getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByText(/Eine Antwort waehlen/)).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /starten/i }));
+    // CHG-20: Das LobbyAccordion bringt 'Lobby starten' mit — /starten/i
+    // waere jetzt mehrdeutig, deshalb der exakte Name.
+    fireEvent.click(screen.getByRole("button", { name: /^starten$/i }));
     await waitFor(() => expect(view.socket().commands().some(command => command.type === "game.prepare")).toBe(true));
   });
 });

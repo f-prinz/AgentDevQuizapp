@@ -116,7 +116,9 @@ describe("FEAT-4 game phase views", () => {
   it("gates host start, reveal, next-question, and finish controls by phase and server permissions", async () => {
     const view = renderRole("host");
     await deliver(view, snapshot("host", "start"));
-    const start = screen.getByRole("button", { name: /start/i }) as HTMLButtonElement;
+    // CHG-20: Das LobbyAccordion bringt zusaetzlich 'Lobby starten' —
+    // deshalb explizit nach dem Spielphase-Button suchen.
+    const start = screen.getByRole("button", { name: /spielphase starten/i }) as HTMLButtonElement;
     expect(start.disabled).toBe(false);
     fireEvent.click(start);
     await waitFor(() => expect(view.socket().commands().some(command => command.type === "game.start" && command.roundId === "round-1")).toBe(true));
@@ -803,5 +805,42 @@ describe("host participant status list", () => {
       m => m.type === "player.remove" && m.playerId === "player-1"
         && m.version === 1 && typeof m.requestId === "string",
     )).toBe(true));
+  });
+});
+
+// CHG-20: 'Lobby: <id>' wird zum Accordion "Lobby" — default offen,
+// schliessbar, mit Links + ID, auf jeder Host-Phase verfuegbar.
+describe("host lobby accordion", () => {
+  it("shows the lobby menu in an open accordion even outside the lobby phase", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "playing"));
+    const accordion = document.querySelector<HTMLDetailsElement>("details.lobby-accordion");
+    expect(accordion).not.toBeNull();
+    expect(accordion!.open).toBe(true);
+    expect(within(accordion!).getByLabelText(/spieler-link kopieren/i)).toBeTruthy();
+    expect(within(accordion!).getByLabelText(/projektor-link kopieren/i)).toBeTruthy();
+    // Lobby-ID im Body (nicht die Link-URLs, die den Pfad ebenfalls enthalten).
+    expect(within(accordion!).getByText(new RegExp(`Lobby-ID: ${lobbyId}`))).toBeTruthy();
+  });
+
+  it("stays a single accordion (no duplicated lobby menu) in the lobby phase", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "start", { phase: "lobby", round: null }));
+    const accordions = document.querySelectorAll<HTMLDetailsElement>("details.lobby-accordion");
+    expect(accordions).toHaveLength(1);
+    expect(within(accordions[0]!).getByRole("button", { name: /lobby starten/i })).toBeTruthy();
+  });
+
+  it("closes and reopens via the summary", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "playing"));
+    const accordion = document.querySelector<HTMLDetailsElement>("details.lobby-accordion")!;
+    const summary = within(accordion).getByText("Lobby");
+    expect(accordion.open).toBe(true);
+    fireEvent.click(summary);
+    // jsdom haelt den Body im DOM — das open-Attribut ist die Aussage.
+    await waitFor(() => expect(accordion.open).toBe(false));
+    fireEvent.click(summary);
+    await waitFor(() => expect(accordion.open).toBe(true));
   });
 });

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { CreateLobbyResponseSchema, JoinPlayerResponseSchema, ServerMessageSchema, SessionSchema, type Session, type Snapshot } from "@raccoons/contracts";
 import { Check, Loader, MonitorCheck, MonitorX, Trash } from "lucide-react";
-import { HostGameView, PlayerGameView, ProjectorGameView, ProjectorRanking, Results } from "../GameViews";
+import { HostGameView, LobbyAccordion, PlayerGameView, ProjectorGameView, ProjectorRanking, Results } from "../GameViews";
 
 type Role = "host" | "player" | "projector";
 
@@ -186,7 +186,9 @@ export function HostPage() {
   const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "host");
   return <main className="page">
     <h1>Hostbereich</h1>
-    <p>Lobby: {lobbyId}</p>
+    {/* CHG-20: 'Lobby: <id>'-Zeile -> aufklappbares Lobbymenue, in jeder
+        Host-Phase verfuegbar (Links bleiben erreichbar). */}
+    {snapshot?.role === "host" && <LobbyAccordion lobbyId={lobbyId!} snapshot={snapshot} send={send} />}
     <LobbyStatus error={connectionError} />
     {snapshot?.role === "host" && <HostGameView snapshot={snapshot} send={send} />}
     {snapshot && <ParticipantList snapshot={snapshot} send={send} />}
