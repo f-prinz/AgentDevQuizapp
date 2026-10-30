@@ -1462,8 +1462,26 @@
       "lint_evidence": "tasks/evidence/CHG-14-2026-10-29T11-11-01-972Z.json",
       "reviewed_by": "code_reviewer",
       "review_file": "tasks/reviews/CHG-14.md"
+    },
+    {
+      "id": "CHG-15",
+      "component": "web",
+      "title": "Spielername als Pflichtfeld min. 3 Zeichen; Beitreten-Button sonst disabled",
+      "acceptance_criteria": "Beitreten-Button disabled bei leerem Namen und weniger als 3 getrimmten Zeichen; ab 3 Zeichen klickbar; Submit-Guard blockiert zusaetzlich (Enter-Submit); Bestehende Max-20-Regel bleibt",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-2"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-29T11:12:59.910Z"
+  "last_updated_utc": "2026-10-30T07:37:46.404Z"
 }
