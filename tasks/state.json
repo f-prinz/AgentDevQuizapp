@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1843,8 +1843,22 @@
       "red_evidence": "tasks/evidence/CHG-21-2026-10-30T13-01-03-452Z.json",
       "lint_evidence": "tasks/evidence/CHG-21-2026-10-30T13-02-21-939Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "TECH-19",
+      "component": "contracts",
+      "title": "Contract: optionales value an Quiz-Optionen",
+      "acceptance_criteria": "OptionSchema erlaubt value als optionale endliche Zahl; Seeds/Tasks/Solutions mit value validieren; ohne value unveraendert; additiv abwaertskompatibel",
+      "test_command": "npm --prefix contracts test",
+      "lint_command": "npm --prefix contracts run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "implemented_by": "integration_engineer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T13:04:25.062Z"
+  "last_updated_utc": "2026-10-30T13:33:53.618Z"
 }
