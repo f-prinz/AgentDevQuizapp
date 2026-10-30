@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1801,8 +1801,22 @@
       "red_evidence": "tasks/evidence/CHG-20-2026-10-30T11-20-07-943Z.json",
       "lint_evidence": "tasks/evidence/CHG-20-2026-10-30T11-26-42-802Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "FEAT-20",
+      "component": "web",
+      "title": "Automatischer WebSocket-Reconnect (begrenzt, mit Reconnect-Button)",
+      "acceptance_criteria": "Socket-Close triggert max. 3 Auto-Retries (Backoff 2s/5s/10s); visibilitychange/online/pageshow pruefen sofort; waehrend Retry Zwischenmeldung, nach Erschoepfung Fehler + Erneut-verbinden-Button; Fatal-Errors (LOBBY_NOT_FOUND/UNAUTHORIZED) nie retry; gilt fuer alle Rollen",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T11:28:11.967Z"
+  "last_updated_utc": "2026-10-30T11:39:54.567Z"
 }
