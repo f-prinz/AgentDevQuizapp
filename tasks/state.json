@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1822,8 +1822,22 @@
       "red_evidence": "tasks/evidence/FEAT-20-2026-10-30T11-40-51-886Z.json",
       "lint_evidence": "tasks/evidence/FEAT-20-2026-10-30T11-43-46-951Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "CHG-21",
+      "component": "web",
+      "title": "Sortier-Aufloesung tabellarisch ohne Header (Position|Text|Wert)",
+      "acceptance_criteria": "Projektor-Evaluation rendert die Sortier-Loesung als Tabelle mit je einer Zeile pro Begriff (Spalten: Position 1..n, Text, Wert), aufsteigend nach value; kein Header; Spieler-Ansicht unveraendert",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T11:45:27.978Z"
+  "last_updated_utc": "2026-10-30T13:00:18.002Z"
 }
