@@ -117,6 +117,25 @@ describe("FEAT-2 lobby views", () => {
     expect(Array.from({ length: localStorage.length }, (_, index) => localStorage.getItem(localStorage.key(index) ?? "") ?? "").join(" ")).toContain(playerSession.token);
   });
 
+  it("requires a name of at least 3 characters before the join button can be clicked", async () => {
+    const fetchMock = vi.mocked(fetch);
+    renderAt(`/lobbies/${lobbyId}/join`);
+
+    const name = screen.getByRole("textbox", { name: /name/i });
+    const button = screen.getByRole("button", { name: /beitreten/i }) as HTMLButtonElement;
+    // CHG-15: Pflichtfeld — unter 3 getrimmten Zeichen bleibt der Button disabled.
+    expect(button.disabled).toBe(true);
+    fireEvent.change(name, { target: { value: "Al" } });
+    expect(button.disabled).toBe(true);
+    fireEvent.change(name, { target: { value: "  Ada  " } });
+    expect(button.disabled).toBe(false);
+    // Defense in depth: selbst ein direktes Form-Submit (Enter) ruft keinen REST-Call.
+    fireEvent.change(name, { target: { value: "Al" } });
+    fireEvent.submit(name.closest("form")!);
+    expect(fetchMock).not.toHaveBeenCalledWith(`/api/lobbies/${lobbyId}/players`, expect.anything());
+    expect(await screen.findByRole("alert")).toBeTruthy();
+  });
+
   it("keeps a successful server join successful when local session storage is unavailable", async () => {
     const fetchMock = vi.fn(async () => response({ version: 1, session: playerSession }));
     vi.stubGlobal("fetch", fetchMock);
