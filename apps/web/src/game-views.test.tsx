@@ -844,3 +844,75 @@ describe("host lobby accordion", () => {
     await waitFor(() => expect(accordion.open).toBe(true));
   });
 });
+
+// FEAT-20: Begrenzter Auto-Reconnect — Socket-Close startet Retry mit
+// Backoff (2s/5s/10s, max. 3), Lifecycle-Events loesen sofort aus, danach
+// Fehler + Reconnect-Button; Fatal-Errors retriggern nie.
+describe("FEAT-20 auto reconnect", () => {
+  it("reconnects automatically after the first backoff when the socket closes", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "playing"));
+    expect(FakeWebSocket.instances).toHaveLength(1);
+    vi.useFakeTimers();
+    try {
+      act(() => view.socket().close());
+      await act(async () => { await vi.advanceTimersByTimeAsync(1999); });
+      expect(FakeWebSocket.instances).toHaveLength(1);
+      await act(async () => { await vi.advanceTimersByTimeAsync(2); });
+      expect(FakeWebSocket.instances).toHaveLength(2);
+    } finally { vi.useRealTimers(); }
+    // Der neue Socket authentifiziert sich wieder mit der Session.
+    expect(view.socket().commands().some(m => m.type === "auth")).toBe(true);
+  });
+
+  it("reconnects immediately when the page becomes visible again", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "playing"));
+    vi.useFakeTimers();
+    try {
+      act(() => view.socket().close());
+      // Mobile-Fall: Entsperren prueft sofort statt auf den Backoff zu warten.
+      act(() => { document.dispatchEvent(new Event("visibilitychange")); });
+      await act(async () => { await Promise.resolve(); });
+      expect(FakeWebSocket.instances).toHaveLength(2);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it("stops after 3 retries, shows the error and a reconnect button", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "playing"));
+    vi.useFakeTimers();
+    try {
+      const drop = async (ms: number) => {
+        act(() => view.socket().close());
+        await act(async () => { await vi.advanceTimersByTimeAsync(ms); });
+      };
+      await drop(2100);   // Retry 1 -> Socket 2
+      await drop(5100);   // Retry 2 -> Socket 3
+      await drop(10100);  // Retry 3 -> Socket 4
+      expect(FakeWebSocket.instances).toHaveLength(4);
+      await drop(15000);  // 4. Abbruch -> Budget erschoepft, kein neuer Socket
+      expect(FakeWebSocket.instances).toHaveLength(4);
+      const retry = screen.getByRole("button", { name: /erneut verbinden|neu verbinden/i });
+      expect(screen.getByText(/verbindung.*verloren|nicht.*hergestellt|unterbrochen/i)).toBeTruthy();
+      act(() => fireEvent.click(retry));
+      await act(async () => { await Promise.resolve(); });
+      expect(FakeWebSocket.instances).toHaveLength(5);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it("never retries after a fatal session error", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "playing"));
+    vi.useFakeTimers();
+    try {
+      act(() => view.socket().deliver({
+        version: 1, type: "error", requestId: null,
+        code: "UNAUTHORIZED", message: "Session invalid",
+      }));
+      act(() => view.socket().close());
+      await act(async () => { await vi.advanceTimersByTimeAsync(20000); });
+      expect(FakeWebSocket.instances).toHaveLength(1);
+    } finally { vi.useRealTimers(); }
+  });
+});
