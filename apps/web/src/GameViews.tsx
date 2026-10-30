@@ -142,14 +142,14 @@ function TimerDisplay({ timer, size }: { timer: Timer; size: "compact" | "large"
 }
 
 export function Results({ kind, results }: { kind: "quiz" | "sorting" | "estimation"; results: Array<{ playerId: string; name: string; points: number; rank: number | null; distance: number | null; errors: number | null }> }) {
-  if (results.length === 0) return <section className="results" aria-label="Ergebnisse"><h3>Ergebnisse</h3><p>Noch keine Ergebnisse vorhanden.</p></section>;
+  if (results.length === 0) return <section className="results" aria-label="Ergebnisse"><h2>Ergebnisse</h2><p>Noch keine Ergebnisse vorhanden.</p></section>;
   // CHG-13: Ergebnisse als kompakte Tabelle (bis 25 Spieler) — sortiert nach
   // Platzierung, bei Spielen ohne Rang (Quiz) nach Punkten absteigend.
   const sorted = [...results].sort((a, b) =>
     (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER) || b.points - a.points);
   const withRank = kind !== "quiz";
   const withDistance = kind === "estimation";
-  return <section className="results" aria-label="Ergebnisse"><h3>Ergebnisse</h3>
+  return <section className="results" aria-label="Ergebnisse"><h2>Ergebnisse</h2>
     <table className="results-table"><thead><tr>
       {withRank && <th aria-label="Platzierung"><Podium aria-hidden size="1em" /></th>}
       <th aria-label="Punkte"><Star aria-hidden size="1em" /></th>
@@ -227,7 +227,8 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
   // CHG-6: Eigene Identitaet immer oben — Name, plus Punkte und Platz wenn vorhanden.
   const mine = snapshot.ranking.find(entry => entry.playerId === snapshot.playerId);
   const myName = mine?.name ?? snapshot.participants.find(player => player.id === snapshot.playerId)?.name ?? "Spieler";
-  const identity = <h2 className="player-identity">{myName}{mine ? ` - ${mine.total} (${mine.rank})` : ""}</h2>;
+  // CHG-16: Identitaet mit Icons — Rang (Podium) vor Punkten (Stern).
+  const identity = <h2 className="player-identity">{myName}{mine ? <> - <Podium aria-hidden size="1em" /> {mine.rank} <Star aria-hidden size="1em" /> {mine.total}</> : ""}</h2>;
   // CHG-7: Die Identitaetszeile steht oberhalb der Card, nicht darin.
   if (!round) return <>{identity}<section className="game-view" aria-label="Spielbeginn"><h3>Das Spiel beginnt gleich …</h3></section></>;
   const canEdit = round.phase === "playing" && snapshot.input.participating && !snapshot.input.final && !round.timer.inputClosed;

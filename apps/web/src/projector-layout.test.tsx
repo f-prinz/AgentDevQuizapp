@@ -95,3 +95,20 @@ describe("projector layout at narrow viewport widths", () => {
     expect(minWidthInPixels(document.querySelector(".app-shell")!)).toBeLessThanOrEqual(window.innerWidth);
   });
 });
+
+// CHG-16: Neutrale graue Karten tragen im Light-Theme weissen Text auf
+// hellem Grund — der Token --color-on-grey liefert pro Theme die lesbare
+// Textfarbe (hell auf dunklem, dunkel auf hellem Kartengrund).
+describe("neutral card text colour token", () => {
+  const allStyles = () => styleElements.map(el => el.textContent).join("\n");
+
+  it("defines --color-on-grey for dark and light themes", () => {
+    expect(allStyles()).toContain("--color-on-grey:");
+    expect(allStyles()).toContain('[data-theme="light"]');
+  });
+
+  it("uses the token on neutral grey answer cards instead of white", () => {
+    expect(allStyles()).toMatch(/\.answer-tile[^}]*color:\s*var\(--color-on-grey\)/);
+    expect(allStyles()).toMatch(/\.answer-option[^}]*color:\s*var\(--color-on-grey\)/);
+  });
+});
