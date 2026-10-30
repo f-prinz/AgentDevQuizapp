@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { appRoutes } from "./app-routes";
@@ -339,7 +339,9 @@ describe("CHG-3 game phase views", () => {
         { playerId: "player-1", name: "Ada", rank: 2, total: 9, games: [{ gameId: "quiz-1", points: 4 }] },
       ],
     }));
-    const identity = screen.getByRole("heading", { level: 2, name: /ada - 9 \(2\)/i });
+    // CHG-16: Icons sind aria-hidden — der zugängliche Name bleibt
+    // „Ada - 2 9" (Rang vor Punkten statt „Punkte (Rang)").
+    const identity = screen.getByRole("heading", { level: 2, name: /ada - 2 9/i });
     expect(identity).toBeTruthy();
     // CHG-7: Die Identitätszeile liegt ausserhalb der Card.
     expect(identity.closest(".game-view")).toBeNull();
@@ -702,6 +704,23 @@ describe("CHG-13 projector ranking and result tables", () => {
     // Frage und Aufloesung bleiben gestapelt im (jetzt schmaleren) Spielbereich.
     expect(game.querySelector(".projector-stage")?.textContent).toContain("Welche Stadt");
     expect(game.querySelector(".solution")).toBeTruthy();
+  });
+
+  // CHG-16: „Ergebnisse" und „Rangliste" sollen identisch gestylte
+  // Überschriften haben — gleiche Ebene (h2), gleiches CSS-Sizing.
+  it("uses the same heading level for results and ranking sections", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "evaluation", {
+      round: { results: [
+        { playerId: "player-1", name: "Ada", points: 1, rank: null, distance: null, errors: null },
+      ] },
+    }));
+    const results = await screen.findByRole("region", { name: /ergebnisse/i });
+    const ranking = await screen.findByRole("region", { name: /rangliste/i });
+    const resultsHeading = within(results).getByRole("heading");
+    const rankingHeading = within(ranking).getByRole("heading");
+    expect(resultsHeading.tagName).toBe(rankingHeading.tagName);
+    expect(resultsHeading.tagName).toBe("H2");
   });
 
   it("keeps two columns without a results column outside evaluation", async () => {

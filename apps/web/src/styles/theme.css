@@ -6,6 +6,8 @@
   --color-bg: #0F172A;
   --color-text: #E2E8F0;
   --color-muted: #94A3B8;
+  /* CHG-16: Textfarbe auf neutralen grauen Karten (hell auf dunklem Grund). */
+  --color-on-grey: #FFFFFF;
 }
 
 /* FEAT-17: Light-Theme — gleiche Palette, helle Basis; Akzent/Danger dunkler
@@ -19,4 +21,7 @@
   --color-bg: #F8FAFC;
   --color-text: #0F172A;
   --color-muted: #475569;
+  /* CHG-16: Dunkler Text auf hellgrauen Karten (Weiss war im Light-Theme
+     auf #CBD5E1 unlesbar); farbige Zustaende bleiben unveraendert. */
+  --color-on-grey: #0F172A;
 }

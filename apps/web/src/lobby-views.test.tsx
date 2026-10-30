@@ -301,6 +301,28 @@ describe("CHG-1 shell and player base", () => {
     expect(nameOccurrences).toHaveLength(1);
   });
 
+  // CHG-16: Identitätszeile zeigt Rang- und Punkte-Icons in der Reihenfolge
+  // „Name - <RangIcon> Rang <PunkteIcon> Punkte" statt "Punkte (Rang)".
+  it("shows rank and points icons in the player identity line", async () => {
+    localStorage.setItem(`lobby:${lobbyId}:player`, JSON.stringify(playerSession));
+    renderAt(`/lobbies/${lobbyId}/join`);
+    await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(0));
+    const socket = FakeWebSocket.instances.at(-1)!;
+    await act(async () => socket.deliver(snapshot("player")));
+    const identity = await waitFor(() => {
+      const el = document.querySelector(".player-identity");
+      expect(el).not.toBeNull();
+      return el!;
+    });
+    const podium = identity.querySelector(".lucide-podium");
+    const star = identity.querySelector(".lucide-star");
+    expect(podium).not.toBeNull();
+    expect(star).not.toBeNull();
+    // Rang-Icon steht vor dem Punkte-Icon.
+    expect(podium!.compareDocumentPosition(star!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(identity.textContent).toContain("Spieler 1");
+  });
+
   it("keeps connection errors visible on the player route", async () => {
     renderAt(`/lobbies/${lobbyId}/player`);
     expect(await screen.findByText(/sitzung fehlt/i)).toBeTruthy();
