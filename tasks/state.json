@@ -1565,8 +1565,26 @@
       "red_evidence": "tasks/evidence/CHG-17-2026-10-30T08-29-56-161Z.json",
       "lint_evidence": "tasks/evidence/CHG-17-2026-10-30T08-31-33-425Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "CHG-18",
+      "component": "web",
+      "title": "margin-bottom:0 unter Rangliste- und Ergebnisse-Header",
+      "acceptance_criteria": "Die geteilte Heading-Regel .projector-ranking h2, .results h2 setzt margin-bottom: 0",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-17"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T08:34:15.462Z"
+  "last_updated_utc": "2026-10-30T08:37:09.656Z"
 }
