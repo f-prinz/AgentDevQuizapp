@@ -568,20 +568,27 @@ export function projectRound(
       phase: 'evaluation',
       solution,
       hasNextQuestion: hasNext,
-      results: round.participantIds.flatMap(id => {
-        const player = lobby.players.find(item => item.id === id);
-        if (!player) return [];
-        const estimate = estimates.get(player.id);
-        const points = round.seed.kind === 'estimation' ? estimate?.points ?? 0 : answerPoints(round, player.answer);
-        return [{
+      results: (() => {
+        // BUG-8: Punkte erst komplett sammeln — der Sorting-Rang braucht den
+        // Vergleich aller Teilnehmer (1 + Anzahl mit mehr Punkten).
+        const scored = round.participantIds.flatMap(id => {
+          const player = lobby.players.find(item => item.id === id);
+          if (!player) return [];
+          const estimate = estimates.get(player.id);
+          const points = round.seed.kind === 'estimation' ? estimate?.points ?? 0 : answerPoints(round, player.answer);
+          return [{ player, estimate, points }];
+        });
+        return scored.map(({ player, estimate, points }) => ({
           playerId: player.id,
           name: player.name || `Spieler ${player.number}`,
           points,
-          rank: estimate?.rank ?? null,
+          rank: round.seed.kind === 'sorting'
+            ? 1 + scored.filter(other => other.points > points).length
+            : estimate?.rank ?? null,
           distance: estimate?.distance ?? null,
           errors: round.seed.kind === 'sorting' ? round.seed.terms.length - points : null,
-        }];
-      }),
+        }));
+      })(),
     };
   }
 

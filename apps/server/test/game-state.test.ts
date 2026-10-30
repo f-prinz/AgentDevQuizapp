@@ -654,9 +654,11 @@ describe('server game state and round timers', () => {
       answer: { kind: 'sorting', termIds: ['term_b', 'term_a', 'term_c'] },
       points: 1, positionsCorrect: [false, false, true],
     });
+    // BUG-8: Sorting-Ergebnisse tragen die Platzierung (Rang aus Punkten,
+    // Ties teilen den Rang) — bisher kam rank null und der Projektor zeigte '-'.
     const expectedResults = [
-      { playerId: firstPlayerId, points: 3, errors: 0 },
-      { playerId: secondPlayerId, points: 1, errors: 2 },
+      { playerId: firstPlayerId, points: 3, errors: 0, rank: 1 },
+      { playerId: secondPlayerId, points: 1, errors: 2, rank: 2 },
     ];
     for (const evaluation of [hostEvaluation.round, projectorEvaluation.round]) {
       expect(evaluation.results).toEqual(expect.arrayContaining(expectedResults.map(result =>
