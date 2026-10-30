@@ -1627,13 +1627,20 @@
       "dependencies": [
         "TECH-18"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-21"
+      ],
       "allowed_paths": [
         "apps/server/"
       ],
-      "implemented_by": "server_developer"
+      "implemented_by": "server_developer",
+      "review_result": "Freigabe ohne Blocker; vollstaendiges Entfernen inkl. Sessions+Sockets, submitted-Flag",
+      "test_evidence": "tasks/evidence/FEAT-18-2026-10-30T09-02-10-553Z.json",
+      "red_evidence": "tasks/evidence/FEAT-18-2026-10-30T08-55-41-900Z.json",
+      "lint_evidence": "tasks/evidence/FEAT-18-2026-10-30T09-01-00-194Z.json",
+      "reviewed_by": "code_reviewer"
     },
     {
       "id": "FEAT-19",
@@ -1655,5 +1662,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T08:52:55.339Z"
+  "last_updated_utc": "2026-10-30T09:03:00.675Z"
 }
