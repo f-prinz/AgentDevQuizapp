@@ -1502,12 +1502,13 @@
       "dependencies": [
         "CHG-14"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
         "apps/web/"
-      ]
+      ],
+      "implemented_by": "web_developer"
     },
     {
       "id": "TECH-17",
@@ -1534,5 +1535,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T08:08:08.895Z"
+  "last_updated_utc": "2026-10-30T08:08:27.756Z"
 }
