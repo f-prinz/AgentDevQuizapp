@@ -100,6 +100,7 @@ function messageForError(code: LobbyErrorCode | 'INVALID_MESSAGE' | 'INTERNAL_ER
     case 'FORBIDDEN': return 'This role cannot perform that action.';
     case 'INVALID_PHASE': return 'This action is not available in the current phase.';
     case 'UNAUTHORIZED': return 'Authentication failed.';
+    case 'PLAYER_NOT_FOUND': return 'Player not found.';
     case 'INVALID_MESSAGE': return 'Invalid message.';
     case 'INTERNAL_ERROR': return 'Internal server error.';
     default: return 'The request could not be completed.';
@@ -299,6 +300,31 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
         revision: registry.getRevision(state.session.lobbyId),
       }));
       broadcast(state.session.lobbyId);
+      return;
+    }
+
+    // FEAT-18: Host kickt einen Spieler — Sessions sind danach ungueltig,
+    // offene Sockets des Spielers werden geschlossen.
+    if (command.type === 'player.remove') {
+      const errorCode = registry.removePlayer(state.session, command.playerId);
+      if (errorCode) {
+        sendError(socket, errorCode, command.requestId);
+        return;
+      }
+      sendWebSocketMessage(socket, AckEventSchema.parse({
+        version: 1,
+        type: 'ack',
+        requestId: command.requestId,
+        revision: registry.getRevision(state.session.lobbyId),
+      }));
+      broadcast(state.session.lobbyId);
+      for (const [peer, peerState] of connections) {
+        if (peerState.session?.lobbyId === state.session.lobbyId
+          && peerState.session?.playerId === command.playerId
+          && peer.readyState === WebSocket.OPEN) {
+          peer.close(1008, 'Player removed.');
+        }
+      }
       return;
     }
 
