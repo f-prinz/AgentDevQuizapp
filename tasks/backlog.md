@@ -66,5 +66,6 @@
 | BUG-5 | web |  |  | Kick-Kommando ohne version/requestId -> INVALID_COMMAND | FEAT-19 | Bestaetigter Kick sendet player.remove mit version+requestId (serverseitig gueltig) | npm --prefix apps/web test | DONE |
 | BUG-6 | server |  |  | Rangliste re-animiert bei jeder Aktion (stale rankingTransition) | FEAT-18 | rankingTransition ist nach nextQuestion/finishGame null; Animation nur bei neuer resultId (Auswertung) | npm --prefix apps/server test | DONE |
 | CHG-19 | web |  |  | Kick-Icon kompakt rechts + Status-Icon-Farben | FEAT-19 | Kick-Button nur Icon ganz rechts (keine volle Breite); MonitorCheck+Check gruen, MonitorX rot | npm --prefix apps/web test | TODO |
+| BUG-7 | web |  |  | RankingTable re-animiert pro Snapshot (Objekt-Identitaet statt resultId) | BUG-6 | Gleiche resultId loest Animation nicht erneut aus; neue resultId startet sie | npm --prefix apps/web test | IN_PROGRESS |
 
 DONE erfordert: gueltige Transition, Evidence-Datei aus scripts/record-check.mjs mit Exit-Code 0, reviewed_by != implemented_by (code_reviewer oder security_reviewer), erfuellte Abhaengigkeiten und bei FEAT/CHG/BUG mindestens einen INV-Eintrag. BLOCKED erfordert blocked_reason. Je Task maximal drei gezielte Fix-Retries (scripts/record-fix.mjs). Archivierte Tasks liegen in tasks/archive.json. Aktueller Datencheck: node scripts/check-state.mjs.

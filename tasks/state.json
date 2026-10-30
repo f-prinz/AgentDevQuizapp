@@ -1728,8 +1728,24 @@
       "status": "TODO",
       "fix_retries": 0,
       "inventory_refs": []
+    },
+    {
+      "id": "BUG-7",
+      "component": "web",
+      "title": "RankingTable re-animiert pro Snapshot (Objekt-Identitaet statt resultId)",
+      "acceptance_criteria": "Gleiche resultId loest Animation nicht erneut aus; neue resultId startet sie",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "BUG-6"
+      ],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T10:21:34.811Z"
+  "last_updated_utc": "2026-10-30T10:21:48.221Z"
 }
