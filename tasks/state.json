@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1603,12 +1603,13 @@
       "dependencies": [
         "CHG-16"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
         "contracts/"
-      ]
+      ],
+      "implemented_by": "integration_engineer"
     },
     {
       "id": "FEAT-18",
@@ -1648,5 +1649,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T08:47:55.537Z"
+  "last_updated_utc": "2026-10-30T08:48:29.933Z"
 }
