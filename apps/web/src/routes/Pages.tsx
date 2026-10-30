@@ -175,8 +175,10 @@ export function JoinPage() {
   const { snapshot, connectionError, send } = useLobbySnapshot(lobbyId, "player", joined, activeSession, invalidateSession);
 
   async function joinLobby() {
-    if (!lobbyId || name.trim().length > 20) {
-      setError("Bitte gib einen Namen mit höchstens 20 Zeichen ein.");
+    // CHG-15: Pflichtfeld min. 3 Zeichen (Max. 20 bleibt) — gilt auch bei
+    // Enter-Submit, da der Button-Guard allein nicht zuverlaessig blockiert.
+    if (!lobbyId || name.trim().length < 3 || name.trim().length > 20) {
+      setError("Bitte gib einen Namen mit mindestens 3 und höchstens 20 Zeichen ein.");
       return;
     }
     setError("");
@@ -207,8 +209,8 @@ export function JoinPage() {
     {!joined && <form onSubmit={(event) => { event.preventDefault(); void joinLobby(); }}>
     <h1>Lobby beitreten</h1>
       <label htmlFor="player-name">Dein Name</label>
-      <input id="player-name" name="name" value={name} maxLength={20} autoComplete="nickname" onChange={(event) => setName(event.target.value)} />
-      <button type="submit">Beitreten</button>
+      <input id="player-name" name="name" value={name} maxLength={20} autoComplete="nickname" required minLength={3} onChange={(event) => setName(event.target.value)} />
+      <button type="submit" disabled={name.trim().length < 3}>Beitreten</button>
     </form>}
     {error && <p className="error-message" role="alert">{error}</p>}
     <LobbyStatus error={connectionError} />
