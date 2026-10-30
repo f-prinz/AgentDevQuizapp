@@ -330,7 +330,7 @@
       ],
       "introduced_by": "FEAT-8",
       "removed_by": null,
-      "notes": "CHG-8: Spieler-Evaluation zeigt keine Aufloesungs-Box und keine Marktexte mehr — nur farbige Tiles (aria-labels bleiben); richtige Antwort blinkt 3s im 0,5s-Takt tuerkis<->rot (gewaehlt) bzw. tuerkis<->grau (nicht gewaehlt). Projektor-Aufloesung bleibt mit Texten."
+      "notes": "Spieler sieht eigene markierte Antwort (CHG-8); Projektor-Aufloesung: Liste mit Richtig-Markierung, seit CHG-22/TECH-19 Tabelle ohne Header (Text|Wert|Richtig) sobald Optionen value tragen."
     },
     {
       "id": "INV-17",
@@ -581,5 +581,5 @@
       "notes": "Budget-Reset bei stabilem Snapshot; sessionGone-Guard bei LOBBY_NOT_FOUND/UNAUTHORIZED; gilt fuer Host/Spieler/Projektor via LobbyStatus"
     }
   ],
-  "last_updated_utc": "2026-10-30T13:04:13.625Z"
+  "last_updated_utc": "2026-10-30T13:42:30.723Z"
 }
