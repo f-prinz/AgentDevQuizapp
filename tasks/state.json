@@ -1627,12 +1627,13 @@
       "dependencies": [
         "TECH-18"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
         "apps/server/"
-      ]
+      ],
+      "implemented_by": "server_developer"
     },
     {
       "id": "FEAT-19",
@@ -1654,5 +1655,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T08:52:23.930Z"
+  "last_updated_utc": "2026-10-30T08:52:55.339Z"
 }
