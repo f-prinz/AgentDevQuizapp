@@ -1702,9 +1702,10 @@
       "dependencies": [
         "FEAT-18"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "implemented_by": "server_developer"
     },
     {
       "id": "CHG-19",
@@ -1723,5 +1724,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T09:58:12.452Z"
+  "last_updated_utc": "2026-10-30T09:58:26.632Z"
 }
