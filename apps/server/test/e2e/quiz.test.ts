@@ -172,6 +172,10 @@ describe('e2e: quiz round flow', () => {
     const secondQuestion = await play2;
     if (secondQuestion.type !== 'snapshot' || secondQuestion.role !== 'host' || secondQuestion.round?.phase !== 'playing') throw new Error('Expected second question.');
     expect(secondQuestion.round.questionIndex).toBe(1);
+    // BUG-6: Die Transition der ersten Aufloesung ist konsumiert — beim
+    // Start der naechsten Frage darf kein stale rankingTransition mehr
+    // mitgeliefert werden.
+    expect(secondQuestion.rankingTransition).toBeNull();
     expect(secondQuestion.round.task.kind).toBe('quiz');
     if (secondQuestion.round.task.kind !== 'quiz') throw new Error('Expected quiz task.');
     expect(secondQuestion.round.task.question).toContain('Zweite Frage');

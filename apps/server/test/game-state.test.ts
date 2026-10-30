@@ -502,13 +502,11 @@ describe('server game state and round timers', () => {
       expect(playerSnapshot.ranking).toEqual([expectedRanking[index]]);
       expect(playerSnapshot.ranking.every(entry => entry.playerId === playerIds[index])).toBe(true);
     }
-    expect(completedHost.rankingTransition).not.toBeNull();
-    expect(completedProjector.rankingTransition).not.toBeNull();
-    expect(completedHost.rankingTransition?.previous).toEqual(firstRanking);
-    expect(completedProjector.rankingTransition?.previous).toEqual(firstRanking);
-    expect(completedHost.rankingTransition?.current).toEqual(expectedRanking);
-    expect(completedProjector.rankingTransition?.current).toEqual(expectedRanking);
-    expect(completedHost.rankingTransition?.resultId).toBe(completedProjector.rankingTransition?.resultId);
+    // BUG-6: Die Transition der letzten Aufloesung ist beim Beenden konsumiert —
+    // kein stale rankingTransition mehr im Overview-Snapshot (Inhalt wurde oben
+    // bereits auf dem Evaluation-Snapshot geprueft).
+    expect(completedHost.rankingTransition).toBeNull();
+    expect(completedProjector.rankingTransition).toBeNull();
     expect(completedHost.catalog.find(game => game.id === 'quiz_game')?.played).toBe(true);
     expect(completedProjector.catalog.find(game => game.id === 'quiz_game')?.played).toBe(true);
     expect(completedHost.catalog.find(game => game.id === 'sorting_game')?.played).toBe(false);
@@ -561,18 +559,10 @@ describe('server game state and round timers', () => {
     expect(completedProjector.catalog.find(game => game.id === 'sorting_game')?.played).toBe(true);
     expect(completedHost.ranking).toHaveLength(2);
     expect(completedProjector.ranking).toEqual(completedHost.ranking);
-    expect(completedHost.rankingTransition).not.toBeNull();
-    expect(completedProjector.rankingTransition).not.toBeNull();
-    // CHG-12: previous ist der angezeigte Stand vor der Aufloesung — alle
-    // Spieler mit 0 Punkten, das laufende Spiel bereits als games-Eintrag.
-    const beforeReveal = completedHost.ranking.map(entry => ({
-      ...entry, rank: 1, total: 0, games: [{ gameId: 'sorting_game', points: 0 }],
-    }));
-    expect(completedHost.rankingTransition?.previous).toEqual(beforeReveal);
-    expect(completedProjector.rankingTransition?.previous).toEqual(beforeReveal);
-    expect(completedHost.rankingTransition?.current).toEqual(completedHost.ranking);
-    expect(completedProjector.rankingTransition?.current).toEqual(completedProjector.ranking);
-    expect(completedHost.rankingTransition?.resultId).toBe(completedProjector.rankingTransition?.resultId);
+    // BUG-6: Die Transition der Aufloesung ist beim Beenden konsumiert —
+    // kein stale rankingTransition mehr im Overview-Snapshot.
+    expect(completedHost.rankingTransition).toBeNull();
+    expect(completedProjector.rankingTransition).toBeNull();
     for (const entry of completedHost.ranking) {
       expect(entry.games.map(game => game.gameId)).toEqual(['sorting_game']);
       expect(entry.total).toBe(entry.games[0]?.points);

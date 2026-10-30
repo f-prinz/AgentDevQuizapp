@@ -406,6 +406,9 @@ export function nextQuestion(
   resetInputs(lobby, next);
   lobby.round = next;
   lobby.phase = 'playing';
+  // BUG-6: Die Transition der letzten Aufloesung ist konsumiert — nicht mehr
+  // mitschleppen, sonst re-animiert die Rangliste bei jeder weiteren Aktion.
+  lobby.rankingTransition = null;
   lobby.revision += 1;
   return undefined;
 }
@@ -427,6 +430,9 @@ export function finishGame(
     // CHG-12: Keine neue Transition beim Beenden — die letzte Aufloesung hat
     // den finalen Stand bereits als current publiziert.
   }
+  // BUG-6: Transition konsumieren — der finale Stand wurde bereits bei der
+  // letzten Aufloesung als current publiziert.
+  lobby.rankingTransition = null;
   lobby.selectedGameId = null;
   lobby.round = null;
   lobby.phase = 'overview';

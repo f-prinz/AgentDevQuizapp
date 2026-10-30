@@ -190,7 +190,10 @@ describe('e2e: lobby and reconnect flow', () => {
     if (final.type !== 'snapshot') throw new Error('Expected overview snapshot.');
     expect(final.catalog.find(game => game.id === 'e2e_lobby_quiz')?.played).toBe(true);
     expect(final.ranking.find(entry => entry.name === 'Ada')?.total).toBe(quizPoints);
-    expect(final.rankingTransition?.gameId).toBe('e2e_lobby_quiz');
+    // BUG-6: Die Transition ist konsumiert — nach dem Beenden kein stale
+    // rankingTransition mehr im Snapshot (sonst re-animiert die Tabelle bei
+    // jeder weiteren Aktion).
+    expect(final.rankingTransition).toBeNull();
   });
 
   it('rejects moderation commands from non-host roles', async () => {
