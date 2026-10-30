@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1667,8 +1667,54 @@
       "red_evidence": "tasks/evidence/FEAT-19-2026-10-30T09-08-14-108Z.json",
       "lint_evidence": "tasks/evidence/FEAT-19-2026-10-30T09-11-41-452Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "BUG-5",
+      "component": "web",
+      "title": "Kick-Kommando ohne version/requestId -> INVALID_COMMAND",
+      "acceptance_criteria": "Bestaetigter Kick sendet player.remove mit version+requestId (serverseitig gueltig)",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-19"
+      ],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "implemented_by": "web_developer"
+    },
+    {
+      "id": "BUG-6",
+      "component": "server",
+      "title": "Rangliste re-animiert bei jeder Aktion (stale rankingTransition)",
+      "acceptance_criteria": "rankingTransition ist nach nextQuestion/finishGame null; Animation nur bei neuer resultId (Auswertung)",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-18"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
+    },
+    {
+      "id": "CHG-19",
+      "component": "web",
+      "title": "Kick-Icon kompakt rechts + Status-Icon-Farben",
+      "acceptance_criteria": "Kick-Button nur Icon ganz rechts (keine volle Breite); MonitorCheck+Check gruen, MonitorX rot",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-19"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T09:13:58.453Z"
+  "last_updated_utc": "2026-10-30T09:54:12.888Z"
 }
