@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -1551,15 +1551,22 @@
       "dependencies": [
         "CHG-16"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-17"
+      ],
       "allowed_paths": [
         "apps/web/"
       ],
-      "implemented_by": "web_developer"
+      "implemented_by": "web_developer",
+      "review_result": "Freigabe ohne Blocker; Basis kleiner, Top-3-Gradient per nth-child 1.55/1.3/1.15em",
+      "test_evidence": "tasks/evidence/CHG-17-2026-10-30T08-33-49-707Z.json",
+      "red_evidence": "tasks/evidence/CHG-17-2026-10-30T08-29-56-161Z.json",
+      "lint_evidence": "tasks/evidence/CHG-17-2026-10-30T08-31-33-425Z.json",
+      "reviewed_by": "code_reviewer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T08:28:56.279Z"
+  "last_updated_utc": "2026-10-30T08:34:15.462Z"
 }
