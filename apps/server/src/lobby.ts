@@ -200,6 +200,28 @@ export class LobbyRegistry {
     return undefined;
   }
 
+  // FEAT-18: Host entfernt einen Spieler vollstaendig — Teilnehmerliste,
+  // laufende Runde, Punkte-Historie und Sessions. Die App-Schicht schliesst
+  // danach die Sockets des Spielers (authenticate schlaegt fortan fehl).
+  removePlayer(session: AuthenticatedSession, playerId: string): LobbyErrorCode | undefined {
+    if (session.role !== 'host') return ErrorCodeSchema.parse('FORBIDDEN');
+    const lobby = this.lobbies.get(session.lobbyId);
+    if (!lobby) return ErrorCodeSchema.parse('LOBBY_NOT_FOUND');
+    const index = lobby.players.findIndex(player => player.id === playerId);
+    if (index < 0) return ErrorCodeSchema.parse('PLAYER_NOT_FOUND');
+
+    lobby.players.splice(index, 1);
+    if (lobby.round) {
+      lobby.round.participantIds = lobby.round.participantIds.filter(id => id !== playerId);
+    }
+    for (const scores of lobby.completedGames.values()) scores.delete(playerId);
+    for (const [sessionId, stored] of [...lobby.sessions]) {
+      if (stored.playerId === playerId) lobby.sessions.delete(sessionId);
+    }
+    lobby.revision += 1;
+    return undefined;
+  }
+
   renamePlayer(session: AuthenticatedSession, rawName: string): LobbyErrorCode | undefined {
     if (session.role !== 'player') return ErrorCodeSchema.parse('FORBIDDEN');
     const player = this.getPlayer(session);
@@ -288,6 +310,9 @@ export class LobbyRegistry {
         number: player.number,
         connected: player.connected,
         waiting: lobby.round !== null && !lobby.round.participantIds.includes(player.id),
+        // FEAT-18: Abgabestatus fuer die Host-Ansicht (final == abgeschlossen;
+        // wird pro Runde zurueckgesetzt).
+        submitted: player.final,
       })),
       catalog: publicCatalog(catalog, lobby.playedGameIds),
       selectedGameId: lobby.selectedGameId,
