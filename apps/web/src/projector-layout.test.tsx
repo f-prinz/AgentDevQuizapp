@@ -146,3 +146,13 @@ describe("projector table row sizing", () => {
     }
   });
 });
+
+// CHG-18: Kein Abstand unter den Section-Headern von Rangliste und
+// Ergebnisse — beide teilen dieselbe h2-Regel.
+describe("projector section header spacing", () => {
+  const styles = () => styleElements.map(el => el.textContent).join("\n");
+
+  it("sets margin-bottom: 0 on the shared ranking/results h2 rule", () => {
+    expect(styles()).toMatch(/\.projector-ranking h2,\s*\.results h2\s*\{[^}]*margin-bottom:\s*0/);
+  });
+});
