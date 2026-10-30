@@ -70,12 +70,29 @@ test('GAME_CONFIG provides rules text and scoring parameters for every game kind
     assert.ok(config.rules.length > 0);
     assert.ok(config.scoring && typeof config.scoring === 'object', `missing scoring for ${kind}`);
   }
-  assert.equal(GAME_CONFIG.quiz.scoring.pointsPerCorrectAnswer, 1);
+  assert.equal(GAME_CONFIG.quiz.scoring.pointsPerCorrectAnswer, 3);
   assert.equal(GAME_CONFIG.sorting.scoring.pointsPerCorrectPosition, 1);
   assert.equal(GAME_CONFIG.estimation.scoring.upperThird, 3);
   assert.equal(GAME_CONFIG.estimation.scoring.middleThird, 1);
   assert.equal(GAME_CONFIG.estimation.scoring.lowerThird, 0);
   assert.equal(GAME_CONFIG.estimation.scoring.bestBonus, 2);
+});
+
+// TECH-18: Host-Kick — player.remove-Kommando, optionales submitted-Flag
+// auf Participants (host-sichtbar), PLAYER_NOT_FOUND als Wire-Error.
+test('host removal command validates playerId and protocol envelope', () => {
+  assert.equal(ClientMessageSchema.safeParse({version:1,requestId:'req1',type:'player.remove',playerId:'p1'}).success,true);
+  assert.equal(ClientMessageSchema.safeParse({version:1,requestId:'req1',type:'player.remove'}).success,false);
+  assert.equal(ClientMessageSchema.safeParse({version:1,requestId:'req1',type:'player.remove',playerId:''}).success,false);
+  assert.equal(ClientMessageSchema.safeParse({version:1,requestId:'req1',type:'player.remove',playerId:'p1',extra:true}).success,false);
+});
+
+test('participant submitted flag is optional boolean and PLAYER_NOT_FOUND is a wire error', () => {
+  const participant={id:'p1',name:'A',number:1,connected:true,waiting:false};
+  assert.equal(SnapshotSchema.safeParse({...player,participants:[participant]}).success,true);
+  assert.equal(SnapshotSchema.safeParse({...player,participants:[{...participant,submitted:true}]}).success,true);
+  assert.equal(SnapshotSchema.safeParse({...player,participants:[{...participant,submitted:'ja'}]}).success,false);
+  assert.equal(ServerMessageSchema.safeParse({version:1,type:'error',requestId:null,code:'PLAYER_NOT_FOUND',message:'gone'}).success,true);
 });
 
 test('timer enforces inclusive two-second acceptance deadline and reveal state', () => {
