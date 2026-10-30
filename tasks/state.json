@@ -1603,13 +1603,18 @@
       "dependencies": [
         "CHG-16"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
         "contracts/"
       ],
-      "implemented_by": "integration_engineer"
+      "implemented_by": "integration_engineer",
+      "review_result": "Freigabe ohne Blocker; player.remove-Kommando, optionales submitted, PLAYER_NOT_FOUND",
+      "test_evidence": "tasks/evidence/TECH-18-2026-10-30T08-52-11-929Z.json",
+      "red_evidence": "tasks/evidence/TECH-18-2026-10-30T08-50-43-757Z.json",
+      "lint_evidence": "tasks/evidence/TECH-18-2026-10-30T08-51-27-185Z.json",
+      "reviewed_by": "code_reviewer"
     },
     {
       "id": "FEAT-18",
@@ -1649,5 +1654,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T08:48:29.933Z"
+  "last_updated_utc": "2026-10-30T08:52:23.930Z"
 }
