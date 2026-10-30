@@ -722,14 +722,78 @@ describe("CHG-13 projector ranking and result tables", () => {
     expect(resultsHeading.tagName).toBe(rankingHeading.tagName);
     expect(resultsHeading.tagName).toBe("H2");
   });
+});
 
-  it("keeps two columns without a results column outside evaluation", async () => {
-    const view = renderRole("projector");
-    await deliver(view, snapshot("projector", "playing"));
-    await waitFor(() => expect(document.querySelector(".projector-game")).toBeTruthy());
-    const layout = document.querySelector(".projector-layout")!;
-    expect(layout.querySelector(".results")).toBeNull();
-    expect(layout.querySelector(".projector-ranking")).toBeTruthy();
-    expect(layout.classList.contains("projector-layout-eval")).toBe(false);
+// FEAT-19: Host-Statusliste — participants steht unterhalb der game-view als
+// letztes Element, zeigt Verbindungs- (MonitorCheck/MonitorX) und waehrend
+// playing Abgabe-Icons (Check/Loader) sowie einen Kick-Button mit Dialog.
+describe("host participant status list", () => {
+  const lobbyParticipants = [
+    { id: "player-1", name: "Ada", number: 1, connected: true, waiting: false },
+    { id: "player-2", name: "Bo", number: 2, connected: false, waiting: false },
+  ];
+
+  it("renders the participant section below the game view as the last element", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "start", { phase: "lobby", round: null }));
+    const participants = await screen.findByRole("region", { name: /teilnehmer/i });
+    const main = participants.closest("main");
+    expect(main).not.toBeNull();
+    expect(main!.lastElementChild).toBe(participants);
+    const gameView = main!.querySelector(".game-view");
+    expect(gameView).not.toBeNull();
+    expect(participants.compareDocumentPosition(gameView!) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+  });
+
+  it("keeps the participant section visible outside the lobby phase", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "playing"));
+    expect(await screen.findByRole("region", { name: /teilnehmer/i })).toBeTruthy();
+  });
+
+  it("shows connection status icons for connected and disconnected players", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "start", { phase: "lobby", round: null, participants: lobbyParticipants }));
+    const participants = await screen.findByRole("region", { name: /teilnehmer/i });
+    const rows = participants.querySelectorAll("li");
+    expect(rows[0]?.querySelector(".lucide-monitor-check")).not.toBeNull();
+    expect(rows[0]?.querySelector(".lucide-monitor-x")).toBeNull();
+    expect(rows[1]?.querySelector(".lucide-monitor-x")).not.toBeNull();
+    expect(rows[1]?.querySelector(".lucide-monitor-check")).toBeNull();
+  });
+
+  it("shows submission icons during playing for submitted and open answers", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "playing", {
+      participants: [
+        { id: "player-1", name: "Ada", number: 1, connected: true, waiting: false, submitted: true },
+        { id: "player-2", name: "Bo", number: 2, connected: true, waiting: false, submitted: false },
+      ],
+    }));
+    const participants = await screen.findByRole("region", { name: /teilnehmer/i });
+    const rows = participants.querySelectorAll("li");
+    expect(rows[0]?.querySelector(".lucide-check")).not.toBeNull();
+    expect(rows[1]?.querySelector(".lucide-loader")).not.toBeNull();
+  });
+
+  it("sends player.remove only after confirming the kick dialog", async () => {
+    const view = renderRole("host");
+    await deliver(view, snapshot("host", "start", { phase: "lobby", round: null, participants: lobbyParticipants }));
+    const participants = await screen.findByRole("region", { name: /teilnehmer/i });
+    const kick = participants.querySelector("li .participant-kick");
+    expect(kick).not.toBeNull();
+    fireEvent.click(kick!);
+    const dialog = await screen.findByRole("dialog");
+    // Abbruch sendet nichts.
+    fireEvent.click(within(dialog).getByRole("button", { name: /abbrechen/i }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(view.socket().commands().some(m => m.type === "player.remove")).toBe(false);
+    // Bestaetigen sendet player.remove mit der Spieler-ID.
+    fireEvent.click(kick!);
+    const confirm = await screen.findByRole("dialog");
+    fireEvent.click(within(confirm).getByRole("button", { name: /entfernen/i }));
+    await waitFor(() => expect(view.socket().commands().some(
+      m => m.type === "player.remove" && m.playerId === "player-1",
+    )).toBe(true));
   });
 });

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { CreateLobbyResponseSchema, JoinPlayerResponseSchema, ServerMessageSchema, SessionSchema, type Session, type Snapshot } from "@raccoons/contracts";
+import { Check, Loader, MonitorCheck, MonitorX, Trash } from "lucide-react";
 import { HostGameView, PlayerGameView, ProjectorGameView, ProjectorRanking, Results } from "../GameViews";
 
 type Role = "host" | "player" | "projector";
@@ -104,13 +105,43 @@ function useLobbySnapshot(lobbyId: string | undefined, role: Role, enabled = tru
   return { snapshot, connectionError, send };
 }
 
-function ParticipantList({ snapshot, label = "Teilnehmer" }: { snapshot: Snapshot | null; label?: string }) {
-  return <section className="participants" aria-label={label}>
+// FEAT-19: Host-Statusliste — immer sichtbar (letztes Element der Host-Seite),
+// zeigt Verbindungs- (MonitorCheck/MonitorX) und waehrend playing Abgabe-Icons
+// (Check/Loader). Spieler lassen sich nach Bestaetigungsdialog entfernen.
+function ParticipantList({ snapshot, send }: { snapshot: Snapshot | null; send: (message: Record<string, unknown>) => void }) {
+  const [kickTarget, setKickTarget] = useState<{ id: string; name: string } | null>(null);
+  const playing = snapshot?.phase === "playing";
+  return <section className="participants" aria-label="Teilnehmer">
     <h2>Teilnehmer</h2>
-    {snapshot ? <ul>{snapshot.participants.map((participant) => <li key={participant.id}>
-      <span>{participant.name || `Spieler ${participant.number}`}</span>
-      <span className="participant-status">{participant.waiting ? "Wartet auf die nächste Spielauswahl" : participant.connected ? "Verbunden" : "Getrennt"}</span>
-    </li>)}</ul> : <p>Warte auf die Lobbyverbindung …</p>}
+    {snapshot ? <ul>{snapshot.participants.map((participant) => {
+      const name = participant.name || `Spieler ${participant.number}`;
+      return <li key={participant.id}>
+        <span className="participant-name">{name}</span>
+        <span className="participant-status">
+          {participant.connected
+            ? <MonitorCheck aria-label="Verbunden" size="1em" />
+            : <MonitorX aria-label="Getrennt" size="1em" />}
+          {playing && !participant.waiting && (participant.submitted
+            ? <Check aria-label="Abgegeben" size="1em" />
+            : <Loader aria-label="Antwort offen" size="1em" />)}
+          {participant.waiting ? <span className="participant-waiting">Wartet auf die nächste Spielauswahl</span> : null}
+        </span>
+        <button type="button" className="participant-kick" aria-label={`${name} entfernen`}
+          onClick={() => setKickTarget({ id: participant.id, name })}>
+          <Trash aria-hidden size="1em" />
+        </button>
+      </li>;
+    })}</ul> : <p>Warte auf die Lobbyverbindung …</p>}
+    {kickTarget && <div className="confirm-dialog" role="dialog" aria-modal="true" aria-label="Spieler entfernen">
+      <p>{kickTarget.name} wirklich aus der Lobby entfernen?</p>
+      <div className="confirm-actions">
+        <button type="button" onClick={() => setKickTarget(null)}>Abbrechen</button>
+        <button type="button" className="confirm-danger"
+          onClick={() => { send({ type: "player.remove", playerId: kickTarget.id }); setKickTarget(null); }}>
+          Entfernen
+        </button>
+      </div>
+    </div>}
   </section>;
 }
 
@@ -156,8 +187,8 @@ export function HostPage() {
     <h1>Hostbereich</h1>
     <p>Lobby: {lobbyId}</p>
     <LobbyStatus error={connectionError} />
-    {snapshot?.phase === "lobby" && <ParticipantList snapshot={snapshot} />}
     {snapshot?.role === "host" && <HostGameView snapshot={snapshot} send={send} />}
+    {snapshot && <ParticipantList snapshot={snapshot} send={send} />}
   </main>;
 }
 
