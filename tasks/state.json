@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -1790,12 +1790,19 @@
       "lint_command": "npm --prefix apps/web run lint",
       "red_evidence_required": true,
       "dependencies": [],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
-      "implemented_by": "web_developer"
+      "inventory_refs": [
+        "INV-21"
+      ],
+      "implemented_by": "web_developer",
+      "review_result": "Freigabe ohne Blocker; Accordion auf allen Host-Phasen",
+      "test_evidence": "tasks/evidence/CHG-20-2026-10-30T11-27-32-181Z.json",
+      "red_evidence": "tasks/evidence/CHG-20-2026-10-30T11-20-07-943Z.json",
+      "lint_evidence": "tasks/evidence/CHG-20-2026-10-30T11-26-42-802Z.json",
+      "reviewed_by": "code_reviewer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T11:18:51.109Z"
+  "last_updated_utc": "2026-10-30T11:28:11.967Z"
 }
