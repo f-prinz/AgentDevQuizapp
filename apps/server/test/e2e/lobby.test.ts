@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import WebSocket from 'ws';
 import {
   CreateLobbyResponseSchema,
+  GAME_CONFIG,
   GameSeedSchema,
   JoinPlayerResponseSchema,
   ServerMessageSchema,
@@ -172,10 +173,12 @@ describe('e2e: lobby and reconnect flow', () => {
     const evaluation = await evalHost;
     const adaEval = await evalAda;
     if (evaluation.type !== 'snapshot' || evaluation.role !== 'host' || evaluation.round?.phase !== 'evaluation') throw new Error('Expected evaluation.');
-    expect(evaluation.round.results.find(result => result.name === 'Ada')?.points).toBe(1);
+    // TECH-17: Erwartung aus der Spielart-Konfiguration ableiten statt hart.
+    const quizPoints = GAME_CONFIG.quiz.scoring.pointsPerCorrectAnswer;
+    expect(evaluation.round.results.find(result => result.name === 'Ada')?.points).toBe(quizPoints);
     expect(evaluation.round.results.find(result => result.name === 'Bo')?.points).toBe(0);
     if (adaEval.type !== 'snapshot' || adaEval.role !== 'player' || adaEval.round?.phase !== 'evaluation') throw new Error('Expected player evaluation.');
-    expect(adaEval.round.ownEvaluation.points).toBe(1);
+    expect(adaEval.round.ownEvaluation.points).toBe(quizPoints);
 
     // Spielende -> Uebersicht mit gespieltem Katalogeintrag und Ranking.
     // CHG-12: ranking.length > 0 ist seit dem Live-Ranking immer wahr —
@@ -186,7 +189,7 @@ describe('e2e: lobby and reconnect flow', () => {
     const final = await backToOverview;
     if (final.type !== 'snapshot') throw new Error('Expected overview snapshot.');
     expect(final.catalog.find(game => game.id === 'e2e_lobby_quiz')?.played).toBe(true);
-    expect(final.ranking.find(entry => entry.name === 'Ada')?.total).toBe(1);
+    expect(final.ranking.find(entry => entry.name === 'Ada')?.total).toBe(quizPoints);
     expect(final.rankingTransition?.gameId).toBe('e2e_lobby_quiz');
   });
 

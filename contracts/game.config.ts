@@ -3,21 +3,21 @@
 // fuer ALLE Spiele einer Spielart zu aendern.
 export const GAME_CONFIG = {
   quiz: {
-    rules: 'Beantwortet jede Frage. Jede richtige Antwort gibt einen Punkt.',
+    rules: 'Beantwortet jede Frage. Jede richtige Antwort gibt 3 Punkte.',
     scoring: {
       // Punkte pro richtig beantworteter Frage.
-      pointsPerCorrectAnswer: 1,
+      pointsPerCorrectAnswer: 3,
     },
   },
   sorting: {
-    rules: 'Ordnet die Begriffe in der richtigen Reihenfolge. Jede richtige Position: 1 Punkt.',
+    rules: 'Ordnet die Begriffe in der richtigen Reihenfolge. Jede richtige Position bringt 1 Punkt.',
     scoring: {
       // Punkte pro Begriff an der korrekten Position.
       pointsPerCorrectPosition: 1,
     },
   },
   estimation: {
-    rules: 'Schätzt möglichst genau. Die Punkte richten sich nach dem Abstand. Beste Schätzung 5 Punkte, oberes Drittel 3 Punkte, mittleres Drittel 1 Punkt, unteres Drittel 0 Punkte',
+    rules: 'Schätzt möglichst genau. Die Punkte richten sich nach dem Abstand zur richtigen Lösung. Beste Schätzung 5 Punkte, oberes Drittel 3 Punkte, mittleres Drittel 1 Punkt, unteres Drittel 0 Punkte',
     scoring: {
       // Punkte nach Drittel-Einstufung der Schätzabstände …
       upperThird: 3,
