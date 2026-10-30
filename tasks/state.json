@@ -1874,11 +1874,12 @@
       "dependencies": [
         "TECH-19"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
-      "inventory_refs": []
+      "inventory_refs": [],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T13:37:33.953Z"
+  "last_updated_utc": "2026-10-30T13:37:41.113Z"
 }
