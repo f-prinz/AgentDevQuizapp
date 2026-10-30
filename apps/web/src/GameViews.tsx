@@ -222,7 +222,13 @@ function SolutionContent({ solution }: { solution: { kind: "quiz"; question: str
       const state = correct ? "correct" : "neutral";
       return <li key={option.id} className={`answer-marked answer-${state}`} data-answer-state={state}>{option.text}<span className="answer-mark">{correct ? "Richtig" : ""}</span></li>;
     })}</ul>}
-    {solution.kind === "sorting" && <ol>{[...solution.terms].sort((a, b) => a.value - b.value).map(term => <li key={term.id}>{term.text}: {term.value}</li>)}</ol>}
+    {/* CHG-21: Sortier-Aufloesung tabellarisch ohne Header — Spalten
+        Position (1..n), Text, Wert; aufsteigend nach Wert. */}
+    {solution.kind === "sorting" && <table className="solution-table"><tbody>
+      {[...solution.terms].sort((a, b) => a.value - b.value).map((term, index) => <tr key={term.id}>
+        <td>{index + 1}</td><td>{term.text}</td><td>{term.value}</td>
+      </tr>)}
+    </tbody></table>}
     {solution.kind === "estimation" && <p>Lösung: {solution.target}</p>}
   </div>;
 }

@@ -507,10 +507,15 @@ describe("FEAT-10 sorting views", () => {
     }));
     await waitFor(() => expect(document.querySelector(".projector-game")).toBeTruthy());
     const display = document.querySelector(".projector-game")!;
-    const orderedTerms = Array.from(display.querySelectorAll(".solution ol li")).map(item => item.textContent);
-    expect(orderedTerms[0]).toContain("Mondlandung");
-    expect(orderedTerms[0]).toContain("1969");
-    expect(orderedTerms[2]).toContain("Internet");
+    // CHG-21: Die Sortier-Aufloesung ist eine Tabelle ohne Header —
+    // je Zeile Position (1..n), Text und Wert, aufsteigend nach Wert.
+    const solutionTable = display.querySelector(".solution table");
+    expect(solutionTable).toBeTruthy();
+    expect(solutionTable!.querySelectorAll("th")).toHaveLength(0);
+    const solutionRows = Array.from(solutionTable!.querySelectorAll("tbody tr"));
+    expect(solutionRows).toHaveLength(3);
+    expect(Array.from(solutionRows[0].querySelectorAll("td")).map(cell => cell.textContent)).toEqual(["1", "Mondlandung", "1969"]);
+    expect(Array.from(solutionRows[2].querySelectorAll("td")).map(cell => cell.textContent)).toEqual(["3", "Internet", "1991"]);
     // CHG-13/14: Ergebnisse als Tabelle in eigener Layout-Spalte —
     // Platzierung, Punkte, Spielername; nach Platz sortiert.
     const headers = Array.from(document.querySelectorAll(".results-table th"));
