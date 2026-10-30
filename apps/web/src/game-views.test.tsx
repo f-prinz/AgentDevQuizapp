@@ -850,6 +850,42 @@ describe("host lobby accordion", () => {
   });
 });
 
+// CHG-22: Quiz-Optionen mit value zeigen die Aufloesung auf dem Projektor
+// als Tabelle ohne Header — Spalten Text|Wert|'Richtig'-Marker,
+// Optionsreihenfolge, leere Zelle bei fehlendem value.
+describe("CHG-22 quiz option values", () => {
+  it("renders the projector quiz solution as a headerless table when options carry values", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "evaluation", {
+      round: { ...rounds.evaluation, results: [], solution: {
+        kind: "quiz", question: "Welche Stadt ist die Hauptstadt von Frankreich?", correctOptionId: "a",
+        options: [
+          { id: "a", text: "Paris", value: 1 }, { id: "b", text: "Lyon" },
+          { id: "c", text: "Marseille", value: 3 }, { id: "d", text: "Toulouse", value: 4 },
+        ],
+      } },
+    }));
+    const table = document.querySelector(".solution table.solution-table");
+    expect(table).toBeTruthy();
+    expect(table!.querySelectorAll("th")).toHaveLength(0);
+    const rows = Array.from(table!.querySelectorAll("tbody tr"));
+    expect(rows).toHaveLength(4);
+    const cells = (row: Element) => Array.from(row.querySelectorAll("td")).map(cell => cell.textContent);
+    expect(cells(rows[0])).toEqual(["Paris", "1", "Richtig"]);
+    expect(cells(rows[1])).toEqual(["Lyon", "", ""]);
+    expect(cells(rows[2])).toEqual(["Marseille", "3", ""]);
+  });
+
+  it("keeps the marked list when no quiz option carries a value", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "evaluation", { round: { ...rounds.evaluation, results: [] } }));
+    expect(document.querySelector(".solution table")).toBeNull();
+    const options = document.querySelectorAll(".solution ul.answer-feedback li");
+    expect(options).toHaveLength(4);
+    expect(Array.from(options).filter(item => item.getAttribute("data-answer-state") === "correct")).toHaveLength(1);
+  });
+});
+
 // FEAT-20: Begrenzter Auto-Reconnect — Socket-Close startet Retry mit
 // Backoff (2s/5s/10s, max. 3), Lifecycle-Events loesen sofort aus, danach
 // Fehler + Reconnect-Button; Fatal-Errors retriggern nie.
