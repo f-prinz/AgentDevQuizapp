@@ -101,6 +101,21 @@ test('timer enforces inclusive two-second acceptance deadline and reveal state',
   assert.equal(TimerSchema.safeParse({...round.timer,canReveal:true}).success,false);
 });
 
+// TECH-19: Quiz-Optionen duerfen einen optionalen numerischen value tragen
+// (fuer die Projektor-Aufloesung, CHG-22) — additive, abwaertskompatible
+// Erweiterung: ohne value bleibt alles gueltig, non-finite wird abgelehnt.
+test('quiz options accept an optional finite value', () => {
+  const valued = options.map((option, index) => ({...option, value: index + 1}));
+  const quiz = {id:'g2',kind:'quiz',title:'Q2',questions:[{id:'q1',question:'Q',options:valued,correctOptionId:'a'}]};
+  assert.equal(GameSeedSchema.safeParse(quiz).success,true,'seeds may carry option values');
+  const mixed = {...quiz,questions:[{...quiz.questions[0],options:[{...options[0],value:1990},...options.slice(1)]}]};
+  assert.equal(GameSeedSchema.safeParse(mixed).success,true,'mixed options with/without value are allowed');
+  assert.equal(GameSeedSchema.safeParse({...quiz,questions:[{...quiz.questions[0],options:valued.map(o=>({...o,value:NaN}))}]}).success,false,'non-finite value rejected');
+  const solution={kind:'quiz',question:'Q',options:valued,correctOptionId:'a'};
+  const evaluation={roundId:'r1',game,questionIndex:0,questionCount:2,phase:'evaluation',solution,hasNextQuestion:true};
+  assert.equal(SnapshotSchema.safeParse({...base,phase:'evaluation',role:'projector',playerLink:'/lobbies/l1/join',round:{...evaluation,results:[]}}).success,true,'projector solution carries option values');
+});
+
 test('evaluation exposes solutions only with role-appropriate own or aggregate results', () => {
   const solution={kind:'quiz',question:'Q',options,correctOptionId:'a'};
   const evaluation={roundId:'r1',game,questionIndex:0,questionCount:2,phase:'evaluation',solution,hasNextQuestion:true};
