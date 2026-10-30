@@ -1591,8 +1591,62 @@
       "red_evidence": "tasks/evidence/CHG-18-2026-10-30T08-37-51-441Z.json",
       "lint_evidence": "tasks/evidence/CHG-18-2026-10-30T08-38-26-611Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "TECH-18",
+      "component": "contracts",
+      "title": "player.remove-Kommando + submitted-Feld + PLAYER_NOT_FOUND",
+      "acceptance_criteria": "ClientMessageSchema enthaelt player.remove {playerId}; ParticipantSchema enthaelt submitted:boolean; ErrorCodeSchema um PLAYER_NOT_FOUND erweitert; contracts baut",
+      "test_command": "npm --prefix contracts test",
+      "lint_command": "npm --prefix contracts run build",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-16"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "contracts/"
+      ]
+    },
+    {
+      "id": "FEAT-18",
+      "component": "server",
+      "title": "Host kann Spieler entfernen + submitted im Snapshot",
+      "acceptance_criteria": "player.remove host-only: Spieler vollstaendig aus players/round.participantIds/completedGames entfernt, Sessions invalidiert, Sockets geschlossen, Snapshot-Broadcast; participants[].submitted = player.final; PLAYER_NOT_FOUND bei unbekannter ID",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "TECH-18"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/server/"
+      ]
+    },
+    {
+      "id": "FEAT-19",
+      "component": "web",
+      "title": "Host-Statusliste: participants ans Seitenende + Verbindungs-/Abgabe-Icons + Kick-Dialog",
+      "acceptance_criteria": "Host-Seite: participants unter game-view als letztes Element; Zeile zeigt MonitorCheck/MonitorX (connected), Check/Loader (submitted, nur playing), Trash2-Button rechts; Kick erst nach Bestaetigungsdialog sendet player.remove",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "FEAT-18"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T08:40:59.435Z"
+  "last_updated_utc": "2026-10-30T08:47:55.537Z"
 }
