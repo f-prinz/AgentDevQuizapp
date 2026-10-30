@@ -1476,7 +1476,9 @@
       ],
       "status": "IN_PROGRESS",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-4"
+      ],
       "allowed_paths": [
         "apps/web/"
       ],
@@ -1484,5 +1486,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T07:38:03.252Z"
+  "last_updated_utc": "2026-10-30T07:40:40.487Z"
 }
