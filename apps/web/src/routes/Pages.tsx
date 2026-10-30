@@ -136,8 +136,9 @@ function ParticipantList({ snapshot, send }: { snapshot: Snapshot | null; send: 
       <p>{kickTarget.name} wirklich aus der Lobby entfernen?</p>
       <div className="confirm-actions">
         <button type="button" onClick={() => setKickTarget(null)}>Abbrechen</button>
+        {/* BUG-5: CommandBase-Pflichtfelder — sonst INVALID_COMMAND auf dem Server. */}
         <button type="button" className="confirm-danger"
-          onClick={() => { send({ type: "player.remove", playerId: kickTarget.id }); setKickTarget(null); }}>
+          onClick={() => { send({ version: 1, type: "player.remove", requestId: crypto.randomUUID(), playerId: kickTarget.id }); setKickTarget(null); }}>
           Entfernen
         </button>
       </div>

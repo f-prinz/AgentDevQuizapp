@@ -788,12 +788,15 @@ describe("host participant status list", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: /abbrechen/i }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     expect(view.socket().commands().some(m => m.type === "player.remove")).toBe(false);
-    // Bestaetigen sendet player.remove mit der Spieler-ID.
+    // BUG-5: player.remove braucht wie jedes Kommando version + requestId,
+    // sonst lehnt der Server mit INVALID_COMMAND ab ("Anfrage konnte nicht
+    // verarbeitet werden").
     fireEvent.click(kick!);
     const confirm = await screen.findByRole("dialog");
     fireEvent.click(within(confirm).getByRole("button", { name: /entfernen/i }));
     await waitFor(() => expect(view.socket().commands().some(
-      m => m.type === "player.remove" && m.playerId === "player-1",
+      m => m.type === "player.remove" && m.playerId === "player-1"
+        && m.version === 1 && typeof m.requestId === "string",
     )).toBe(true));
   });
 });
