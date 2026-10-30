@@ -381,7 +381,9 @@ describe("CHG-2 lobby flow", () => {
     expect(screen.queryByText(`${window.location.origin}/lobbies/${lobbyId}/join`)).toBeNull();
   });
 
-  it("hides the participant list from the host after the lobby starts", async () => {
+  // FEAT-19: Die Statusliste ist nicht mehr lobby-exklusiv — der Host sieht
+  // Verbindungs- und Abgabestatus in jeder Phase als letztes Seitenelement.
+  it("keeps the participant status list on the host page after the lobby starts", async () => {
     localStorage.setItem(`lobby:${lobbyId}:host`, JSON.stringify(hostSession));
     renderAt(`/lobbies/${lobbyId}/host`);
     await waitFor(() => expect(FakeWebSocket.instances.length).toBeGreaterThan(0));
@@ -390,7 +392,7 @@ describe("CHG-2 lobby flow", () => {
     expect(await screen.findByRole("region", { name: /teilnehmer/i })).toBeTruthy();
 
     await act(async () => socket.deliver({ ...snapshot("host"), revision: 2, phase: "overview" }));
-    await waitFor(() => expect(screen.queryByRole("region", { name: /teilnehmer/i })).toBeNull());
+    expect(await screen.findByRole("region", { name: /teilnehmer/i })).toBeTruthy();
   });
 
   it("shows players only 'Das Spiel beginnt gleich' when no round is active", async () => {

@@ -23,8 +23,18 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 .page form { display: grid; max-width: 28rem; gap: 0.4rem; margin-block: 1.5rem; }
 .participants { margin-top: 2rem; }
 .participants ul { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
-.participants li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.85rem; border: 1px solid var(--color-grey); border-radius: 0.4rem; }
-.participant-status { color: var(--color-muted); }
+.participants li { display: flex; align-items: center; gap: 1rem; padding: 0.85rem; border: 1px solid var(--color-grey); border-radius: 0.4rem; }
+/* FEAT-19: Name links, Status-Icons und Trash-Button rechtsbuendig. */
+.participant-name { flex: 1; }
+.participant-status { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--color-muted); }
+.participant-waiting { font-size: 0.9rem; }
+.participant-kick { display: inline-flex; align-items: center; justify-content: center; padding: 0.35rem; border: 1px solid transparent; border-radius: 0.35rem; color: var(--color-muted); background: transparent; cursor: pointer; }
+.participant-kick:hover, .participant-kick:focus-visible { color: var(--color-red); border-color: var(--color-red); }
+/* FEAT-19: Bestaetigungsdialog fuer den Kick — mittig ueber der Seite. */
+.confirm-dialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 1.25rem; border: 1px solid var(--color-grey); border-radius: 0.6rem; background: var(--color-bg); box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.5); z-index: 10; }
+.confirm-dialog p { margin-top: 0; }
+.confirm-actions { display: flex; gap: 0.6rem; justify-content: flex-end; }
+.confirm-danger { border-color: var(--color-red); color: var(--color-red); }
 .error-message { padding: 0.75rem; border-left: 0.25rem solid var(--color-red); color: var(--color-red) !important; }
 .created-lobby { margin-top: 2rem; }
 .lobby-links p { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
