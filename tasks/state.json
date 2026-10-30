@@ -1539,8 +1539,26 @@
       "red_evidence": "tasks/evidence/TECH-17-2026-10-30T07-54-40-285Z.json",
       "lint_evidence": "tasks/evidence/TECH-17-2026-10-30T07-59-40-088Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "CHG-17",
+      "component": "web",
+      "title": "Projektor-Tabellen: Basis kleiner, Top-3-Zeilen gestaffelt groesser",
+      "acceptance_criteria": "Projektor-Rangliste und Ergebnis-Tabelle: Basis-Schrift kleiner als bisher; Zeilen 1-3 gestaffelt vergroessert (Platz 1 > Platz 2 > Platz 3 > Rest)",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-16"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T08:17:35.251Z"
+  "last_updated_utc": "2026-10-30T08:28:20.306Z"
 }
