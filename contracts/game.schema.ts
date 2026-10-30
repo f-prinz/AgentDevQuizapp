@@ -2,7 +2,9 @@ import { z } from 'zod';
 import { CommandBase, FiniteNumberSchema, GameKindSchema, IdSchema, TextSchema, uniqueIds } from './common.schema.js';
 import { TimerSchema } from './timer.schema.js';
 
-export const OptionSchema = z.strictObject({ id: IdSchema, text: TextSchema });
+// TECH-19: Optionales value an Quiz-Optionen — additiv/abwaertskompatibel,
+// rein informativ (Projektor-Aufloesung CHG-22), kein Einfluss auf Punkte.
+export const OptionSchema = z.strictObject({ id: IdSchema, text: TextSchema, value: FiniteNumberSchema.optional() });
 export const FourOptionsSchema = z.array(OptionSchema).length(4).refine(uniqueIds, 'option IDs must be unique');
 export const TermSchema = z.strictObject({ id: IdSchema, text: TextSchema });
 export const TermsSchema = z.array(TermSchema).min(2).refine(uniqueIds, 'term IDs must be unique');

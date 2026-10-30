@@ -1,0 +1,10 @@
+{
+  "task_id": "TECH-19",
+  "command": "npm --prefix contracts test",
+  "exit_code": 0,
+  "stdout_tail": "\n> @raccoons/contracts@1.0.0 test\n> npm run build && node --test test/*.test.mjs\n\n\n> @raccoons/contracts@1.0.0 build\n> tsc -p tsconfig.json\n\n✔ all protocol commands have valid round/session envelopes and reject unknown payload fields (14.0706ms)\n✔ game.start must identify the round being started so a delayed command cannot start another round (0.4374ms)\n✔ wire snapshots validate each role and reject solution/private field leakage (7.2419ms)\n✔ all game seeds enforce correct option, unique IDs, unique sorting values and finite numbers (3.0329ms)\n✔ GAME_CONFIG provides rules text and scoring parameters for every game kind (0.1922ms)\n✔ host removal command validates playerId and protocol envelope (0.2968ms)\n✔ participant submitted flag is optional boolean and PLAYER_NOT_FOUND is a wire error (1.0587ms)\n✔ timer enforces inclusive two-second acceptance deadline and reveal state (0.1185ms)\n✔ quiz options accept an optional finite value (1.5721ms)\n✔ evaluation exposes solutions only with role-appropriate own or aggregate results (1.3378ms)\n✔ REST creation has separate roles and names reject overlong input (1.0521ms)\nℹ tests 11\nℹ suites 0\nℹ pass 11\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 346.8994\n",
+  "stderr_tail": "",
+  "started": "2026-10-30T13:35:57.978Z",
+  "finished": "2026-10-30T13:36:00.654Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
