@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -1725,10 +1725,17 @@
       "dependencies": [
         "FEAT-19"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
-      "implemented_by": "web_developer"
+      "inventory_refs": [
+        "INV-19"
+      ],
+      "implemented_by": "web_developer",
+      "review_result": "Freigabe ohne Blocker; Kick icon-only rechts, Icons gruen/rot",
+      "test_evidence": "tasks/evidence/CHG-19-2026-10-30T10-36-19-730Z.json",
+      "red_evidence": "tasks/evidence/CHG-19-2026-10-30T10-37-33-917Z.json",
+      "lint_evidence": "tasks/evidence/CHG-19-2026-10-30T10-35-20-106Z.json",
+      "reviewed_by": "code_reviewer"
     },
     {
       "id": "BUG-7",
@@ -1755,5 +1762,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T10:33:40.965Z"
+  "last_updated_utc": "2026-10-30T10:37:59.036Z"
 }
