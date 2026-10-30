@@ -2,6 +2,8 @@
   /* CHG-10: Slate-Palette — Akzent Indigo, weiches Danger, Text-Hierarchie. */
   --color-turquoise: #818CF8;
   --color-red: #F87171;
+  /* CHG-19: Erfolgs-/Verbunden-Indikator (Status-Icons). */
+  --color-green: #4ADE80;
   --color-grey: #475569;
   --color-bg: #0F172A;
   --color-text: #E2E8F0;
@@ -17,6 +19,7 @@
   color-scheme: light;
   --color-turquoise: #4F46E5;
   --color-red: #DC2626;
+  --color-green: #16A34A;
   --color-grey: #CBD5E1;
   --color-bg: #F8FAFC;
   --color-text: #0F172A;

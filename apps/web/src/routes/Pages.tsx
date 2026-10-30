@@ -119,10 +119,10 @@ function ParticipantList({ snapshot, send }: { snapshot: Snapshot | null; send: 
         <span className="participant-name">{name}</span>
         <span className="participant-status">
           {participant.connected
-            ? <MonitorCheck aria-label="Verbunden" size="1em" />
-            : <MonitorX aria-label="Getrennt" size="1em" />}
+            ? <MonitorCheck aria-label="Verbunden" size="1em" className="participant-icon-ok" />
+            : <MonitorX aria-label="Getrennt" size="1em" className="participant-icon-bad" />}
           {playing && !participant.waiting && (participant.submitted
-            ? <Check aria-label="Abgegeben" size="1em" />
+            ? <Check aria-label="Abgegeben" size="1em" className="participant-icon-ok" />
             : <Loader aria-label="Antwort offen" size="1em" />)}
           {participant.waiting ? <span className="participant-waiting">Wartet auf die nächste Spielauswahl</span> : null}
         </span>

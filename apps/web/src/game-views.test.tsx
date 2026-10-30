@@ -756,9 +756,10 @@ describe("host participant status list", () => {
     await deliver(view, snapshot("host", "start", { phase: "lobby", round: null, participants: lobbyParticipants }));
     const participants = await screen.findByRole("region", { name: /teilnehmer/i });
     const rows = participants.querySelectorAll("li");
-    expect(rows[0]?.querySelector(".lucide-monitor-check")).not.toBeNull();
+    // CHG-19: Verbunden gruen (participant-icon-ok), Getrennt rot (-bad).
+    expect(rows[0]?.querySelector(".lucide-monitor-check.participant-icon-ok")).not.toBeNull();
     expect(rows[0]?.querySelector(".lucide-monitor-x")).toBeNull();
-    expect(rows[1]?.querySelector(".lucide-monitor-x")).not.toBeNull();
+    expect(rows[1]?.querySelector(".lucide-monitor-x.participant-icon-bad")).not.toBeNull();
     expect(rows[1]?.querySelector(".lucide-monitor-check")).toBeNull();
   });
 
@@ -772,8 +773,12 @@ describe("host participant status list", () => {
     }));
     const participants = await screen.findByRole("region", { name: /teilnehmer/i });
     const rows = participants.querySelectorAll("li");
-    expect(rows[0]?.querySelector(".lucide-check")).not.toBeNull();
-    expect(rows[1]?.querySelector(".lucide-loader")).not.toBeNull();
+    // CHG-19: Abgegeben gruen; der offene Loader bleibt neutral (keine Farbklasse).
+    expect(rows[0]?.querySelector(".lucide-check.participant-icon-ok")).not.toBeNull();
+    const loader = rows[1]?.querySelector(".lucide-loader");
+    expect(loader).not.toBeNull();
+    expect(loader?.classList.contains("participant-icon-ok")).toBe(false);
+    expect(loader?.classList.contains("participant-icon-bad")).toBe(false);
   });
 
   it("sends player.remove only after confirming the kick dialog", async () => {

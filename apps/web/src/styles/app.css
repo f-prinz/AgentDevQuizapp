@@ -27,9 +27,15 @@ a:focus-visible { outline: 0.2rem solid var(--color-red); outline-offset: 0.2rem
 /* FEAT-19: Name links, Status-Icons und Trash-Button rechtsbuendig. */
 .participant-name { flex: 1; }
 .participant-status { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--color-muted); }
+/* CHG-19: Icon-Farben — Verbunden/Abgegeben gruen, Getrennt rot; der
+   neutrale Loader bleibt muted. */
+.participant-icon-ok { color: var(--color-green); }
+.participant-icon-bad { color: var(--color-red); }
 .participant-waiting { font-size: 0.9rem; }
-.participant-kick { display: inline-flex; align-items: center; justify-content: center; padding: 0.35rem; border: 1px solid transparent; border-radius: 0.35rem; color: var(--color-muted); background: transparent; cursor: pointer; }
-.participant-kick:hover, .participant-kick:focus-visible { color: var(--color-red); border-color: var(--color-red); }
+/* CHG-19: Icon-only-Kick — .page-Praefix noetig, weil die globale
+   .page-button-Regel (width 100%, min-height, margin) sonst gewinnt. */
+.page .participant-kick { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: auto; min-height: 0; margin: 0; padding: 0.35rem; border: 1px solid transparent; border-radius: 0.35rem; color: var(--color-muted); background: transparent; cursor: pointer; }
+.page .participant-kick:hover, .page .participant-kick:focus-visible { color: var(--color-red); border-color: var(--color-red); }
 /* FEAT-19: Bestaetigungsdialog fuer den Kick — mittig ueber der Seite. */
 .confirm-dialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 1.25rem; border: 1px solid var(--color-grey); border-radius: 0.6rem; background: var(--color-bg); box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.5); z-index: 10; }
 .confirm-dialog p { margin-top: 0; }
