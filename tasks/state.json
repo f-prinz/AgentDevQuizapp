@@ -1857,8 +1857,23 @@
       "fix_retries": 0,
       "inventory_refs": [],
       "implemented_by": "integration_engineer"
+    },
+    {
+      "id": "CHG-22",
+      "component": "web",
+      "title": "Projektor-Aufloesung: Quiz-Optionen mit value als Tabelle",
+      "acceptance_criteria": "Rendert mind. eine Option value: Tabelle ohne Header (Text|Wert|Richtig-Marker), Optionsreihenfolge, leere Zelle bei fehlendem value; sonst bisherige Liste; nur Projektor",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "TECH-19"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T13:33:53.618Z"
+  "last_updated_utc": "2026-10-30T13:34:25.164Z"
 }
