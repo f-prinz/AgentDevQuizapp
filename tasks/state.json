@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -1502,13 +1502,20 @@
       "dependencies": [
         "CHG-14"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-15"
+      ],
       "allowed_paths": [
         "apps/web/"
       ],
-      "implemented_by": "web_developer"
+      "implemented_by": "web_developer",
+      "review_result": "Freigabe ohne Blocker; Headings vereinheitlicht, --color-on-grey Token, Identity-Icons Rang-vor-Punkte",
+      "test_evidence": "tasks/evidence/CHG-16-2026-10-30T08-16-50-848Z.json",
+      "red_evidence": "tasks/evidence/CHG-16-2026-10-30T08-12-02-566Z.json",
+      "lint_evidence": "tasks/evidence/CHG-16-2026-10-30T08-14-36-159Z.json",
+      "reviewed_by": "code_reviewer"
     },
     {
       "id": "TECH-17",
@@ -1535,5 +1542,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T08:08:27.756Z"
+  "last_updated_utc": "2026-10-30T08:17:35.251Z"
 }

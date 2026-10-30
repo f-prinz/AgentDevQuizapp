@@ -306,7 +306,7 @@
       "anchors": [
         {
           "type": "ui_step",
-          "ref": "PlayerPage: oberhalb der Card steht '.player-identity' (h2) im Format 'Name - Punkte (Platz)'"
+          "ref": "PlayerPage: oberhalb der Card steht '.player-identity' (h2) im Format 'Name - <Podium> Platz <Star> Punkte' (Icons seit CHG-16)"
         }
       ],
       "introduced_by": "FEAT-14",
