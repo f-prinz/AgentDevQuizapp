@@ -650,15 +650,18 @@ describe('server game state and round timers', () => {
     expect(firstPlayerEvaluation.round.ownEvaluation).toMatchObject({
       answer: { kind: 'sorting', termIds: canonicalOrder }, points: 3, positionsCorrect: [true, true, true],
     });
+    // BUG-9: Abwaerts-Regel — term_b ist erster Term (richtig), term_a mit
+    // Wert 1 nach Wert 2 ist die Abwaertsstelle (falsch), term_c folgt auf 1
+    // und ist damit richtig einsortiert.
     expect(secondPlayerEvaluation.round.ownEvaluation).toMatchObject({
       answer: { kind: 'sorting', termIds: ['term_b', 'term_a', 'term_c'] },
-      points: 1, positionsCorrect: [false, false, true],
+      points: 2, positionsCorrect: [true, false, true],
     });
     // BUG-8: Sorting-Ergebnisse tragen die Platzierung (Rang aus Punkten,
     // Ties teilen den Rang) — bisher kam rank null und der Projektor zeigte '-'.
     const expectedResults = [
       { playerId: firstPlayerId, points: 3, errors: 0, rank: 1 },
-      { playerId: secondPlayerId, points: 1, errors: 2, rank: 2 },
+      { playerId: secondPlayerId, points: 2, errors: 1, rank: 2 },
     ];
     for (const evaluation of [hostEvaluation.round, projectorEvaluation.round]) {
       expect(evaluation.results).toEqual(expect.arrayContaining(expectedResults.map(result =>
@@ -674,12 +677,76 @@ describe('server game state and round timers', () => {
     if (completedHost.role !== 'host' || completedProjector.role !== 'projector') {
       throw new Error('Expected completed ranking snapshots for host and projector.');
     }
-    for (const [playerId, points] of [[firstPlayerId, 3], [secondPlayerId, 1]] as const) {
+    for (const [playerId, points] of [[firstPlayerId, 3], [secondPlayerId, 2]] as const) {
       for (const ranking of [completedHost.ranking, completedProjector.ranking]) {
         expect(ranking.find(entry => entry.playerId === playerId)?.games).toContainEqual({
           gameId: 'sorting_game', points,
         });
       }
+    }
+  });
+
+  // BUG-9: Abwaerts-Regel — ein Term zaehlt als richtig, wenn sein Wert
+  // groesser ist als der des unmittelbar vorherigen Terms; der erste Term
+  // zaehlt immer. Deckt die vier Nutzer-Faelle ab (8 Punkte bei korrekter
+  // Reihenfolge, 7 bei Verschiebung, 7 bei Tausch, 6 bei zwei Abwaertsstellen).
+  it('scores sorting terms by the descent rule for the four reported cases', async () => {
+    const clock = makeClock();
+    const sortingSeed = GameSeedSchema.parse({
+      id: 'sorting_game', kind: 'sorting', title: 'Planeten', question: 'Nach Sonnennaehe sortieren.',
+      terms: ['merkur', 'venus', 'erde', 'mars', 'jupiter', 'saturn', 'uranus', 'neptun']
+        .map((id, index) => ({ id, text: id, value: index + 1 })),
+    });
+    const server = await startServer({ now: clock.now }, [sortingSeed]);
+    const lobby = await createLobby(server);
+    const playerSessions = await Promise.all(
+      ['P1', 'P2', 'P3', 'P4'].map(name => joinPlayer(server, lobby.lobbyId, name)),
+    );
+    const [host, , ...players] = await Promise.all([
+      connect(server, lobby.host),
+      connect(server, lobby.projector),
+      ...playerSessions.map(session => connect(server, session)),
+    ]);
+    expect((await command(host, 'lobby.start')).type).toBe('ack');
+    await snapshot(host, value => value.phase === 'overview');
+    expect((await command(host, 'game.select', { gameId: 'sorting_game' })).type).toBe('ack');
+    expect((await command(host, 'game.prepare')).type).toBe('ack');
+    const starting = await snapshot(host, value => value.phase === 'start');
+    if (!starting.round) throw new Error('Expected a prepared round.');
+    const roundId = starting.round.roundId;
+    expect((await command(host, 'game.start', { roundId })).type).toBe('ack');
+    await Promise.all(players.map(player => snapshot(player, value => value.phase === 'playing')));
+
+    const orders = [
+      ['merkur', 'venus', 'erde', 'mars', 'jupiter', 'saturn', 'uranus', 'neptun'],
+      ['venus', 'erde', 'mars', 'jupiter', 'saturn', 'uranus', 'neptun', 'merkur'],
+      ['merkur', 'erde', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptun'],
+      ['merkur', 'mars', 'erde', 'jupiter', 'saturn', 'uranus', 'venus', 'neptun'],
+    ];
+    for (const [index, player] of players.entries()) {
+      expect((await command(player, 'answer.submit', {
+        roundId, answer: { kind: 'sorting', termIds: orders[index] },
+      })).type).toBe('ack');
+    }
+    expect((await command(host, 'game.reveal', { roundId })).type).toBe('ack');
+    const evaluations = await Promise.all(
+      players.map(player => snapshot(player, value => value.phase === 'evaluation')),
+    );
+    const expected = [
+      { points: 8, positionsCorrect: [true, true, true, true, true, true, true, true] },
+      { points: 7, positionsCorrect: [true, true, true, true, true, true, true, false] },
+      { points: 7, positionsCorrect: [true, true, false, true, true, true, true, true] },
+      { points: 6, positionsCorrect: [true, true, false, true, true, true, false, true] },
+    ];
+    for (const [index, evaluation] of evaluations.entries()) {
+      if (evaluation.role !== 'player' || evaluation.round?.phase !== 'evaluation') {
+        throw new Error('Expected a player evaluation snapshot.');
+      }
+      const expectedCase = expected[index]!;
+      expect(evaluation.round.ownEvaluation).toMatchObject({
+        points: expectedCase.points,
+        positionsCorrect: expectedCase.positionsCorrect,
+      });
     }
   });
 

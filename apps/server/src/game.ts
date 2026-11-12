@@ -267,8 +267,13 @@ function sortingEvaluation(round: ActiveGameRound, answer: Answer | null) {
     return { points: 0, positionsCorrect: null };
   }
 
-  const correctOrder = sortingTermsByValue(round).map(term => term.id);
-  const positionsCorrect = answer.termIds.map((termId, index) => termId === correctOrder[index]);
+  // BUG-9: Abwaerts-Regel — ein Term zaehlt als richtig, wenn sein Wert
+  // groesser ist als der des unmittelbar vorherigen Terms; der erste Term
+  // zaehlt immer (exakte Position spielt keine Rolle).
+  const valueByTermId = new Map(round.seed.terms.map(term => [term.id, term.value]));
+  const positionsCorrect = answer.termIds.map((termId, index) => index === 0
+    || (valueByTermId.get(termId) ?? Number.NEGATIVE_INFINITY)
+      > (valueByTermId.get(answer.termIds[index - 1] ?? '') ?? Number.NEGATIVE_INFINITY));
   return {
     points: positionsCorrect.filter(Boolean).length * GAME_CONFIG.sorting.scoring.pointsPerCorrectPosition,
     positionsCorrect,
