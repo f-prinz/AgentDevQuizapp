@@ -2036,8 +2036,23 @@
       "test_evidence": "tasks/evidence/CHG-26-2026-11-12T16-06-45-570Z.json",
       "lint_evidence": "tasks/evidence/CHG-26-2026-11-12T16-06-04-577Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "CHG-27",
+      "component": "web",
+      "title": "Sortierspiel-Titel in Spieler- und Projektoransicht einblenden",
+      "acceptance_criteria": "Spieltitel eines Sortierspiels erscheint in Vorbereitung, Spielphase und Aufloesung auf Projektor- und Spieleransicht im gleichen Stil wie Quiz/Schaetzen; bestehende Suites bleiben gruen",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-26"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-12T16:07:01.599Z"
+  "last_updated_utc": "2026-11-12T17:09:58.973Z"
 }
