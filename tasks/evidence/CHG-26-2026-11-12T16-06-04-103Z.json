@@ -1,0 +1,10 @@
+{
+  "task_id": "CHG-26",
+  "command": "npm --prefix apps/web test",
+  "exit_code": 1,
+  "stdout_tail": "\n> @raccoons/web@1.0.0 test\n> vitest run\n\n",
+  "stderr_tail": "Zugriff verweigert\r\n",
+  "started": "2026-11-12T16:06:04.103Z",
+  "finished": "2026-11-12T16:06:04.502Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -2023,15 +2023,21 @@
       "dependencies": [
         "TECH-20"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-16"
+      ],
       "allowed_paths": [
         "apps/web/"
       ],
-      "implemented_by": "web_test_engineer"
+      "implemented_by": "web_developer",
+      "review_result": "Freigabe ohne Blocker; Layout bereits adaptiv, Grenzfall-Tests 2/6 gruen; ein Flake-Re-Run dokumentiert",
+      "test_evidence": "tasks/evidence/CHG-26-2026-11-12T16-06-45-570Z.json",
+      "lint_evidence": "tasks/evidence/CHG-26-2026-11-12T16-06-04-577Z.json",
+      "reviewed_by": "code_reviewer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-12T15:59:57.039Z"
+  "last_updated_utc": "2026-11-12T16:07:01.599Z"
 }
