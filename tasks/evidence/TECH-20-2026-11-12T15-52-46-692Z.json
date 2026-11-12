@@ -1,0 +1,10 @@
+{
+  "task_id": "TECH-20",
+  "command": "npm --prefix contracts run lint",
+  "exit_code": 0,
+  "stdout_tail": "\n> @raccoons/contracts@1.0.0 lint\n> tsc -p tsconfig.json --noEmit\n\n",
+  "stderr_tail": "",
+  "started": "2026-11-12T15:52:46.692Z",
+  "finished": "2026-11-12T15:52:47.395Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
