@@ -349,11 +349,19 @@
         {
           "type": "file",
           "ref": "apps/web/src/styles/app.css"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/projector/RankingBoard.tsx"
+        },
+        {
+          "type": "file",
+          "ref": "apps/web/src/projector/ranking-logic.ts"
         }
       ],
       "introduced_by": "FEAT-6",
       "removed_by": null,
-      "notes": ""
+      "notes": "Ranking-Darstellung seit CHG-24 in projector/RankingBoard+ranking-logic: Podium/Feld-Split, FLIP-Reorder, Hochzaehlen (RANKING_TIMELINE), reduced-motion-Fallback."
     },
     {
       "id": "INV-18",
@@ -544,22 +552,17 @@
       ],
       "introduced_by": "CHG-10",
       "removed_by": null,
-      "notes": "Tokens: bg/text/muted/accent/danger; gewaehlte Antwort = Akzent, falsch = Danger"
+      "notes": "Dark-only Raccoons-Look (CHG-24): rq-teal/red Tokens, Trikot-Kanten via clip-path, Barlow Condensed/Inter; Alias-Tokens fuer Alt-Regeln. Slate/Indigo-Palette ersetzt."
     },
     {
       "id": "INV-26",
       "capability": "Light/Dark-Theme-Umschaltung per Icon-Button (Sonne/Mond) oben rechts auf allen Ansichten, persistiert in localStorage",
       "component": "web",
-      "status": "active",
-      "anchors": [
-        {
-          "type": "test",
-          "ref": "apps/web/src/app-routes.test.tsx"
-        }
-      ],
+      "status": "removed",
+      "anchors": [],
       "introduced_by": "FEAT-17",
-      "removed_by": null,
-      "notes": ""
+      "removed_by": "CHG-24",
+      "notes": "Entfernt mit CHG-24 (ui_changes-Merge): Redesign ist bewusst dark-only; ThemeToggle.tsx geloescht."
     },
     {
       "id": "INV-27",
@@ -581,5 +584,5 @@
       "notes": "Budget-Reset bei stabilem Snapshot; sessionGone-Guard bei LOBBY_NOT_FOUND/UNAUTHORIZED; gilt fuer Host/Spieler/Projektor via LobbyStatus"
     }
   ],
-  "last_updated_utc": "2026-11-12T13:57:02.874Z"
+  "last_updated_utc": "2026-11-12T15:04:48.699Z"
 }

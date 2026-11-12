@@ -1938,8 +1938,34 @@
       "red_evidence": "tasks/evidence/BUG-9-2026-11-12T13-53-22-140Z.json",
       "lint_evidence": "tasks/evidence/BUG-9-2026-11-12T13-55-24-668Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "CHG-24",
+      "component": "web",
+      "title": "UI-Redesign Bedburg-Raccoons-Look (Remote-Branch ui_changes) — Theme-Toggle entfernt",
+      "acceptance_criteria": "Redesign auf main gemergt; ThemeToggle/Light-Dark-Umschaltung entfernt (dark-only Trikot-Look); web Tests und Lint gruen",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": false,
+      "dependencies": [],
+      "classification": "TARGET_ALIGNED",
+      "status": "DONE",
+      "fix_retries": 0,
+      "inventory_refs": [
+        "INV-26",
+        "INV-25",
+        "INV-17"
+      ],
+      "allowed_paths": [
+        "apps/web/"
+      ],
+      "implemented_by": "user",
+      "review_result": "Freigabe ohne Blocker; Retrospektive fuer ui_changes-Merge",
+      "test_evidence": "tasks/evidence/CHG-24-2026-11-12T15-04-01-411Z.json",
+      "lint_evidence": "tasks/evidence/CHG-24-2026-11-12T15-04-17-317Z.json",
+      "reviewed_by": "code_reviewer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-12T13:57:10.764Z"
+  "last_updated_utc": "2026-11-12T15:05:22.937Z"
 }
