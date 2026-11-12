@@ -49,7 +49,11 @@ test('all game seeds enforce correct option, unique IDs, unique sorting values a
   const quiz = {id:'g1',kind:'quiz',title:'Quiz',questions:[{id:'q1',question:'Q',options,correctOptionId:'a'}]};
   assert.equal(GameSeedSchema.safeParse(quiz).success,true);
   assert.equal(GameSeedSchema.safeParse({...quiz,questions:[{...quiz.questions[0],correctOptionId:'missing'}]}).success,false);
-  assert.equal(GameSeedSchema.safeParse({...quiz,questions:[{...quiz.questions[0],options:options.slice(1)}]}).success,false);
+  // TECH-20: 2-6 Optionen erlaubt; 1 und >6 werden abgelehnt.
+  assert.equal(GameSeedSchema.safeParse({...quiz,questions:[{...quiz.questions[0],options:options.slice(0,1)}]}).success,false,'single option must be rejected');
+  assert.equal(GameSeedSchema.safeParse({...quiz,questions:[{...quiz.questions[0],options:[...options,{id:'e',text:'E'},{id:'f',text:'F'},{id:'g',text:'G'}]}]}).success,false,'seven options must be rejected');
+  assert.equal(GameSeedSchema.safeParse({...quiz,questions:[{...quiz.questions[0],options:options.slice(0,2),correctOptionId:'a'}]}).success,true,'two options allowed');
+  assert.equal(GameSeedSchema.safeParse({...quiz,questions:[{...quiz.questions[0],options:[...options,{id:'e',text:'E'},{id:'f',text:'F'}]}]}).success,true,'six options allowed');
   assert.equal(GameSeedSchema.safeParse({...quiz,questions:[{...quiz.questions[0],options:[options[0],options[0],options[2],options[3]]}]}).success,false);
   const sort={id:'s',kind:'sorting',title:'Sort',question:'Q',terms:[{id:'a',text:'A',value:1},{id:'b',text:'B',value:2}]};
   assert.equal(GameSeedSchema.safeParse(sort).success,true);
