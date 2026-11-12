@@ -1,6 +1,6 @@
 # Projektidee: RaccoonsQuizgame
 
-Quelle: `Prinzgame.md` (Original-Spezifikation, gilt ergaenzend).
+Quelle: `Raccoons-Quiz.md` (Original-Spezifikation, gilt ergaenzend).
 
 Mehrspieler-Quiz-Webanwendung (MVP). Ein Host eroeffnet eine Lobby,
 beliebig viele Spieler treten per Link bei, ein "Projektor" zeigt das
@@ -139,7 +139,7 @@ Spielhistorie ueber Serverneustart hinaus, weitere Spielarten, Sound.
 
 ## Geklaerte Fragen (Entscheidungen des Nutzers, 2026-10-26)
 
-- O1 Schaetzen-Zeitlimit: 30s (Widerspruch in `Prinzgame.md` zugunsten
+- O1 Schaetzen-Zeitlimit: 30s (Widerspruch in `Raccoons-Quiz.md` zugunsten
   des Regeltextes aufgeloest; Projektor-Kurzform entsprechend anpassen).
 - O2 Spielinhalte: Seed-Datei(en) mit Beispielsets, beim Serverstart
   geladen; kein Editor im MVP.

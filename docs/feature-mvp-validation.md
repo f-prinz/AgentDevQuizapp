@@ -1,7 +1,7 @@
 # MVP-Anforderungen – adversariale Validierung
 
 Geprueft: `docs/feature-mvp-requirements.md` gegen
-`docs/project-idea.md`, `Prinzgame.md`, `docs/agent-context.md`,
+`docs/project-idea.md`, `Raccoons-Quiz.md`, `docs/agent-context.md`,
 `docs/tech-stack.md` und die bestaetigten Entscheidungen O7–O9.
 Pruefer: `analyst_validator`; keine Implementierung oder Tests ausgefuehrt.
 

@@ -10,7 +10,7 @@ function renderAt(path: string) {
 
 describe("role route smoke checks", () => {
   it.each([
-    ["/", "Prinzgame"],
+    ["/", "Raccoons-Quiz"],
     ["/lobbies/lobby-123/host", "Hostbereich"],
     ["/join", "Lobby beitreten"],
     ["/player", "Spieleransicht"],

@@ -26,7 +26,7 @@ from the FEAT-14 theme).
   Quizloesung als markierte Optionsliste (`data-answer-state=correct` +
   `answer-correct` Klasse + "Richtig"-Label, uebrige Optionen neutral) statt
   eines freien Textes — deckt "Quizfrage und die richtige Antwort" aus
-  `Prinzgame.md` visuell ab.
+  `Raccoons-Quiz.md` visuell ab.
 
 ## Findings
 

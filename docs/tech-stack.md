@@ -54,7 +54,7 @@ Status: FREIGEGEBEN (2026-10-26, Entscheid: `ws` statt Socket.IO,
 Begruendung: Echtzeit-Mehrspieler mit 3 Rollen und synchronisierten Timern
 braucht Push-Kommunikation — WebSocket ist die naheliegende Wahl;
 PostgreSQL deckt die persistenten Spielinhalte (Katalog/Seed) ab und
-entspricht der Nutzerangabe in `Prinzgame.md`. Lobbysitzungen werden
+entspricht der Nutzerangabe in `Raccoons-Quiz.md`. Lobbysitzungen werden
 gemaess Entscheidung O6 nur in-memory gehalten.
 
 ### web

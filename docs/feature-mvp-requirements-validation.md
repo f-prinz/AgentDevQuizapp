@@ -7,7 +7,7 @@ Task-State-Aenderung oder automatische Testausfuehrung.
 ## Grundlagen
 
 Geprueft wurden `docs/feature-mvp-requirements.md`,
-`docs/project-idea.md`, `Prinzgame.md`, `docs/agent-context.md`,
+`docs/project-idea.md`, `Raccoons-Quiz.md`, `docs/agent-context.md`,
 `docs/tech-stack.md` sowie das bereits vorhandene Artefakt
 `docs/feature-mvp-validation.md`. Die explizit bestaetigten Entscheidungen
 O7 bis O10 gelten als verbindliche Praezisierung der Quellspezifikation.

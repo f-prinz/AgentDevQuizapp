@@ -253,7 +253,7 @@ export function HomePage() {
   }
 
   return <main className="page">
-    <h1>Prinzgame</h1>
+    <h1>Raccoons-Quiz</h1>
     <p>Erstelle eine Lobby — du landest direkt in der Host-Ansicht und kannst die Links für Spieler und Projektor teilen.</p>
     <button type="button" onClick={() => void createLobby()} disabled={pending}>{pending ? "Lobby wird erstellt …" : "Lobby erstellen"}</button>
     {error && <p className="error-message" role="alert">{error}</p>}
