@@ -1901,11 +1901,14 @@
       "allowed_paths": [
         "apps/web",
         "docs",
-        "Prinzgame.md"
+        "Prinzgame.md",
+        "apps/web/",
+        "docs/",
+        "Raccoons-Quiz.md"
       ],
       "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-12T10:46:34.920Z"
+  "last_updated_utc": "2026-11-12T10:50:43.877Z"
 }

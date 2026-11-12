@@ -499,3 +499,5 @@ Aktueller Stand: TECH-1 DONE; TECH-2 DONE; TECH-3 DONE; TECH-4 DONE; FEAT-1 DONE
 2026-10-30T13:42:39.247Z: CHG-22 DONE.  Freigabe ohne Blocker; Quiz-Aufloesung mit value als Tabelle 
 
 2026-11-12T10:46:34.920Z: CHG-23 IN_PROGRESS.   
+
+2026-11-12T10:50:43.877Z: CHG-23 aktualisiert.   
