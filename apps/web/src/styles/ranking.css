@@ -1,0 +1,56 @@
+/* Rangliste "Podium + Feld" (Trikot-Kante). Ausgelegt auf ~25 Spieler mit
+   20-Zeichen-Namen ohne Scrollen bei 16:9. Groessen skalieren mit vh, damit
+   1280x720 und 1920x1080 gleich aussehen. */
+.ranking-board { display: flex; flex-direction: column; gap: 2.2vh; min-height: 0; font-family: var(--rq-font-display); }
+.ranking-title { margin: 0; font-size: 5.2vh; line-height: 1; }
+.ranking-title small { display: block; font-size: 1.7vh; letter-spacing: 0.25em; color: var(--rq-teal); }
+.ranking-board ol { margin: 0; padding: 0; list-style: none; }
+
+.ranking-entry { position: relative; display: grid; align-items: center; background: var(--rq-surface); color: var(--rq-text); text-transform: uppercase;
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--rq-slant)) 100%, 0 100%); }
+.ranking-rank { display: flex; align-items: center; justify-content: center; align-self: stretch; font-weight: 800; color: #fff; background: var(--rq-grey); font-variant-numeric: tabular-nums; }
+.ranking-body { display: grid; min-width: 0; }
+.ranking-name { overflow: hidden; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; }
+.ranking-total { padding-right: calc(var(--rq-slant) + 0.6em); font-weight: 800; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Podium: Platz 1, 2, 3 von links nach rechts; Hoehe und Farbe haengen am
+   Rang (nicht am Slot), damit Gleichstand auch gleich aussieht. */
+.ranking-podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4vw; align-items: end; }
+.podium-slot { grid-template-columns: 9vh minmax(0, 1fr) auto; font-size: 3.6vh; }
+.podium-slot .ranking-rank { font-size: 6vh; }
+.podium-slot .ranking-body { padding: 1.4vh 1vw; gap: 0.6vh; }
+.podium-slot .ranking-total { font-size: 5vh; }
+/* Lange Namen (bis 20 Zeichen) duerfen auf dem Podium zweizeilig werden. */
+.podium-slot .ranking-name { display: -webkit-box; font-size: 3.4vh; line-height: 1.05; white-space: normal; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.podium-rank-1 { min-height: 17vh; }
+.podium-rank-2 { min-height: 14vh; }
+.podium-rank-3 { min-height: 12vh; }
+.podium-rank-1 .ranking-rank { background: var(--rq-teal); color: var(--rq-on-teal); }
+.podium-rank-1 { box-shadow: inset 0 -0.5vh 0 var(--rq-teal); }
+.ranking-games { display: flex; flex-wrap: wrap; gap: 0.3vh 0.8vw; font-family: var(--rq-font-body); font-size: 1.6vh; font-weight: 400; text-transform: none; color: var(--rq-muted); }
+.ranking-game-new { color: var(--rq-teal); font-weight: 600; animation: ranking-game-in 450ms ease-out both; }
+
+/* Feld: alle weiteren kompakt in drei Spalten (spaltenweise gefuellt). */
+.ranking-field { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(var(--field-rows, 8), auto); grid-auto-flow: column; gap: 0.8vh 1.4vw; }
+.field-slot { grid-template-columns: 5vh minmax(0, 1fr) auto; min-height: 4.6vh; font-size: 2.5vh; }
+.field-slot .ranking-rank { font-size: 2.6vh; }
+.field-slot .ranking-body { padding: 0.5vh 0.8vw; }
+.field-slot .ranking-total { font-size: 2.8vh; }
+
+/* Vor dem ersten Spiel: nur Namen als Kacheln. */
+.ranking-names { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1vh 1.2vw; }
+.ranking-names li { overflow: hidden; padding: 1.2vh 1vw; font-size: 2.8vh; font-weight: 700; text-transform: uppercase; white-space: nowrap; text-overflow: ellipsis; background: var(--rq-surface);
+  clip-path: polygon(0 0, 100% 0, calc(100% - var(--rq-slant)) 100%, 0 100%); border-left: 0.5vh solid var(--rq-teal); }
+
+/* Animation: Zaehlen = Summe leuchtet, Aufsteiger blitzen tuerkis. */
+.ranking-board[data-ranking-stage="counting"] .ranking-total { color: var(--rq-teal); }
+.ranking-climber { animation: ranking-climb 900ms ease-out both; }
+.ranking-climber .ranking-rank { background: var(--rq-teal); color: var(--rq-on-teal); }
+@keyframes ranking-climb {
+  0% { background: var(--rq-teal); color: var(--rq-on-teal); }
+  100% { background: var(--rq-surface); color: var(--rq-text); }
+}
+@keyframes ranking-game-in { from { opacity: 0; transform: translateY(0.6vh); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .ranking-climber, .ranking-game-new { animation: none; }
+}

@@ -108,7 +108,9 @@ describe("FEAT-4 game phase views", () => {
         expect(await screen.findByText(/Eine Antwort/)).toBeTruthy();
       }
       if (phase === "playing" && role === "projector") expect(await screen.findByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeTruthy();
-      if (phase === "playing" && role !== "projector") expect(screen.queryByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeNull();
+      if (phase === "playing" && role === "host") expect(screen.queryByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeNull();
+      // Redesign: Spieler sehen die Frage klein ueber den Antworten.
+      if (phase === "playing" && role === "player") expect(await screen.findByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeTruthy();
       if (phase === "evaluation" && role !== "host") expect(await screen.findByText(/Paris/)).toBeTruthy();
     }
   });
@@ -150,6 +152,7 @@ describe("FEAT-4 game phase views", () => {
     await waitFor(() => expect(view.socket().commands().some(command => command.type === "answer.submit" && (command.answer as { optionId?: string }).optionId === "b")).toBe(true));
     await deliver(view, snapshot("player", "playing", { revision: 2, input: { answer: { kind: "quiz", optionId: "b" }, final: true, participating: true } }));
     expect((screen.getByRole("button", { name: "Paris" })).matches(":disabled")).toBe(true);
+    expect(screen.getByText("Abgegeben ✓ – warte auf die anderen")).toBeTruthy();
   });
 
   it("shows waiting participants as unable to answer", async () => {
@@ -355,49 +358,105 @@ describe("CHG-3 game phase views", () => {
     expect(screen.getByRole("heading", { level: 2, name: "Ada" })).toBeTruthy();
   });
 
-  it("always renders the projector ranking sorted by rank", async () => {
-    const view = renderRole("projector");
-    await deliver(view, snapshot("projector", "playing", {
-      ranking: [
-        { playerId: "player-1", name: "Ada", rank: 3, total: 2, games: [] },
-        { playerId: "player-2", name: "Bo", rank: 1, total: 9, games: [] },
-        { playerId: "player-3", name: "Cyd", rank: 2, total: 5, games: [] },
-      ],
-    }));
-    const ranking = await screen.findByRole("region", { name: /rangliste/i });
-    const rows = Array.from(ranking.querySelectorAll("tbody tr")).map(row => row.textContent);
-    expect(rows[0]).toContain("Bo");
-    expect(rows[1]).toContain("Cyd");
-    expect(rows[2]).toContain("Ada");
-  });
-
-  it("keeps the ranking on the right of the projector during play without participant status", async () => {
+  // Redesign: Waehrend der Frage gehoert die Buehne der Frage — keine Rangliste.
+  it("hides the ranking on the projector while playing and shows no participant status", async () => {
     const view = renderRole("projector");
     await deliver(view, snapshot("projector", "playing", {
       ranking: [{ playerId: "player-1", name: "Ada", rank: 1, total: 5, games: [{ gameId: "quiz-1", points: 5 }] }],
     }));
-    const ranking = await screen.findByRole("region", { name: /rangliste/i });
-    expect(ranking.textContent).toContain("Ada");
-    expect(ranking.textContent).toContain("5");
-    // CHG-13: Tabellenkoepfe zeigen Icons; die Labels bleiben als aria-label.
-    const headers = Array.from(ranking.querySelectorAll("th"));
-    expect(headers.map(cell => cell.getAttribute("aria-label"))).toEqual(["Platz", "Punkte", "Spielername"]);
-    expect(headers.every(cell => cell.querySelector("svg") !== null)).toBe(true);
-    expect(screen.queryByRole("region", { name: /teilnehmerstatus/i })).toBeNull();
-    expect(screen.queryByText(/verbunden|getrennt/i)).toBeNull();
     expect(await screen.findByText(/Welche Stadt/)).toBeTruthy();
+    expect(screen.queryByRole("region", { name: /rangliste/i })).toBeNull();
+    expect(screen.queryByText(/verbunden|getrennt/i)).toBeNull();
   });
 
-  it("shows players only options and timer without the question text", async () => {
+  it("shows the submission counter on the projector while playing", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "playing", {
+      participants: [
+        { id: "player-1", name: "Ada", number: 1, connected: true, waiting: false, submitted: true },
+        { id: "player-2", name: "Bo", number: 2, connected: true, waiting: false, submitted: false },
+        { id: "player-3", name: "Cyd", number: 3, connected: true, waiting: true, submitted: false },
+      ],
+    }));
+    expect((await screen.findByText(/von 2 abgegeben/)).textContent).toBe("1 von 2 abgegeben");
+  });
+
+  it("marks the projector timer as urgent only in the last five seconds", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "playing"));
+    expect((await screen.findByRole("timer")).className).not.toMatch(/timer-urgent/);
+    await deliver(view, snapshot("projector", "playing", { revision: 2, round: { timer: { ...rounds.playing.timer, serverTime: 27_000 } } }));
+    await waitFor(() => expect(screen.getByRole("timer").className).toMatch(/timer-urgent/));
+  });
+
+  // Redesign: Frage klein ueber den Antworten, per Tippen vergroesserbar.
+  it("shows players the question in a collapsed peek above the options", async () => {
     const view = renderRole("player");
     await deliver(view, snapshot("player", "playing"));
     expect(screen.getByRole("timer")).toBeTruthy();
-    expect(screen.queryByText(/Welche Stadt/)).toBeNull();
-    expect(screen.queryByRole("radio")).toBeNull();
-    expect(screen.queryByRole("checkbox")).toBeNull();
+    const peek = screen.getByRole("button", { name: /Welche Stadt/ });
+    expect(peek.getAttribute("aria-expanded")).toBe("false");
+    const sentBefore = view.socket().sent.length;
+    fireEvent.click(peek);
+    expect(peek.getAttribute("aria-expanded")).toBe("true");
+    expect(peek.className).toContain("question-peek--expanded");
+    fireEvent.click(peek);
+    expect(peek.getAttribute("aria-expanded")).toBe("false");
+    expect(view.socket().sent.length).toBe(sentBefore);
+    const answers = screen.getByRole("group", { name: /antwortoptionen/i });
+    expect(peek.compareDocumentPosition(answers) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     for (const option of ["Paris", "Lyon", "Marseille", "Toulouse"]) {
       expect(screen.getByRole("button", { name: option })).toBeTruthy();
     }
+  });
+
+  // Review Focus 2: Reconnect mitten in der Runde nach finaler Abgabe.
+  it("shows the submitted status instead of the submit button after a final answer", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing", {
+      input: { answer: { kind: "quiz", optionId: "c" }, final: true, participating: true },
+      participants: [
+        { id: "player-1", name: "Ada", number: 1, connected: true, waiting: false, submitted: true },
+        { id: "player-2", name: "Bo", number: 2, connected: true, waiting: false, submitted: false },
+      ],
+    }));
+    expect(await screen.findByText("Abgegeben ✓ – warte auf die anderen")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /^abgeben$/i })).toBeNull();
+    expect(screen.getByText("1 von 2 abgegeben")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Marseille" }).closest("[data-answer-state]")?.getAttribute("data-answer-state")).toBe("selected");
+    expect(screen.getByRole("button", { name: "Paris" }).matches(":disabled")).toBe(true);
+  });
+
+  it("tells the player that time ran out when input closed before submitting", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing", {
+      input: { answer: { kind: "quiz", optionId: "b" }, final: false, participating: true },
+      round: { ...rounds.playing, timer: { ...rounds.playing.timer, inputClosed: true, canReveal: true } },
+    }));
+    expect((await screen.findByText("Zeit abgelaufen")).getAttribute("role")).toBe("status");
+    expect(screen.queryByRole("button", { name: /^abgeben$/i })).toBeNull();
+  });
+
+  it("shows the round result as a big badge in evaluation", async () => {
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "evaluation", {
+      round: { ...rounds.evaluation, ownEvaluation: { answer: { kind: "quiz", optionId: "a" }, points: 3, distance: null, positionsCorrect: null } },
+    }));
+    const badge = await screen.findByLabelText("Deine Punkte: 3");
+    expect(badge.textContent).toContain("+3");
+    expect(badge.className).toContain("round-result--plus");
+    await deliver(view, snapshot("player", "evaluation", { revision: 2 }));
+    const zero = await screen.findByLabelText("Deine Punkte: 0");
+    expect(zero.className).toContain("round-result--zero");
+  });
+
+  it("never vibrates the phone", async () => {
+    const vibrate = vi.fn();
+    Object.defineProperty(navigator, "vibrate", { configurable: true, value: vibrate });
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing"));
+    await deliver(view, snapshot("player", "evaluation", { revision: 2 }));
+    expect(vibrate).not.toHaveBeenCalled();
   });
 
   it("marks the player's chosen option as selected while playing", async () => {
@@ -516,13 +575,14 @@ describe("FEAT-10 sorting views", () => {
     expect(solutionRows).toHaveLength(3);
     expect(Array.from(solutionRows[0].querySelectorAll("td")).map(cell => cell.textContent)).toEqual(["1", "Mondlandung", "1969"]);
     expect(Array.from(solutionRows[2].querySelectorAll("td")).map(cell => cell.textContent)).toEqual(["3", "Internet", "1991"]);
-    // CHG-13/14: Ergebnisse als Tabelle in eigener Layout-Spalte —
-    // Platzierung, Punkte, Spielername; nach Platz sortiert.
+    // Ergebnisse nach Platz sortiert; Spec: Projektor zeigt, welcher Spieler
+    // wie viele Fehler gemacht hat -> eigene Spalte "Fehler".
     const headers = Array.from(document.querySelectorAll(".results-table th"));
-    expect(headers.map(cell => cell.getAttribute("aria-label"))).toEqual(["Platzierung", "Punkte", "Spielername"]);
+    expect(headers.map(cell => cell.getAttribute("aria-label"))).toEqual(["Platzierung", "Punkte", "Spielername", "Fehler"]);
     const rows = Array.from(document.querySelectorAll(".results-table tbody tr"));
     expect(rows[0].textContent).toContain("Ada");
     expect(rows[1].textContent).toContain("Bo");
+    expect(rows[1].lastElementChild?.textContent).toBe("2");
   });
 
   it("keeps the sorting terms secret from the projector during play", async () => {
@@ -631,31 +691,6 @@ describe("FEAT-8 quiz views", () => {
 });
 
 describe("CHG-13 projector ranking and result tables", () => {
-  it("shows all players at zero points as a table before the first game", async () => {
-    const view = renderRole("projector");
-    await deliver(view, snapshot("projector", "start", {
-      ranking: [
-        { playerId: "player-1", name: "Ada", rank: 1, total: 0, games: [] },
-        { playerId: "player-2", name: "Bo", rank: 1, total: 0, games: [] },
-        { playerId: "player-3", name: "Cyd", rank: 1, total: 0, games: [] },
-      ],
-    }));
-    const ranking = await screen.findByRole("region", { name: /rangliste/i });
-    const rows = Array.from(ranking.querySelectorAll("table tbody tr")).map(row => row.textContent);
-    expect(rows).toHaveLength(3);
-    for (const row of rows) expect(row).toContain("0");
-    expect(rows.map(row => row).join()).toMatch(/Ada|Bo|Cyd/);
-    expect(ranking.querySelector("ol.ranking-names")).toBeNull();
-  });
-
-  it("keeps the table element even when the ranking is empty", async () => {
-    const view = renderRole("projector");
-    await deliver(view, snapshot("projector", "start"));
-    const ranking = await screen.findByRole("region", { name: /rangliste/i });
-    expect(ranking.querySelector("table")).toBeTruthy();
-    expect(ranking.querySelector("ol.ranking-names")).toBeNull();
-  });
-
   it("renders quiz results as a points-sorted table (Punkte, Spielername)", async () => {
     const view = renderRole("projector");
     await deliver(view, snapshot("projector", "evaluation", {
@@ -687,47 +722,44 @@ describe("CHG-13 projector ranking and result tables", () => {
     expect(stagePlaying.querySelector(".projector-count")?.textContent).toContain("Frage 1 von 2");
   });
 
-  it("shows results as own layout column next to the ranking in evaluation", async () => {
+  // Redesign: Aufloesung = Frage + Loesung links, Ergebnisse rechts, keine Rangliste.
+  it("shows question, solution and results without ranking in evaluation", async () => {
     const view = renderRole("projector");
     await deliver(view, snapshot("projector", "evaluation", {
+      ranking: [{ playerId: "player-1", name: "Ada", rank: 1, total: 1, games: [{ gameId: "quiz-1", points: 1 }] }],
       round: { results: [
         { playerId: "player-1", name: "Ada", points: 1, rank: null, distance: null, errors: null },
       ] },
     }));
     await waitFor(() => expect(document.querySelector(".results-table")).toBeTruthy());
-    // CHG-14: Ergebnisse nicht mehr als Eval-Grid innerhalb des Spielbereichs —
-    // eigene Spalte in .projector-layout zwischen Spielbereich und Rangliste.
-    expect(document.querySelector(".projector-eval")).toBeNull();
     const layout = document.querySelector(".projector-layout")!;
     const game = layout.querySelector(".projector-game")!;
     const results = layout.querySelector(".results")!;
-    const ranking = layout.querySelector(".projector-ranking")!;
-    expect(results.parentElement).toBe(layout);
     expect(game.contains(results)).toBe(false);
-    expect(game.contains(ranking)).toBe(false);
-    const order = Array.from(layout.children);
-    expect(order.indexOf(game)).toBeLessThan(order.indexOf(results));
-    expect(order.indexOf(results)).toBeLessThan(order.indexOf(ranking));
-    // Frage und Aufloesung bleiben gestapelt im (jetzt schmaleren) Spielbereich.
     expect(game.querySelector(".projector-stage")?.textContent).toContain("Welche Stadt");
     expect(game.querySelector(".solution")).toBeTruthy();
+    expect(screen.queryByRole("region", { name: /rangliste/i })).toBeNull();
   });
 
-  // CHG-16: „Ergebnisse" und „Rangliste" sollen identisch gestylte
-  // Überschriften haben — gleiche Ebene (h2), gleiches CSS-Sizing.
-  it("uses the same heading level for results and ranking sections", async () => {
+  it("shows the lobby with QR code, joined names and a head count but no ranking", async () => {
     const view = renderRole("projector");
-    await deliver(view, snapshot("projector", "evaluation", {
-      round: { results: [
-        { playerId: "player-1", name: "Ada", points: 1, rank: null, distance: null, errors: null },
-      ] },
-    }));
-    const results = await screen.findByRole("region", { name: /ergebnisse/i });
-    const ranking = await screen.findByRole("region", { name: /rangliste/i });
-    const resultsHeading = within(results).getByRole("heading");
-    const rankingHeading = within(ranking).getByRole("heading");
-    expect(resultsHeading.tagName).toBe(rankingHeading.tagName);
-    expect(resultsHeading.tagName).toBe("H2");
+    await deliver(view, { ...snapshot("projector", "start"), phase: "lobby", round: null, ranking: [
+      { playerId: "player-1", name: "Ada", rank: 1, total: 0, games: [] },
+    ] });
+    const lobby = await screen.findByRole("region", { name: /spielerbeitritt/i });
+    expect(within(lobby).getByRole("img", { name: /qr/i })).toBeTruthy();
+    expect(lobby.textContent).toContain("3 dabei");
+    for (const name of ["Ada", "Bo", "Cyd"]) expect(lobby.textContent).toContain(name);
+    expect(screen.queryByRole("region", { name: /rangliste/i })).toBeNull();
+  });
+
+  it("shows the ranking board on the projector overview", async () => {
+    const view = renderRole("projector");
+    await deliver(view, { ...snapshot("projector", "start"), phase: "overview", round: null, ranking: [
+      { playerId: "player-1", name: "Ada", rank: 1, total: 3, games: [{ gameId: "quiz-1", points: 3 }] },
+    ] });
+    const board = await screen.findByRole("region", { name: /rangliste/i });
+    expect(board.querySelector(".ranking-podium")?.textContent).toContain("Ada");
   });
 });
 

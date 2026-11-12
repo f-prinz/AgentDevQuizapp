@@ -2,7 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { CreateLobbyResponseSchema, JoinPlayerResponseSchema, ServerMessageSchema, SessionSchema, type Session, type Snapshot } from "@raccoons/contracts";
 import { Check, Loader, MonitorCheck, MonitorX, Trash } from "lucide-react";
-import { HostGameView, LobbyAccordion, PlayerGameView, ProjectorGameView, ProjectorRanking, Results } from "../GameViews";
+import { HostGameView, LobbyAccordion } from "../GameViews";
+import { PlayerGameView } from "../player/PlayerGameView";
+import { ProjectorView } from "../projector/ProjectorView";
+import { Logo } from "../brand/Logo";
 
 type Role = "host" | "player" | "projector";
 
@@ -253,9 +256,9 @@ export function HomePage() {
   }
 
   return <main className="page">
-    <h1>Raccoons-Quiz</h1>
+    <div className="page-brand"><Logo variant="small" /><div><small>Bedburg Raccoons</small><h1>Raccoons-Quiz</h1></div></div>
     <p>Erstelle eine Lobby — du landest direkt in der Host-Ansicht und kannst die Links für Spieler und Projektor teilen.</p>
-    <button type="button" onClick={() => void createLobby()} disabled={pending}>{pending ? "Lobby wird erstellt …" : "Lobby erstellen"}</button>
+    <button type="button" className="rq-btn-secondary" onClick={() => void createLobby()} disabled={pending}>{pending ? "Lobby wird erstellt …" : "Lobby erstellen"}</button>
     {error && <p className="error-message" role="alert">{error}</p>}
   </main>;
 }
@@ -264,7 +267,7 @@ export function HostPage() {
   const { lobbyId } = useParams();
   const { snapshot, connectionError, connectionLost, send, reconnect } = useLobbySnapshot(lobbyId, "host");
   return <main className="page">
-    <h1>Hostbereich</h1>
+    <div className="page-brand"><Logo variant="small" /><div><small>Bedburg Raccoons Quiz</small><h1>Hostbereich</h1></div></div>
     {/* CHG-20: 'Lobby: <id>'-Zeile -> aufklappbares Lobbymenue, in jeder
         Host-Phase verfuegbar (Links bleiben erreichbar). */}
     {snapshot?.role === "host" && <LobbyAccordion lobbyId={lobbyId!} snapshot={snapshot} send={send} />}
@@ -319,11 +322,11 @@ export function JoinPage() {
   }
 
   return <main className="page">
-    {!joined && <form onSubmit={(event) => { event.preventDefault(); void joinLobby(); }}>
-    <h1>Lobby beitreten</h1>
+    {!joined && <form className="join-form" onSubmit={(event) => { event.preventDefault(); void joinLobby(); }}>
+    <div className="page-brand"><Logo variant="small" /><div><small>Bedburg Raccoons Quiz</small><h1>Lobby beitreten</h1></div></div>
       <label htmlFor="player-name">Dein Name</label>
       <input id="player-name" name="name" value={name} maxLength={20} autoComplete="nickname" required minLength={3} onChange={(event) => setName(event.target.value)} />
-      <button type="submit" disabled={name.trim().length < 3}>Beitreten</button>
+      <button type="submit" className="rq-btn-primary" disabled={name.trim().length < 3}>Beitreten</button>
     </form>}
     {error && <p className="error-message" role="alert">{error}</p>}
     <LobbyStatus error={connectionError} onReconnect={connectionLost ? reconnect : undefined} />
@@ -335,7 +338,7 @@ export function PlayerPage() {
   const { lobbyId } = useParams();
   const { snapshot, connectionError, connectionLost, send, reconnect } = useLobbySnapshot(lobbyId, "player");
   return <main className="page">
-    <h1>Spieleransicht</h1>
+    <h1 className="visually-hidden">Spieleransicht</h1>
     <LobbyStatus error={connectionError} onReconnect={connectionLost ? reconnect : undefined} />
     {snapshot?.role === "player" && <PlayerGameView snapshot={snapshot} send={send} />}
   </main>;
@@ -343,20 +346,13 @@ export function PlayerPage() {
 
 export function ProjectorPage() {
   const { lobbyId } = useParams();
-  const { snapshot, connectionError, connectionLost, send, reconnect } = useLobbySnapshot(lobbyId, "projector");
-  // CHG-14: In der Aufloesung bekommen die Ergebnisse eine eigene Spalte
-  // zwischen Spielbereich und Rangliste; sonst bleibt das Layout zweispaltig.
-  const evalRound = snapshot?.role === "projector" && snapshot.round?.phase === "evaluation" ? snapshot.round : null;
-  return <main className="projector" aria-label="Projektor">
+  const { snapshot, connectionError, connectionLost, reconnect } = useLobbySnapshot(lobbyId, "projector");
+  // Redesign: phasenabhaengige Buehne (Lobby / Uebersicht / Start / Frage /
+  // Aufloesung) statt fester Spalten; Rangliste nur in der Uebersicht.
+  return <main className="projector rq-backdrop" aria-label="Projektor">
     <LobbyStatus error={connectionError} onReconnect={connectionLost ? reconnect : undefined} />
-    <div className={`projector-layout${evalRound ? " projector-layout-eval" : ""}`}>
-      {snapshot?.role === "projector" && <ProjectorGameView snapshot={snapshot} send={send} />}
-      {!snapshot && <p>Warte auf die Lobbyverbindung …</p>}
-      {evalRound && <Results kind={evalRound.game.kind} results={evalRound.results} />}
-      <section className="projector-ranking" aria-label="Rangliste"><h2>Rangliste</h2>
-        {snapshot?.role === "projector" && <ProjectorRanking snapshot={snapshot} />}
-        {!snapshot && <p>Warte auf die Lobbyverbindung …</p>}
-      </section>
-    </div>
+    {snapshot?.role === "projector"
+      ? <ProjectorView snapshot={snapshot} />
+      : <div className="projector-layout projector-layout--connecting"><p className="projector-wait">Warte auf die Lobbyverbindung …</p></div>}
   </main>;
 }

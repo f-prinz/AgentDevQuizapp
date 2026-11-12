@@ -59,19 +59,16 @@ afterEach(() => {
 });
 
 describe("e2e: ranking overview lifecycle on the projector", () => {
-  it("grows the ranking table over two finished games with a transition", async () => {
+  it("grows the ranking board over two finished games with a transition", async () => {
     const view = await renderProjector();
 
-    // CHG-12/13: Tabelle ist von Anfang an da — alle Spieler mit 0 Punkten.
+    // Redesign: Vor dem ersten Spiel nur die Spielernamen.
     await view.deliver(snapshot({ ranking: [
       { playerId: "player-1", name: "Ada", rank: 1, total: 0, games: [] },
       { playerId: "player-2", name: "Bo", rank: 1, total: 0, games: [] },
     ] }));
     const list = await screen.findByRole("region", { name: /rangliste/i });
-    expect(list.querySelector("table")).toBeTruthy();
-    expect(list.textContent).toContain("Ada");
-    expect(list.textContent).toContain("Bo");
-    expect(list.querySelector("ol.ranking-names")).toBeNull();
+    expect(Array.from(list.querySelectorAll("ol.ranking-names li")).map(li => li.textContent)).toEqual(["Ada", "Bo"]);
 
     // Erstes Spiel gespielt: Rangliste nur mit Platz/Punkte/Name + Uebergangs-Animation (CHG-4).
     const afterOne = snapshot({
@@ -94,21 +91,19 @@ describe("e2e: ranking overview lifecycle on the projector", () => {
       },
     });
     await view.deliver(afterOne);
-    const table = await screen.findByRole("table");
-    expect(table).toBeTruthy();
-    await waitFor(() => expect(table.getAttribute("data-ranking-stage")).toBe("after"), { timeout: 6_000 });
-    const headers = Array.from(table.querySelectorAll("th"));
-    expect(headers.map(cell => cell.getAttribute("aria-label"))).toEqual(["Platz", "Punkte", "Spielername"]);
-    const firstRow = table.querySelectorAll("tbody tr")[0];
-    expect(firstRow.textContent).toContain("Ada");
-    expect(firstRow.textContent).toContain("3");
+    const board = await screen.findByRole("region", { name: /rangliste/i });
+    await waitFor(() => expect(board.getAttribute("data-ranking-stage")).toBe("after"), { timeout: 6_000 });
+    const first = board.querySelectorAll(".ranking-podium [data-ranking-entry]")[0];
+    expect(first.querySelector(".ranking-name")?.textContent).toBe("Ada");
+    expect(first.querySelector(".ranking-total")?.textContent).toBe("3");
+    expect(first.textContent).toContain("Weltwissen: 3");
     const unplayedSection = screen.getByRole("region", { name: /offene spiele/i });
     expect(unplayedSection.textContent).toContain("Sortieren: Jahre");
     expect(unplayedSection.textContent).not.toContain("Weltwissen");
     const playedSection = screen.getByRole("region", { name: /gespielte spiele/i });
     expect(playedSection.textContent).toContain("Quiz: Weltwissen");
 
-    // Zweites Spiel gespielt: weiterhin nur drei Spalten, neue Rangfolge.
+    // Zweites Spiel gespielt: neue Rangfolge auf dem Podium.
     await view.deliver(snapshot({
       revision: 3,
       catalog: catalog.map(entry => ({ ...entry, played: true })),
@@ -117,14 +112,12 @@ describe("e2e: ranking overview lifecycle on the projector", () => {
         { playerId: "player-1", name: "Ada", rank: 2, total: 4, games: [{ gameId: "quiz-1", points: 3 }, { gameId: "sort-1", points: 1 }] },
       ],
     }));
-    const grownTable = await screen.findByRole("table");
-    const grownHeaders = Array.from(grownTable.querySelectorAll("th"));
-    expect(grownHeaders.map(cell => cell.getAttribute("aria-label"))).toEqual(["Platz", "Punkte", "Spielername"]);
-    const grownRows = grownTable.querySelectorAll("tbody tr");
-    expect(grownRows[0].textContent).toContain("Bo");
-    expect(grownRows[0].textContent).toContain("6");
-    expect(grownRows[1].textContent).toContain("Ada");
-    expect(grownRows[1].textContent).toContain("4");
+    const grown = await screen.findByRole("region", { name: /rangliste/i });
+    const grownEntries = grown.querySelectorAll(".ranking-podium [data-ranking-entry]");
+    expect(grownEntries[0].querySelector(".ranking-name")?.textContent).toBe("Bo");
+    expect(grownEntries[0].querySelector(".ranking-total")?.textContent).toBe("6");
+    expect(grownEntries[1].querySelector(".ranking-name")?.textContent).toBe("Ada");
+    expect(grownEntries[1].querySelector(".ranking-total")?.textContent).toBe("4");
     expect(screen.getByRole("region", { name: /offene spiele/i }).textContent).toContain("Keine Spiele");
   });
 });

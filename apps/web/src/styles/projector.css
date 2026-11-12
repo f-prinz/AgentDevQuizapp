@@ -1,0 +1,117 @@
+/* Beamer: immer Desktop, phasenabhaengige Vollbild-Buehne. Groessen in vh,
+   damit 1280x720 und 1920x1080 gleich wirken; 25 Spieler ohne Scrollen. */
+.projector { box-sizing: border-box; min-width: 64rem; width: 100%; height: 100vh; min-height: 30rem; padding: 3.5vh 3vw; overflow: hidden; color: var(--rq-text); }
+.projector-layout { display: grid; height: 100%; min-height: 0; gap: 2.5vw; }
+.projector-layout > * { min-width: 0; min-height: 0; }
+.projector-wait { align-self: center; justify-self: center; font-family: var(--rq-font-display); font-size: 4vh; text-transform: uppercase; color: var(--rq-muted); }
+.projector .error-message { position: fixed; top: 1rem; left: 50%; z-index: 5; transform: translateX(-50%); background: var(--rq-bg); }
+
+/* ---------- Lobby ---------- */
+.projector-layout--lobby { grid-template-columns: 1fr; }
+.projector-lobby { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 0.9fr) minmax(0, 1.3fr); gap: 3vw; align-items: center; height: 100%; }
+.lobby-brand { display: grid; justify-items: center; gap: 1.5vh; }
+.lobby-logo { width: auto; height: 48vh; filter: drop-shadow(0 1.5vh 3vh rgba(0, 0, 0, 0.55)); animation: rq-rise 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.lobby-title { margin: 0; font-size: 12vh; line-height: 0.85; text-align: center; color: var(--rq-text); }
+.lobby-title small { display: block; font-size: 2.6vh; letter-spacing: 0.3em; color: var(--rq-teal); }
+.lobby-join { display: grid; justify-items: center; gap: 2vh; text-align: center; }
+.lobby-cta { margin: 0; font-size: 4.2vh; color: var(--rq-teal); }
+.lobby-qr { padding: 2vh; background: #fff; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 3vh), calc(100% - 3vh) 100%, 0 100%); box-shadow: 0 0 0 0.6vh var(--rq-teal); }
+.lobby-qr svg { display: block; width: 36vh; height: 36vh; }
+.projector-lobby .player-link { max-width: 100%; margin: 0; font-family: var(--rq-font-body); font-size: 1.9vh; color: var(--rq-muted); word-break: break-all; }
+.lobby-roster { display: flex; flex-direction: column; gap: 2vh; height: 100%; padding-block: 4vh; }
+.lobby-count { margin: 0; font-size: 5vh; line-height: 1; color: var(--rq-muted); }
+.lobby-count span { font-size: 10vh; color: var(--rq-text); }
+.lobby-roster ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: 0.9vh 1vw; margin: 0; padding: 0; list-style: none; }
+.lobby-roster li { overflow: hidden; padding: 0.9vh 1vw; font-family: var(--rq-font-display); font-size: 2.6vh; font-weight: 700; text-transform: uppercase; white-space: nowrap; text-overflow: ellipsis;
+  background: var(--rq-surface); border-left: 0.5vh solid var(--rq-teal); clip-path: polygon(0 0, 100% 0, calc(100% - var(--rq-slant)) 100%, 0 100%);
+  animation: rq-slide-in 450ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+/* ---------- Uebersicht ---------- */
+.projector-layout--overview { grid-template-columns: minmax(0, 1fr) 16vw; }
+.projector-games { display: flex; flex-direction: column; gap: 2.5vh; padding-left: 2vw; border-left: 1px solid var(--rq-line); }
+.games-logo { width: 70%; height: auto; align-self: center; }
+.projector-games-list h3 { margin: 0 0 1vh; font-size: 2.6vh; color: var(--rq-teal); }
+.projector-games-list ul { display: grid; gap: 0.8vh; margin: 0; padding: 0; list-style: none; }
+.projector-games-list li { font-size: 1.9vh; line-height: 1.3; }
+.projector-games-list .game-kind { color: var(--rq-muted); }
+.projector-games-list p { margin: 0; font-size: 1.8vh; color: var(--rq-muted); }
+.projector-games-list[aria-label="Gespielte Spiele"] li { color: var(--rq-muted); text-decoration: line-through; text-decoration-color: rgba(154, 149, 144, 0.5); }
+
+/* ---------- Spielrunde ---------- */
+.projector-layout--start, .projector-layout--playing { grid-template-columns: minmax(0, 1fr); }
+.projector-layout--evaluation { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
+.projector-game { display: flex; flex-direction: column; gap: 3vh; min-height: 0; }
+.projector-game-head { display: flex; align-items: center; justify-content: space-between; gap: 2vw; }
+.projector-game-title { margin: 0; padding: 0.6vh 2.2vw 0.6vh 1.2vw; font-size: 4vh; color: var(--rq-on-teal); background: var(--rq-teal); clip-path: polygon(0 0, 100% 0, calc(100% - var(--rq-slant)) 100%, 0 100%); }
+.projector-head-logo { width: auto; height: 9vh; }
+.projector-stage { margin: 0; }
+.projector-count { display: block; margin-bottom: 1.2vh; font-family: var(--rq-font-display); font-size: 2.8vh; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--rq-teal); }
+.projector-question { font-family: var(--rq-font-display); font-size: 7vh; font-weight: 700; line-height: 1.08; animation: rq-rise 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.projector-layout--evaluation .projector-question { font-size: 4.6vh; }
+.projector-rules { max-width: 60ch; font-size: 4vh; line-height: 1.4; color: var(--rq-text); animation: rq-rise 500ms ease-out both; }
+.projector-soon { margin: auto 0 0; font-size: 5vh; color: var(--rq-teal); animation: rq-pulse 1.4s ease-in-out infinite; }
+/* Spielstart: grosser Titel, Logo dezent als Wasserzeichen. */
+.projector-layout--start .projector-game { position: relative; isolation: isolate; justify-content: center; }
+/* Logo rechts, voll deckend und kleiner — verschwimmt nicht mit den Streifen. */
+.projector-layout--start .projector-game::after { content: ""; position: absolute; top: 50%; right: 3vw; z-index: -1; width: 44vh; height: 52vh; transform: translateY(-50%);
+  background: url("../assets/raccoons-logo.png") center / contain no-repeat; filter: drop-shadow(0 1.5vh 3vh rgba(0, 0, 0, 0.6)); pointer-events: none; }
+.projector-layout--start .projector-rules { max-width: calc(100% - 44vh - 6vw); }
+.projector-layout--start .projector-game-title { position: static; padding: 1vh 4vw 1vh 2vw; font-size: 12vh; animation: rq-slide-in 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.projector-layout--start .projector-game-head { position: static; }
+.projector-layout--start .projector-soon { margin: 0; }
+.projector-layout--start .projector-head-logo { visibility: hidden; }
+
+.projector-play-meta { display: flex; align-items: flex-end; justify-content: space-between; gap: 3vw; margin-top: auto; }
+.timer-large { margin: 0; font-family: var(--rq-font-display); font-size: 24vh; font-weight: 800; line-height: 0.85; color: var(--rq-text); }
+.projector .submission-counter { margin: 0 0 2vh; font-size: 4.2vh; color: var(--rq-muted); }
+.timer-urgent { color: var(--rq-red) !important; animation: rq-pulse 1s ease-in-out infinite; }
+.timer-done { animation: none; }
+
+/* ---------- Aufloesung ---------- */
+.projector .solution { display: grid; gap: 1.2vh; }
+.projector .solution h3 { margin: 0; font-size: 2.6vh; letter-spacing: 0.15em; color: var(--rq-muted); }
+.projector .solution .answer-feedback { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2vh 1vw; }
+.projector .solution .answer-marked { padding: 1.6vh 1.2vw; font-family: var(--rq-font-display); font-size: 3.6vh; font-weight: 700; border: 0; border-radius: 0;
+  background: var(--rq-surface); color: var(--rq-muted); clip-path: polygon(0 0, 100% 0, calc(100% - var(--rq-slant)) 100%, 0 100%); }
+.projector .solution .answer-correct { background: var(--rq-teal); color: var(--rq-on-teal); animation: rq-reveal 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.projector .solution .answer-mark { margin-left: 0.6em; font-size: 0.6em; letter-spacing: 0.1em; text-transform: uppercase; color: inherit; }
+.projector .solution-table { width: 100%; border-collapse: separate; border-spacing: 0 0.7vh; font-size: 2.8vh; }
+.projector .solution-table td { padding: 0.8vh 1vw; background: var(--rq-surface); }
+.projector .solution-table td:first-child { font-family: var(--rq-font-display); font-weight: 800; color: var(--rq-teal); }
+.projector .solution-table td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.projector .solution-table .solution-correct td { background: var(--rq-teal); color: var(--rq-on-teal); }
+.projector .solution-target { margin: 0; font-family: var(--rq-font-display); font-size: 5vh; text-transform: uppercase; color: var(--rq-muted); }
+.projector .solution-target strong { display: block; font-size: 13vh; line-height: 1; color: var(--rq-teal); animation: rq-reveal 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+.projector .results { display: flex; flex-direction: column; min-height: 0; padding-left: 2vw; border-left: 1px solid var(--rq-line); }
+.projector .results h2 { margin: 0 0 1vh; font-size: 4vh; }
+.projector .results p { color: var(--rq-muted); font-size: 2.2vh; }
+.projector .results-table { width: 100%; border-collapse: collapse; font-size: 2.2vh; }
+.projector .results-table th { padding: 0.3vh 0.6vw; font-family: var(--rq-font-display); font-size: 1.8vh; font-weight: 700; letter-spacing: 0.1em; text-align: left; text-transform: uppercase; color: var(--rq-muted); border-bottom: 1px solid var(--rq-line); }
+.projector .results-table td { padding: 0.35vh 0.6vw; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-variant-numeric: tabular-nums; }
+.projector .results-table .result-points, .projector .results-table .result-rank { font-family: var(--rq-font-display); font-weight: 800; }
+.projector .results-table .result-name { overflow: hidden; max-width: 0; width: 100%; white-space: nowrap; text-overflow: ellipsis; text-transform: uppercase; font-family: var(--rq-font-display); font-weight: 700; }
+.projector .results-table .result-scored .result-points { color: var(--rq-teal); }
+.projector .results-table tbody tr { animation: rq-slide-in 400ms ease-out both; }
+
+/* ---------- Bewegung ---------- */
+@keyframes rq-rise { from { opacity: 0; transform: translateY(2vh); } to { opacity: 1; transform: none; } }
+@keyframes rq-slide-in { from { opacity: 0; transform: translateX(-2vw); } to { opacity: 1; transform: none; } }
+@keyframes rq-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+@keyframes rq-reveal { 0% { transform: scale(0.96); filter: brightness(1.6); } 60% { transform: scale(1.02); } 100% { transform: none; filter: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .lobby-logo, .lobby-roster li, .projector-question, .projector-layout--start .projector-game-title, .projector-rules, .projector-soon, .timer-urgent,
+  .projector .solution .answer-correct, .projector .solution-target strong, .projector .results-table tbody tr { animation: none; }
+}
+
+/* Frage vertikal mittig, Timer-Einheit klein. */
+.projector-layout--playing .projector-question { margin-block: auto; }
+.projector-layout--playing .projector-play-meta { margin-top: 0; }
+.timer-large .timer-unit { font-size: 0.35em; color: var(--rq-muted); }
+.timer-urgent .timer-unit { color: inherit; }
+
+/* Ergebnisse: 25 Zeilen passen bei 16:9; mehr Spieler scrollen in der Spalte. */
+.projector .results { overflow-y: auto; scrollbar-width: none; }
+.projector .results-table { font-size: 2.05vh; }
+.projector .results-table td { padding-block: 0.22vh; }
+.projector .solution-table td:first-child { width: 1%; white-space: nowrap; }
