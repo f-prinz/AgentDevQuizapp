@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -2048,12 +2048,19 @@
       "dependencies": [
         "CHG-26"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
-      "implemented_by": "web_test_engineer"
+      "inventory_refs": [
+        "INV-14"
+      ],
+      "implemented_by": "web_developer",
+      "review_result": "Freigabe ohne Blocker; kind!=='sorting'-Unterdrueckung in beiden Views entfernt, Phasen-Tests gruen",
+      "test_evidence": "tasks/evidence/CHG-27-2026-11-12T17-13-15-237Z.json",
+      "red_evidence": "tasks/evidence/CHG-27-2026-11-12T17-10-53-338Z.json",
+      "lint_evidence": "tasks/evidence/CHG-27-2026-11-12T17-13-34-391Z.json",
+      "reviewed_by": "code_reviewer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-12T17:10:00.791Z"
+  "last_updated_utc": "2026-11-12T17:13:59.864Z"
 }
