@@ -5,7 +5,9 @@ import { TimerSchema } from './timer.schema.js';
 // TECH-19: Optionales value an Quiz-Optionen — additiv/abwaertskompatibel,
 // rein informativ (Projektor-Aufloesung CHG-22), kein Einfluss auf Punkte.
 export const OptionSchema = z.strictObject({ id: IdSchema, text: TextSchema, value: FiniteNumberSchema.optional() });
-export const FourOptionsSchema = z.array(OptionSchema).length(4).refine(uniqueIds, 'option IDs must be unique');
+// TECH-20: 2 bis 6 Optionen (vorher fix 4) — erlaubt Ja/Nein- und
+// Zwei-Optionen-Fragen sowie laengere Listen; unique ids bleiben Pflicht.
+export const OptionsSchema = z.array(OptionSchema).min(2).max(6).refine(uniqueIds, 'option IDs must be unique');
 export const TermSchema = z.strictObject({ id: IdSchema, text: TextSchema });
 export const TermsSchema = z.array(TermSchema).min(2).refine(uniqueIds, 'term IDs must be unique');
 export const GameMetadataSchema = z.strictObject({ id: IdSchema, kind: GameKindSchema, title: TextSchema, rules: TextSchema });
@@ -37,17 +39,17 @@ export const PublicTaskSchema = z.discriminatedUnion('kind', [
   z.strictObject({ ...TaskBase, kind: z.literal('estimation') }),
 ]);
 export const HostTaskSchema = z.discriminatedUnion('kind', [
-  z.strictObject({ ...TaskBase, kind: z.literal('quiz'), options: FourOptionsSchema }),
+  z.strictObject({ ...TaskBase, kind: z.literal('quiz'), options: OptionsSchema }),
   z.strictObject({ ...TaskBase, kind: z.literal('sorting') }),
   z.strictObject({ ...TaskBase, kind: z.literal('estimation') }),
 ]);
 export const PlayerTaskSchema = z.discriminatedUnion('kind', [
-  z.strictObject({ ...TaskBase, kind: z.literal('quiz'), options: FourOptionsSchema }),
+  z.strictObject({ ...TaskBase, kind: z.literal('quiz'), options: OptionsSchema }),
   z.strictObject({ ...TaskBase, kind: z.literal('sorting'), terms: TermsSchema }),
   z.strictObject({ ...TaskBase, kind: z.literal('estimation') }),
 ]);
 export const SolutionSchema = z.discriminatedUnion('kind', [
-  z.strictObject({ kind: z.literal('quiz'), question: TextSchema, options: FourOptionsSchema, correctOptionId: IdSchema })
+  z.strictObject({ kind: z.literal('quiz'), question: TextSchema, options: OptionsSchema, correctOptionId: IdSchema })
     .refine(value => value.options.some(option => option.id === value.correctOptionId), 'correct option must exist'),
   z.strictObject({ kind: z.literal('sorting'), question: TextSchema, terms: z.array(TermSchema.extend({ value: FiniteNumberSchema })).min(2).refine(uniqueIds, 'term IDs must be unique') }),
   z.strictObject({ kind: z.literal('estimation'), question: TextSchema, target: FiniteNumberSchema }),
@@ -71,7 +73,7 @@ export const PlayerRoundSchema = z.discriminatedUnion('phase', [StartRoundSchema
 // Catalog-only seed model. Never serialize these objects as a wire snapshot.
 // TECH-16: Seeds enthalten kein rules — der Regeltext haengt an der Spielart
 // (GAME_CONFIG), nicht am einzelnen Spiel. strictObject lehnt rules im Upload ab.
-export const QuizQuestionSeedSchema = z.strictObject({ id: IdSchema, question: TextSchema, options: FourOptionsSchema, correctOptionId: IdSchema })
+export const QuizQuestionSeedSchema = z.strictObject({ id: IdSchema, question: TextSchema, options: OptionsSchema, correctOptionId: IdSchema })
   .refine(value => value.options.some(option => option.id === value.correctOptionId), 'correct option must exist');
 const GameSeedBaseSchema = z.strictObject({ id: IdSchema, kind: GameKindSchema, title: TextSchema });
 export const GameSeedSchema = z.discriminatedUnion('kind', [
