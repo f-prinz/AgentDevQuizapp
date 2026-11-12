@@ -34,7 +34,9 @@ export interface ActiveGameRound {
   deadline: number | null;
   acceptUntil: number | null;
   inputClosed: boolean;
-  sortingOrders: Map<string, string[]>;
+  // CHG-25: Per-Spieler-Anzeigereihenfolgen — Sorting-Terms und Quiz-Optionen
+  // werden pro Spieler und Runde gemischt und hier gecacht (stabil pro Frage).
+  displayOrders: Map<string, string[]>;
   totalPoints: Map<string, number>;
 }
 
@@ -91,12 +93,12 @@ function shuffled(ids: string[]): string[] {
   return result;
 }
 
-function sortingOrderForPlayer(round: ActiveGameRound, playerId: string, termIds: string[]): string[] {
-  const cachedOrder = round.sortingOrders.get(playerId);
+function orderForPlayer(round: ActiveGameRound, playerId: string, ids: string[]): string[] {
+  const cachedOrder = round.displayOrders.get(playerId);
   if (cachedOrder) return cachedOrder;
 
-  const order = shuffled(termIds);
-  round.sortingOrders.set(playerId, order);
+  const order = shuffled(ids);
+  round.displayOrders.set(playerId, order);
   return order;
 }
 
@@ -106,7 +108,7 @@ function resetInputs(lobby: GameLobbyState, round: ActiveGameRound): void {
     player.answer = null;
     if (round.seed.kind === 'sorting' && round.participantIds.includes(player.id)) {
       const order = shuffled(round.seed.terms.map(term => term.id));
-      round.sortingOrders.set(player.id, order);
+      round.displayOrders.set(player.id, order);
       player.answer = { kind: 'sorting', termIds: [...order] };
     }
   }
@@ -154,7 +156,7 @@ export function prepareGame(
     deadline: null,
     acceptUntil: null,
     inputClosed: false,
-    sortingOrders: new Map(),
+    displayOrders: new Map(),
     totalPoints: new Map(lobby.players.map(player => [player.id, 0] as const)),
   };
   resetInputs(lobby, round);
@@ -405,7 +407,7 @@ export function nextQuestion(
     deadline,
     acceptUntil,
     inputClosed: false,
-    sortingOrders: new Map(),
+    displayOrders: new Map(),
     totalPoints: current.totalPoints,
   };
   resetInputs(lobby, next);
@@ -511,13 +513,29 @@ export function projectRound(
     let task: unknown;
     if (round.seed.kind === 'quiz') {
       const quizQuestion = round.seed.questions[round.questionIndex];
-      task = role === 'projector'
-        ? { kind: 'quiz', question }
-        : { kind: 'quiz', question, options: quizQuestion?.options ?? [] };
+      if (role === 'projector') {
+        task = { kind: 'quiz', question };
+      } else if (role === 'player' && playerId) {
+        // CHG-25: Spieler sehen die Optionen gemischt (pro Frage stabil),
+        // Host behaelt die Seed-Reihenfolge. correctOptionId ist unabhaengig
+        // von der Anzeigereihenfolge.
+        const optionById = new Map((quizQuestion?.options ?? []).map(option => [option.id, option]));
+        const order = orderForPlayer(round, playerId, [...optionById.keys()]);
+        task = {
+          kind: 'quiz',
+          question,
+          options: order.flatMap(id => {
+            const option = optionById.get(id);
+            return option ? [option] : [];
+          }),
+        };
+      } else {
+        task = { kind: 'quiz', question, options: quizQuestion?.options ?? [] };
+      }
     } else if (round.seed.kind === 'sorting') {
       if (role === 'player') {
         const order = playerId
-          ? sortingOrderForPlayer(round, playerId, round.seed.terms.map(term => term.id))
+          ? orderForPlayer(round, playerId, round.seed.terms.map(term => term.id))
           : [];
         const byId = new Map(round.seed.terms.map(term => [term.id, term]));
         task = {
