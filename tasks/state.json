@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -1895,9 +1895,11 @@
       "lint_command": "npm --prefix apps/web run lint",
       "red_evidence_required": true,
       "dependencies": [],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-12"
+      ],
       "allowed_paths": [
         "apps/web",
         "docs",
@@ -1906,9 +1908,14 @@
         "docs/",
         "Raccoons-Quiz.md"
       ],
-      "implemented_by": "web_developer"
+      "implemented_by": "web_developer",
+      "review_result": "Freigabe ohne Blocker; Rename komplett inkl. Spec-Datei",
+      "test_evidence": "tasks/evidence/CHG-23-2026-11-12T10-48-17-183Z.json",
+      "red_evidence": "tasks/evidence/CHG-23-2026-11-12T10-46-55-340Z.json",
+      "lint_evidence": "tasks/evidence/CHG-23-2026-11-12T10-48-31-150Z.json",
+      "reviewed_by": "code_reviewer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-12T10:50:43.877Z"
+  "last_updated_utc": "2026-11-12T10:53:05.970Z"
 }
