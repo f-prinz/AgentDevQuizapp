@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1914,8 +1914,25 @@
       "red_evidence": "tasks/evidence/CHG-23-2026-11-12T10-46-55-340Z.json",
       "lint_evidence": "tasks/evidence/CHG-23-2026-11-12T10-48-31-150Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "BUG-9",
+      "component": "server",
+      "title": "Sortier-Punkte: Abwaerts-Regel statt exakter Position",
+      "acceptance_criteria": "Ein Term zaehlt als richtig, wenn sein value groesser ist als der des unmittelbar vorherigen Terms; der erste Term zaehlt immer. points = Anzahl richtiger Terme mal pointsPerCorrectPosition. positionsCorrect folgt derselben Regel. Beispiele (8 Terme): korrekt=8; Venus..Neptun-Merkur=7; Merkur-Erde-Venus-Rest=7; Merkur-Mars-Erde-Jup-Sat-Uranus-Venus-Neptun=6",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/server/"
+      ],
+      "implemented_by": "server_test_engineer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-12T10:53:05.970Z"
+  "last_updated_utc": "2026-11-12T13:51:41.727Z"
 }
