@@ -298,7 +298,9 @@ describe('server game state and round timers', () => {
     expect(hostFirst.round.task.question).toBe('Which option is correct?');
     expect(hostFirst.round.timer.deadline - hostFirst.round.timer.serverTime).toBe(30_000);
     const firstDeadline = hostFirst.round.timer.deadline;
-    expect(playerOneFirst.round.task.options.map(option => option.id)).toEqual(['a', 'b', 'c', 'd']);
+    // CHG-25: Der Spieler sieht die Optionen gemischt — Menge muss stimmen,
+    // Seed-Reihenfolge gilt nicht mehr.
+    expect(playerOneFirst.round.task.options.map(option => option.id).sort()).toEqual(['a', 'b', 'c', 'd']);
 
     expect((await command(round.players[0], 'answer.set', {
       roundId: round.roundId, answer: { kind: 'quiz', optionId: 'a' },
@@ -511,6 +513,45 @@ describe('server game state and round timers', () => {
     expect(completedProjector.catalog.find(game => game.id === 'quiz_game')?.played).toBe(true);
     expect(completedHost.catalog.find(game => game.id === 'sorting_game')?.played).toBe(false);
     expect(completedHost.catalog.find(game => game.id === 'estimate_game')?.played).toBe(false);
+  });
+
+  it('shuffles quiz options per player and keeps each order stable within the question', async () => {
+    // CHG-25: Optionen werden pro Spieler gemischt (wie die Sortier-Terms);
+    // Host sieht weiterhin die Seed-Reihenfolge, Projektor keine Optionen.
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const round = await beginRound('quiz');
+    const [hostPlaying, , playerOnePlaying] = round.playing;
+    if (hostPlaying.role !== 'host' || hostPlaying.round?.phase !== 'playing'
+      || hostPlaying.round.task.kind !== 'quiz'
+      || playerOnePlaying.role !== 'player' || playerOnePlaying.round?.phase !== 'playing'
+      || playerOnePlaying.round.task.kind !== 'quiz') {
+      throw new Error('Expected quiz playing snapshots for host and first player.');
+    }
+    expect(hostPlaying.round.task.options.map(option => option.id)).toEqual(['a', 'b', 'c', 'd']);
+    const firstOrder = playerOnePlaying.round.task.options.map(option => option.id);
+    expect([...firstOrder].sort()).toEqual(['a', 'b', 'c', 'd']);
+    expect(firstOrder).not.toEqual(['a', 'b', 'c', 'd']);
+
+    const playerTwoPlaying = await snapshot(round.players[1], value => value.phase === 'playing');
+    if (playerTwoPlaying.round?.phase !== 'playing' || playerTwoPlaying.round.task.kind !== 'quiz'
+      || !('options' in playerTwoPlaying.round.task)) {
+      throw new Error('Expected the second player quiz task.');
+    }
+    const secondOrder = playerTwoPlaying.round.task.options.map(option => option.id);
+    expect([...secondOrder].sort()).toEqual(['a', 'b', 'c', 'd']);
+    expect(secondOrder).not.toEqual(['a', 'b', 'c', 'd']);
+
+    // Die Reihenfolge bleibt fuer denselben Spieler innerhalb der Frage stabil.
+    expect((await command(round.players[0], 'answer.set', {
+      roundId: round.roundId, answer: { kind: 'quiz', optionId: firstOrder[0]! },
+    })).type).toBe('ack');
+    const updated = await snapshot(round.players[0], value => value.phase === 'playing'
+      && value.revision > playerOnePlaying.revision);
+    if (updated.round?.phase !== 'playing' || updated.round.task.kind !== 'quiz'
+      || !('options' in updated.round.task)) {
+      throw new Error('Expected an updated quiz task for the first player.');
+    }
+    expect(updated.round.task.options.map(option => option.id)).toEqual(firstOrder);
   });
 
   it('publishes a completed sorting game to the catalog and ranking transition', async () => {
