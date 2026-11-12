@@ -1998,12 +1998,13 @@
       "dependencies": [
         "TECH-20"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "fix_retries": 0,
       "inventory_refs": [],
       "allowed_paths": [
         "apps/server/"
-      ]
+      ],
+      "implemented_by": "server_test_engineer"
     },
     {
       "id": "CHG-26",
@@ -2025,5 +2026,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-12T15:52:51.924Z"
+  "last_updated_utc": "2026-11-12T15:53:50.157Z"
 }
