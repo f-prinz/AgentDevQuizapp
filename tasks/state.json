@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1885,8 +1885,27 @@
       "red_evidence": "tasks/evidence/CHG-22-2026-10-30T13-39-34-500Z.json",
       "lint_evidence": "tasks/evidence/CHG-22-2026-10-30T13-40-45-198Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "CHG-23",
+      "component": "web",
+      "title": "App-Name: Prinzgame zu Raccoons-Quiz",
+      "acceptance_criteria": "App zeigt 'Raccoons-Quiz' statt 'Prinzgame' (index.html-Titel, h1 der /-Route); Spec-Datei Prinzgame.md zu Raccoons-Quiz.md umbenannt, alle Doc-Verweise angepasst; keine weiteren Vorkommen von 'Prinzgame'",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web",
+        "docs",
+        "Prinzgame.md"
+      ],
+      "implemented_by": "web_developer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-10-30T13:42:39.247Z"
+  "last_updated_utc": "2026-11-12T10:46:34.920Z"
 }
