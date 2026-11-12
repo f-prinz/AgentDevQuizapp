@@ -1,30 +1,64 @@
+/* Redesign: Bedburg-Raccoons-Look („Trikot-Kante“). Nur Dark — Farben aus der
+   Spec (Raccoons-Quiz.md, Abschnitt Darstellung) und passend zum Vereinslogo. */
 :root {
-  /* CHG-10: Slate-Palette — Akzent Indigo, weiches Danger, Text-Hierarchie. */
-  --color-turquoise: #818CF8;
-  --color-red: #F87171;
-  /* CHG-19: Erfolgs-/Verbunden-Indikator (Status-Icons). */
-  --color-green: #4ADE80;
-  --color-grey: #475569;
-  --color-bg: #0F172A;
-  --color-text: #E2E8F0;
-  --color-muted: #94A3B8;
-  /* CHG-16: Textfarbe auf neutralen grauen Karten (hell auf dunklem Grund). */
-  --color-on-grey: #FFFFFF;
+  color-scheme: dark;
+  --rq-teal: #48A3AE;
+  --rq-teal-deep: #2C5A61;
+  --rq-red: #FE0000;
+  --rq-grey: #706A6A;
+  --rq-bg: #1D1D1B;
+  --rq-surface: #262624;
+  --rq-surface-2: #2E2D2B;
+  --rq-line: #3A3836;
+  --rq-text: #F2F2F0;
+  --rq-muted: #9A9590;
+  --rq-on-teal: #0F1A1B;
+  --rq-font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --rq-font-body: "Inter", system-ui, sans-serif;
+  /* Versatz der schraegen Kanten (clip-path). */
+  --rq-slant: 0.9rem;
+  /* Platzhalter fuer ein spaeteres Hintergrundbild (Spec §6) — z. B.
+     url("../assets/backdrop.webp"). Ohne Bild bleibt nur die Grafik. */
+  --rq-backdrop-image: none;
+
+  /* Aliase der bisherigen Token-Namen, damit Host/Admin-Regeln weiter greifen. */
+  --color-turquoise: var(--rq-teal);
+  --color-red: var(--rq-red);
+  --color-green: var(--rq-teal);
+  --color-grey: var(--rq-grey);
+  --color-bg: var(--rq-bg);
+  --color-text: var(--rq-text);
+  --color-muted: var(--rq-muted);
+  --color-on-grey: var(--rq-text);
 }
 
-/* FEAT-17: Light-Theme — gleiche Palette, helle Basis; Akzent/Danger dunkler
-   fuer ausreichenden Kontrast auf hellem Grund. */
-:root[data-theme="dark"] { color-scheme: dark; }
-:root[data-theme="light"] {
-  color-scheme: light;
-  --color-turquoise: #4F46E5;
-  --color-red: #DC2626;
-  --color-green: #16A34A;
-  --color-grey: #CBD5E1;
-  --color-bg: #F8FAFC;
-  --color-text: #0F172A;
-  --color-muted: #475569;
-  /* CHG-16: Dunkler Text auf hellgrauen Karten (Weiss war im Light-Theme
-     auf #CBD5E1 unlesbar); farbige Zustaende bleiben unveraendert. */
-  --color-on-grey: #0F172A;
+/* Schmale Sport-Headline in Versalien — Ueberschriften, Zahlen, Buttons. */
+.rq-display { font-family: var(--rq-font-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; }
+
+/* Karte mit schraeger rechter Kante. */
+.rq-card { background: var(--rq-surface); clip-path: polygon(0 0, 100% 0, calc(100% - var(--rq-slant)) 100%, 0 100%); }
+
+/* Haupt-CTA (rot) und Sekundaer-CTA (tuerkis) mit beidseitig schraegen Kanten. */
+.rq-btn-primary, .rq-btn-secondary {
+  display: block; width: 100%; min-height: 3.25rem; padding: 0.75rem 1.5rem; border: 0; border-radius: 0;
+  font-family: var(--rq-font-display); font-size: 1.35rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+  clip-path: polygon(var(--rq-slant) 0, 100% 0, calc(100% - var(--rq-slant)) 100%, 0 100%);
+  cursor: pointer; transition: filter 120ms ease, transform 120ms ease;
+}
+.rq-btn-primary { color: #fff; background: var(--rq-red); }
+.rq-btn-secondary { color: var(--rq-on-teal); background: var(--rq-teal); }
+.rq-btn-primary:hover:not(:disabled), .rq-btn-secondary:hover:not(:disabled) { filter: brightness(1.08); }
+.rq-btn-primary:active:not(:disabled), .rq-btn-secondary:active:not(:disabled) { transform: translateY(1px); }
+.rq-btn-primary:disabled, .rq-btn-secondary:disabled { cursor: not-allowed; filter: grayscale(0.6) brightness(0.7); }
+.rq-btn-primary:focus-visible, .rq-btn-secondary:focus-visible { outline: 0.2rem solid var(--rq-text); outline-offset: 0.2rem; }
+
+/* Hintergrund-Ebene: diagonale Trikot-Streifen + feine Yard-Linien; ein
+   spaeteres Bild liegt abgedunkelt darunter. */
+.rq-backdrop {
+  background:
+    linear-gradient(115deg, transparent 0 66%, rgba(72, 163, 174, 0.10) 66% 76%, rgba(254, 0, 0, 0.09) 76% 77.4%, transparent 77.4%),
+    repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(255, 255, 255, 0.028) calc(10% - 1px) 10%),
+    linear-gradient(rgba(29, 29, 27, 0.82), rgba(29, 29, 27, 0.92)),
+    var(--rq-backdrop-image) center / cover no-repeat,
+    var(--rq-bg);
 }

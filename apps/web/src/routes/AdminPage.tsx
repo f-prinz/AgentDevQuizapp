@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Logo } from "../brand/Logo";
 
 interface CatalogGame { id: string; kind: string; title: string; rules: string }
 
@@ -80,7 +81,8 @@ export function AdminPage() {
     }
   };
 
-  return <section className="game-view admin-panel" aria-label="Admin">
+  return <main className="page"><div className="page-brand"><Logo variant="small" /><div><small>Bedburg Raccoons Quiz</small><h1>Admin</h1></div></div>
+  <section className="game-view admin-panel" aria-label="Admin">
     <h2>Katalog-Verwaltung</h2>
     <label className="admin-token">Admin-Token
       <input type="password" value={token} autoComplete="off" onChange={event => setToken(event.target.value)} />
@@ -104,5 +106,5 @@ export function AdminPage() {
     </section>
     {error && <p role="alert" className="admin-error">{error}</p>}
     {notice && <p role="status" className="admin-notice">{notice}</p>}
-  </section>;
+  </section></main>;
 }
