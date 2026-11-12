@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "complete",
+  "phase": "development",
   "components": [
     "server",
     "web"
@@ -1964,8 +1964,62 @@
       "test_evidence": "tasks/evidence/CHG-24-2026-11-12T15-04-01-411Z.json",
       "lint_evidence": "tasks/evidence/CHG-24-2026-11-12T15-04-17-317Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "TECH-20",
+      "component": "contracts",
+      "title": "CONTRACT_CHANGE: Quiz-Optionen variabel 2-6 statt fix 4",
+      "acceptance_criteria": "Optionen-Array akzeptiert 2 bis 6 Eintraege (strict, unique ids); Seed, Solution, HostTask, PlayerTask konsistent; 4 Optionen bleiben gueltig; <2 und >6 werden abgelehnt",
+      "test_command": "npm --prefix contracts test",
+      "lint_command": "npm --prefix contracts run lint",
+      "red_evidence_required": false,
+      "dependencies": [],
+      "status": "IN_PROGRESS",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "classification": "TARGET_ALIGNED",
+      "allowed_paths": [
+        "contracts/"
+      ],
+      "implemented_by": "contracts_developer"
+    },
+    {
+      "id": "CHG-25",
+      "component": "server",
+      "title": "Quiz-Optionen pro Spieler mischen (wie Sorting)",
+      "acceptance_criteria": "PlayerTask enthaelt Optionen in zufaelliger, pro Spieler und Runde stabiler Reihenfolge; Host bekommt Seed-Reihenfolge; korrekte Option per correctOptionId unveraendert",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": null,
+      "red_evidence_required": true,
+      "dependencies": [
+        "TECH-20"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/server/"
+      ]
+    },
+    {
+      "id": "CHG-26",
+      "component": "web",
+      "title": "Quiz-Option-Layout adaptiv fuer 2-6 Optionen",
+      "acceptance_criteria": "Player-Ansicht rendert 2-6 Optionen sauber (flexibles Layout); Host/Projektor-Aufloesung ebenfalls; Darstellung in uebergebener Reihenfolge",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": false,
+      "dependencies": [
+        "TECH-20"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": [],
+      "allowed_paths": [
+        "apps/web/"
+      ]
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-12T15:05:22.937Z"
+  "last_updated_utc": "2026-11-12T15:51:21.719Z"
 }
