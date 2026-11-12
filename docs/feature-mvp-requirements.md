@@ -1,7 +1,7 @@
 # RaccoonsQuizgame MVP – Anforderungen
 
 Status: abgestimmt mit dem Nutzer am 2026-10-26. Grundlage sind
-`docs/project-idea.md` und die ergaenzende `Prinzgame.md`.
+`docs/project-idea.md` und die ergaenzende `Raccoons-Quiz.md`.
 
 ## Ziel und Umfang
 
@@ -191,7 +191,7 @@ erneutes Oeffnen meines Links weiterspielen.
 ## Geklaerte Rueckfragen
 
 - **O1 Schaetzen-Zeitlimit:** 30 Sekunden; widerspruechliche 60-Sekunden-
-  Kurzform in `Prinzgame.md` ist damit ueberholt.
+  Kurzform in `Raccoons-Quiz.md` ist damit ueberholt.
 - **O2 Spielinhalte:** Seed-Dateien mit Beispielsets werden beim Serverstart
   geladen; kein Inhaltseditor im MVP.
 - **O3 Host zaehlt nicht** als Spieler.
