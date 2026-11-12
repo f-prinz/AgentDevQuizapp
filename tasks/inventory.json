@@ -330,7 +330,7 @@
       ],
       "introduced_by": "FEAT-8",
       "removed_by": null,
-      "notes": "Spieler sieht eigene markierte Antwort (CHG-8); Projektor-Aufloesung: Liste mit Richtig-Markierung, seit CHG-22/TECH-19 Tabelle ohne Header (Text|Wert|Richtig) sobald Optionen value tragen."
+      "notes": "Quiz-Optionen seit TECH-20 variabel 2-6 (vorher fix 4). CHG-25: Spieler sehen Optionen pro Frage per-Spieler gemischt (displayOrders, stabil + reconnectfest); Host behaelt Seed-Reihenfolge; Projektor ohne Optionen. Spieler sieht eigene markierte Antwort (CHG-8); Projektor-Aufloesung: Tabelle Text|Wert|Richtig sobald Optionen value tragen (CHG-22/TECH-19)."
     },
     {
       "id": "INV-17",
@@ -584,5 +584,5 @@
       "notes": "Budget-Reset bei stabilem Snapshot; sessionGone-Guard bei LOBBY_NOT_FOUND/UNAUTHORIZED; gilt fuer Host/Spieler/Projektor via LobbyStatus"
     }
   ],
-  "last_updated_utc": "2026-11-12T15:04:48.699Z"
+  "last_updated_utc": "2026-11-12T15:58:57.903Z"
 }

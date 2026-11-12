@@ -1998,13 +1998,19 @@
       "dependencies": [
         "TECH-20"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
+      "inventory_refs": [
+        "INV-16"
+      ],
       "allowed_paths": [
         "apps/server/"
       ],
-      "implemented_by": "server_test_engineer"
+      "implemented_by": "server_developer",
+      "review_result": "Freigabe ohne Blocker; TDD rot+gruen, Wertung/Host/Projektor unveraendert",
+      "test_evidence": "tasks/evidence/CHG-25-2026-11-12T15-58-06-129Z.json",
+      "red_evidence": "tasks/evidence/CHG-25-2026-11-12T15-54-50-585Z.json",
+      "reviewed_by": "code_reviewer"
     },
     {
       "id": "CHG-26",
@@ -2026,5 +2032,5 @@
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-12T15:53:50.157Z"
+  "last_updated_utc": "2026-11-12T15:58:58.332Z"
 }
