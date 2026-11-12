@@ -690,6 +690,35 @@ describe("FEAT-8 quiz views", () => {
   });
 });
 
+// CHG-26: Variable Optionsanzahl (2-6, TECH-20) — das Layout ist ein
+// adaptives Grid ohne fixe Vierer-Annahme; hier die Grenzfaelle.
+describe("CHG-26 variable quiz option counts", () => {
+  it.each([2, 6])("renders %i options as selectable buttons for the player", async count => {
+    const options = Array.from({ length: count }, (_, index) => ({ id: `o${index}`, text: `Option ${index + 1}` }));
+    const view = renderRole("player");
+    await deliver(view, snapshot("player", "playing", {
+      round: { ...rounds.playing, task: { kind: "quiz", question: "Wer ist größer?", options } },
+    }));
+    expect(document.querySelectorAll(".answer-options .answer-option")).toHaveLength(count);
+    for (const option of options) {
+      expect(screen.getByRole("button", { name: option.text })).toBeTruthy();
+    }
+  });
+
+  it("renders the projector evaluation answer list for a two-option solution", async () => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", "evaluation", {
+      round: { ...rounds.evaluation, results: [], solution: {
+        kind: "quiz", question: "Wer ist größer?", correctOptionId: "defense",
+        options: [{ id: "offense", text: "offense" }, { id: "defense", text: "defense" }],
+      } },
+    }));
+    const items = document.querySelectorAll(".solution ul.answer-feedback li");
+    expect(items).toHaveLength(2);
+    expect(Array.from(items).filter(item => item.getAttribute("data-answer-state") === "correct")).toHaveLength(1);
+  });
+});
+
 describe("CHG-13 projector ranking and result tables", () => {
   it("renders quiz results as a points-sorted table (Punkte, Spielername)", async () => {
     const view = renderRole("projector");
