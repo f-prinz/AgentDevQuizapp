@@ -545,14 +545,15 @@ describe("FEAT-10 sorting views", () => {
     }
   });
 
-  it("hides the game title for the sorting game on player and projector", async () => {
+  // CHG-27: Sortierspiele zeigen den Titel wieder wie Quiz/Schaetzen.
+  it("shows the game title for the sorting game on player and projector", async () => {
     const playerView = renderRole("player");
     await deliver(playerView, snapshot("player", "playing", { round: sortingPlaying }));
-    expect(screen.queryByText("Jahre ordnen")).toBeNull();
+    expect(screen.getByText("Jahre ordnen")).toBeTruthy();
     playerView.unmount();
     const projectorView = renderRole("projector");
     await deliver(projectorView, snapshot("projector", "playing", { round: { ...sortingPlaying, task: { kind: "sorting", question: "Ordne die Jahre" } } }));
-    expect(screen.queryByText("Jahre ordnen")).toBeNull();
+    expect(screen.getByText("Jahre ordnen")).toBeTruthy();
     expect(await screen.findByText(/Ordne die Jahre/)).toBeTruthy();
   });
 
@@ -716,6 +717,39 @@ describe("CHG-26 variable quiz option counts", () => {
     const items = document.querySelectorAll(".solution ul.answer-feedback li");
     expect(items).toHaveLength(2);
     expect(Array.from(items).filter(item => item.getAttribute("data-answer-state") === "correct")).toHaveLength(1);
+  });
+});
+
+// CHG-27: Der Spieltitel wurde fuer Sortierspiele unterdrueckt (CHG-5) —
+// er soll wie bei Quiz/Schaetzen in allen Phasen sichtbar sein.
+describe("CHG-27 sorting game title", () => {
+  const sortGame = { id: "sort-1", kind: "sorting", title: "Jahre ordnen", rules: "Begriffe ordnen" };
+  const sortSolution = { kind: "sorting", question: "Ordne die Jahre", terms: [
+    { id: "a", text: "Mauerfall", value: 1989 }, { id: "b", text: "Mondlandung", value: 1969 }, { id: "c", text: "Internet", value: 1983 },
+  ] };
+  function sortRound(phase: "start" | "playing" | "evaluation", withTerms: boolean) {
+    const base = { roundId: "round-2", game: sortGame, questionIndex: 0, questionCount: 1, phase };
+    if (phase === "start") return { ...rounds.start, ...base };
+    if (phase === "playing") return { ...base, timer: { roundId: "round-2", serverTime: 1_000, deadline: 61_000, acceptUntil: 63_000, inputClosed: false, canReveal: false },
+      task: withTerms
+        ? { kind: "sorting", question: "Ordne die Jahre", terms: [{ id: "a", text: "Mauerfall" }, { id: "b", text: "Mondlandung" }, { id: "c", text: "Internet" }] }
+        : { kind: "sorting", question: "Ordne die Jahre" } };
+    return { ...rounds.evaluation, ...base, solution: sortSolution };
+  }
+
+  it.each(["start", "playing", "evaluation"] as const)("shows the game title on the projector in %s phase", async phase => {
+    const view = renderRole("projector");
+    await deliver(view, snapshot("projector", phase, { round: sortRound(phase, false) }));
+    expect(document.querySelector(".projector-game-title")?.textContent).toBe("Jahre ordnen");
+  });
+
+  it.each(["start", "playing", "evaluation"] as const)("shows the game title on the player in %s phase", async phase => {
+    const view = renderRole("player");
+    const round = phase === "evaluation"
+      ? { ...sortRound(phase, true), ownEvaluation: { answer: { kind: "sorting", termIds: ["a", "b", "c"] }, points: 2, distance: null, positionsCorrect: [false, true, false] } }
+      : sortRound(phase, true);
+    await deliver(view, snapshot("player", phase, { round }));
+    expect(document.querySelector(".player-game-title")?.textContent).toBe("Jahre ordnen");
   });
 });
 

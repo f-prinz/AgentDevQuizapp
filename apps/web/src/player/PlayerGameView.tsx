@@ -67,7 +67,7 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
 
   return <div className="player-view">{header}<section className={`game-view player-card player-phase-${round.phase}`} aria-label="Spielphase">
     <div className="player-round-head">
-      {round.game.kind !== "sorting" ? <h3 className="player-game-title rq-display">{round.game.title}</h3> : <span />}
+      <h3 className="player-game-title rq-display">{round.game.title}</h3>
       {round.phase === "playing" && <TimerDisplay timer={round.timer} size="compact" />}
     </div>
     {round.phase === "start" && <StartAnimation />}

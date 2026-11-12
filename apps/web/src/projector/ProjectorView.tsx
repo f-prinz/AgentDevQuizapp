@@ -104,7 +104,7 @@ function RoundStage({ snapshot, round }: { snapshot: ProjectorSnapshot; round: N
   return <>
     <div className="projector-game">
       <header className="projector-game-head">
-        {round.game.kind !== "sorting" ? <h3 className="projector-game-title rq-display">{round.game.title}</h3> : <span />}
+        <h3 className="projector-game-title rq-display">{round.game.title}</h3>
         <Logo variant="small" className="projector-head-logo" />
       </header>
       {round.phase === "start" && <>
