@@ -76,12 +76,7 @@ function useFlip(stage: Stage, container: React.RefObject<HTMLElement | null>) {
   }, [stage]);
 }
 
-function gameLabel(gameId: string, catalog: Snapshot["catalog"]) {
-  const game = catalog.find(item => item.id === gameId);
-  return game ? game.title : KIND_LABEL[gameId] ?? "Spiel";
-}
-
-export function RankingBoard({ ranking, transition, catalog }: { ranking: RankingEntry[]; transition: Transition; catalog: Snapshot["catalog"] }) {
+export function RankingBoard({ ranking, transition }: { ranking: RankingEntry[]; transition: Transition }) {
   const { stage, progress, flashing } = useRankingTimeline(transition);
   const rootRef = useRef<HTMLElement | null>(null);
   useFlip(stage, rootRef);
@@ -100,15 +95,12 @@ export function RankingBoard({ ranking, transition, catalog }: { ranking: Rankin
 
   const namesOnly = !transition && !hasPlayedAnyGame(ranking);
   const { podium, field } = splitPodium(shown);
-  /*const newGameId = stage === "counting" ? transition?.gameId : undefined;*/
 
   const item = (entry: RankingEntry, slot?: number) => <li key={entry.playerId} data-ranking-entry="" data-player-id={entry.playerId}
     className={["ranking-entry", slot ? `podium-slot podium-rank-${Math.min(entry.rank, 3)}` : "field-slot", flashing.has(entry.playerId) ? "ranking-climber" : ""].filter(Boolean).join(" ")}>
     <span className="ranking-rank">{entry.rank}</span>
     <span className="ranking-body">
       <span className="ranking-name">{entry.name}</span>
-       {/*{slot && entry.games.length > 0 && <span className="ranking-games">{entry.games.map(game =>
-        <span key={game.gameId} className={game.gameId === newGameId ? "ranking-game ranking-game-new" : "ranking-game"}>{gameLabel(game.gameId, catalog)}: {game.points}</span>)}</span>}*/}
     </span>
     <span className="ranking-total">{entry.total}</span>
   </li>;
