@@ -119,7 +119,7 @@ describe("FEAT-6 projector overview", () => {
   });
 
   // Redesign: Rangliste als Podium (Platz 1-2-3 links -> rechts) + Feld.
-  it("renders the ranking as podium with rank, total and per-game points", async () => {
+  it("renders the ranking as podium with rank and total", async () => {
     const view = renderRole("projector");
     await deliver(view, snapshot("projector", { ranking }));
     const board = screen.getByRole("region", { name: /rangliste/i });
@@ -128,7 +128,6 @@ describe("FEAT-6 projector overview", () => {
     expect(podium[0].querySelector(".ranking-name")?.textContent).toBe("Ada");
     expect(podium[0].querySelector(".ranking-total")?.textContent).toBe("5");
     expect(podium[0].querySelector(".ranking-rank")?.textContent).toBe("1");
-    expect(podium[0].textContent).toContain("Jahre ordnen: 5");
   });
 
   // Spec: Vor dem ersten Spiel sieht der Projektor nur die Spielernamen.

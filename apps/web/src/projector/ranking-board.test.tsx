@@ -1,13 +1,9 @@
 import { act, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { RankingEntry, Snapshot } from "@raccoons/contracts";
+import type { RankingEntry } from "@raccoons/contracts";
 import { RankingBoard } from "./RankingBoard";
 import { RANKING_TIMELINE } from "./ranking-logic";
 
-const catalog: Snapshot["catalog"] = [
-  { id: "quiz-1", kind: "quiz", title: "Weltwissen", rules: "r", played: true },
-  { id: "sort-1", kind: "sorting", title: "Jahre ordnen", rules: "r", played: true },
-];
 const entry = (name: string, rank: number, total: number, games: RankingEntry["games"] = []): RankingEntry =>
   ({ playerId: `player-${name.toLowerCase()}`, name, rank, total, games });
 
@@ -21,26 +17,24 @@ afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe("RankingBoard layout", () => {
   it("puts places 1, 2, 3 left to right on the podium and the rest in the field", () => {
-    render(<RankingBoard catalog={catalog} transition={null} ranking={[
+    render(<RankingBoard transition={null} ranking={[
       entry("Cyd", 3, 4, [{ gameId: "sort-1", points: 4 }]), entry("Ada", 1, 9, [{ gameId: "quiz-1", points: 4 }, { gameId: "sort-1", points: 5 }]),
       entry("Eve", 5, 1, [{ gameId: "sort-1", points: 1 }]), entry("Bo", 2, 6, [{ gameId: "sort-1", points: 6 }]), entry("Dan", 4, 2, [{ gameId: "sort-1", points: 2 }]),
     ]} />);
     expect(names(".ranking-podium")).toEqual(["Ada", "Bo", "Cyd"]);
     expect(names(".ranking-field")).toEqual(["Dan", "Eve"]);
-    expect(entryOf("Ada").textContent).toContain("Jahre ordnen: 5");
-    expect(entryOf("Ada").textContent).toContain("Weltwissen: 4");
     expect(total("Ada")).toBe("9");
   });
 
   it("shows only player names before any game was played", () => {
-    render(<RankingBoard catalog={catalog} transition={null} ranking={[entry("Ada", 1, 0), entry("Bo", 1, 0)]} />);
+    render(<RankingBoard transition={null} ranking={[entry("Ada", 1, 0), entry("Bo", 1, 0)]} />);
     const list = board().querySelector("ol.ranking-names")!;
     expect(Array.from(list.querySelectorAll("li")).map(li => li.textContent)).toEqual(["Ada", "Bo"]);
     expect(board().querySelector("[data-ranking-entry]")).toBeNull();
   });
 
   it("shows the real shared rank on every podium block when everybody is tied", () => {
-    render(<RankingBoard catalog={catalog} transition={null} ranking={[
+    render(<RankingBoard transition={null} ranking={[
       entry("Ada", 1, 0, [{ gameId: "quiz-1", points: 0 }]), entry("Bo", 1, 0, [{ gameId: "quiz-1", points: 0 }]), entry("Cyd", 1, 0, [{ gameId: "quiz-1", points: 0 }]),
     ]} />);
     const ranks = Array.from(document.querySelectorAll(".ranking-podium .ranking-rank")).map(el => el.textContent);
@@ -62,7 +56,7 @@ describe("RankingBoard transition", () => {
   const { holdMs, countMs, reorderMs, flashMs } = RANKING_TIMELINE;
 
   it("shows the old standings first, counts up, reorders and ends within five seconds", () => {
-    render(<RankingBoard catalog={catalog} ranking={current} transition={transition} />);
+    render(<RankingBoard ranking={current} transition={transition} />);
     expect(board().dataset.rankingStage).toBe("before");
     expect(names(".ranking-podium")).toEqual(["Bo", "Ada", "Cyd"]);
     expect(total("Ada")).toBe("1");
@@ -77,7 +71,7 @@ describe("RankingBoard transition", () => {
   });
 
   it("flashes players who climbed after the reorder and clears the flash afterwards", () => {
-    render(<RankingBoard catalog={catalog} ranking={current} transition={transition} />);
+    render(<RankingBoard ranking={current} transition={transition} />);
     act(() => { vi.advanceTimersByTime(holdMs + countMs + reorderMs + 10); });
     expect(entryOf("Cyd").classList.contains("ranking-climber")).toBe(true);
     expect(entryOf("Ada").classList.contains("ranking-climber")).toBe(false);
@@ -87,7 +81,7 @@ describe("RankingBoard transition", () => {
 
   it("jumps straight to the final standings without flashes for reduced motion", () => {
     vi.stubGlobal("matchMedia", (query: string) => ({ matches: /reduce/.test(query), media: query, addEventListener: () => {}, removeEventListener: () => {} }));
-    render(<RankingBoard catalog={catalog} ranking={current} transition={transition} />);
+    render(<RankingBoard ranking={current} transition={transition} />);
     expect(board().dataset.rankingStage).toBe("after");
     expect(names(".ranking-podium")).toEqual(["Cyd", "Ada", "Bo"]);
     act(() => { vi.advanceTimersByTime(5000); });
@@ -95,13 +89,13 @@ describe("RankingBoard transition", () => {
   });
 
   it("replays only for a new resultId", () => {
-    const view = render(<RankingBoard catalog={catalog} ranking={current} transition={transition} />);
+    const view = render(<RankingBoard ranking={current} transition={transition} />);
     act(() => { vi.advanceTimersByTime(5000); });
     expect(board().dataset.rankingStage).toBe("after");
-    view.rerender(<RankingBoard catalog={catalog} ranking={current} transition={{ ...transition }} />);
+    view.rerender(<RankingBoard ranking={current} transition={{ ...transition }} />);
     act(() => { vi.advanceTimersByTime(100); });
     expect(board().dataset.rankingStage).toBe("after");
-    view.rerender(<RankingBoard catalog={catalog} ranking={current} transition={{ ...transition, resultId: "result-2" }} />);
+    view.rerender(<RankingBoard ranking={current} transition={{ ...transition, resultId: "result-2" }} />);
     expect(board().dataset.rankingStage).toBe("before");
   });
 });
