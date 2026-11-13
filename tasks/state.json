@@ -2126,8 +2126,21 @@
       "red_evidence": "tasks/evidence/CHG-28-2026-11-13T10-56-04-330Z.json",
       "lint_evidence": "tasks/evidence/CHG-28-2026-11-13T10-58-09-440Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "BUG-12",
+      "component": "web",
+      "title": "TS6133: tote gameLabel/catalog-Deklarationen in RankingBoard",
+      "acceptance_criteria": "Lint und Tests auf main wieder gruen; gameLabel, KIND_LABEL, catalog-Prop, kommentierte Reste und kaputte Detail-Assertions entfernt; Aufrufer ProjectorView angepasst",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-13T10:58:31.546Z"
+  "last_updated_utc": "2026-11-13T11:37:52.972Z"
 }
