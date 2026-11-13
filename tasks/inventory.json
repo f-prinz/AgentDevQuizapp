@@ -361,7 +361,7 @@
       ],
       "introduced_by": "FEAT-6",
       "removed_by": null,
-      "notes": "Ranking-Darstellung seit CHG-24 in projector/RankingBoard+ranking-logic: Podium/Feld-Split, FLIP-Reorder, Hochzaehlen (RANKING_TIMELINE), reduced-motion-Fallback."
+      "notes": "Ranking-Darstellung seit CHG-24 in projector/RankingBoard+ranking-logic: Podium/Feld-Split, FLIP-Reorder, Hochzaehlen (RANKING_TIMELINE), reduced-motion-Fallback. BUG-12: Per-Game-Punkte-Anzeige entfernt (war bereits auskommentiert) — gameLabel, KIND_LABEL und das catalog-Prop wurden geloescht; games-Daten bleiben im Contract, werden nicht mehr gerendert."
     },
     {
       "id": "INV-18",
