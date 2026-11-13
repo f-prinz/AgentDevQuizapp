@@ -565,7 +565,13 @@ export function buildServer(config: ServerConfig, options: BuildServerOptions = 
         return reply.code(error.statusCode).send(error.payload);
       }
       await catalogStore.insert(game);
-      catalogOf(request.server)?.push(game);
+      // CHG-28: In-Memory-Katalog haelt die Titel-Sortierung der Datenbank —
+      // ein Upload wird einsortiert statt ans Ende gehaengt.
+      const catalog = catalogOf(request.server);
+      if (catalog) {
+        catalog.push(game);
+        catalog.sort((left, right) => left.title.localeCompare(right.title));
+      }
       return reply.code(201).send({ game: { id: game.id, kind: game.kind, title: game.title, rules: GAME_CONFIG[game.kind].rules } });
     });
 

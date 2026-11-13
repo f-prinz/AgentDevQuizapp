@@ -83,7 +83,8 @@ async function applyMigrations(client: PoolClient, migrations: Migration[]): Pro
 
 async function readCatalogRows(client: PoolClient): Promise<GameSeed[]> {
   const result = await client.query<GameRow>(
-    'SELECT id, kind, title, schema_version, content FROM games ORDER BY id',
+    // CHG-28: Alphabetisch nach Titel — Host/Projektor listen so den Katalog.
+    'SELECT id, kind, title, schema_version, content FROM games ORDER BY title',
   );
   return result.rows.map(parseGameRow);
 }
@@ -143,7 +144,7 @@ export async function deleteGame(pool: Pool, id: string): Promise<boolean> {
 export async function readCatalog(pool: Pool): Promise<GameSeed[]> {
   try {
     const result = await pool.query<GameRow>(
-      'SELECT id, kind, title, schema_version, content FROM games ORDER BY id',
+      'SELECT id, kind, title, schema_version, content FROM games ORDER BY title',
     );
     return result.rows.map(parseGameRow);
   } catch {
