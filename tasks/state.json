@@ -2105,8 +2105,21 @@
       "red_evidence": "tasks/evidence/BUG-11-2026-11-13T10-21-16-520Z.json",
       "lint_evidence": "tasks/evidence/BUG-11-2026-11-13T10-23-12-791Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "CHG-28",
+      "component": "server",
+      "title": "Katalog alphabetisch nach Titel sortieren",
+      "acceptance_criteria": "Host- und Projektoransicht listen Spiele alphabetisch nach Titel statt UUID-Reihenfolge; gilt fuer DB-Reads (initializeCatalog/readCatalog) und In-Memory-Katalog nach Upload; played-Gliederung bleibt",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-13T10:23:36.191Z"
+  "last_updated_utc": "2026-11-13T10:54:32.479Z"
 }
