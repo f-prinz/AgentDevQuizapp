@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -2094,12 +2094,19 @@
       "dependencies": [
         "BUG-10"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
-      "implemented_by": "server_test_engineer"
+      "inventory_refs": [
+        "INV-22"
+      ],
+      "implemented_by": "server_developer",
+      "review_result": "Freigabe ohne Blocker; option.value wird beim Upload durchgereicht, Regressionstest gruen",
+      "test_evidence": "tasks/evidence/BUG-11-2026-11-13T10-22-36-702Z.json",
+      "red_evidence": "tasks/evidence/BUG-11-2026-11-13T10-21-16-520Z.json",
+      "lint_evidence": "tasks/evidence/BUG-11-2026-11-13T10-23-12-791Z.json",
+      "reviewed_by": "code_reviewer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-13T10:20:47.808Z"
+  "last_updated_utc": "2026-11-13T10:23:36.191Z"
 }
