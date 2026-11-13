@@ -52,7 +52,7 @@ export function materializeGameDraft(input: unknown): GameSeed {
           const rawOptions = Array.isArray(question.options) ? question.options : [];
           const optionIds = rawOptions.map(() => randomUUID());
           const options = rawOptions.map((option, index) =>
-            isRecord(option) ? { id: optionIds[index], text: option.text } : option);
+            isRecord(option) ? { id: optionIds[index], text: option.text, value: option.value } : option);
           const rawIndex = question.correctOptionIndex;
           let correctOptionId: string | undefined;
           if (typeof rawIndex === 'number' && Number.isInteger(rawIndex) && optionIds[rawIndex] !== undefined) {

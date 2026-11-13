@@ -70,6 +70,28 @@ describe('materializeGameDraft', () => {
     expect(question.correctOptionId).toMatch(UUID_PATTERN);
   });
 
+  // BUG-11: Optionen mit value duerfen den Wert beim Upload nicht verlieren —
+  // der Projektor zeigt ihn sonst in der Aufloesung nicht an.
+  it('preserves option values from a quiz draft', () => {
+    const game = materializeGameDraft({
+      ...quizDraft,
+      questions: [{
+        ...quizDraft.questions[0]!,
+        options: [
+          { text: 'Paris', value: 1 },
+          { text: 'Lyon', value: 2 },
+          { text: 'Marseille' },
+          { text: 'Toulouse' },
+        ],
+      }],
+    });
+    if (game.kind !== 'quiz') throw new Error('expected quiz');
+    const options = game.questions[0]!.options;
+    expect(options[0]!.value).toBe(1);
+    expect(options[1]!.value).toBe(2);
+    expect(options[2]!.value).toBeUndefined();
+  });
+
   it('generates UUIDs for sorting term ids', () => {
     const game = materializeGameDraft(sortingDraft);
     if (game.kind !== 'sorting') throw new Error('expected sorting');
