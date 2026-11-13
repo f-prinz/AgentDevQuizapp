@@ -205,6 +205,28 @@ describe('catalog admin routes', () => {
     await app.close();
   });
 
+  // CHG-28: Neue Uploads werden nach Titel einsortiert — der In-Memory-Katalog
+  // haelt dieselbe alphabetische Reihenfolge wie die Datenbank.
+  it('inserts uploaded games into the in-memory catalog sorted by title', async () => {
+    const laterGame = { ...existingGame, id: 'later-game', title: 'Weltall' } satisfies GameSeed;
+    const db: GameSeed[] = [laterGame];
+    const catalog: GameSeed[] = [laterGame];
+    const app = buildServer(adminConfig, { catalogStore: createStore(db) });
+    app.decorate('catalog', catalog);
+
+    const response = await app.inject({
+      method: 'POST', url: '/games',
+      headers: { authorization: 'Bearer test-token' },
+      payload: estimationDraft,
+    });
+    expect(response.statusCode).toBe(201);
+
+    const list = await app.inject({ method: 'GET', url: '/games' });
+    expect(list.json().games.map((game: { title: string }) => game.title)).toEqual(['Eiffelturm', 'Weltall']);
+    expect(catalog.map(game => game.title)).toEqual(['Eiffelturm', 'Weltall']);
+    await app.close();
+  });
+
   it('rejects invalid drafts with 400', async () => {
     const db: GameSeed[] = [];
     const app = buildServer(adminConfig, { catalogStore: createStore(db) });

@@ -132,4 +132,16 @@ describe('PostgreSQL game catalog', () => {
     expect(await deleteGame(pool, estimationGame.id)).toBe(true);
     expect(await readCatalog(pool)).toEqual([]);
   });
+
+  // CHG-28: Katalog liefert Spiele alphabetisch nach Titel statt in
+  // UUID-Reihenfolge — beide Lese-Pfade (Init + Laufzeit-Read).
+  it('returns catalog games sorted by title', async () => {
+    await initializeCatalog(pool);
+    await insertRow(estimationGame);
+    await insertRow(quizGame);
+
+    const expectedTitles = ['Katalog-Quiz', 'Katalog-Schaetzfrage'];
+    expect((await readCatalog(pool)).map(game => game.title)).toEqual(expectedTitles);
+    expect((await initializeCatalog(pool)).map(game => game.title)).toEqual(expectedTitles);
+  });
 });
