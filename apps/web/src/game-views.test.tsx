@@ -109,8 +109,9 @@ describe("FEAT-4 game phase views", () => {
       }
       if (phase === "playing" && role === "projector") expect(await screen.findByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeTruthy();
       if (phase === "playing" && role === "host") expect(screen.queryByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeNull();
-      // Redesign: Spieler sehen die Frage klein ueber den Antworten.
-      if (phase === "playing" && role === "player") expect(await screen.findByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeTruthy();
+      // CHG-3/BUG-10: Spieler sehen waehrend des Spiels keinen Fragetext —
+      // nur Antwortoptionen und Timer.
+      if (phase === "playing" && role === "player") expect(screen.queryByText(/Welche Stadt ist die Hauptstadt von Frankreich\?/)).toBeNull();
       if (phase === "evaluation" && role !== "host") expect(await screen.findByText(/Paris/)).toBeTruthy();
     }
   });
@@ -389,22 +390,14 @@ describe("CHG-3 game phase views", () => {
     await waitFor(() => expect(screen.getByRole("timer").className).toMatch(/timer-urgent/));
   });
 
-  // Redesign: Frage klein ueber den Antworten, per Tippen vergroesserbar.
-  it("shows players the question in a collapsed peek above the options", async () => {
+  // BUG-10: Spieler sehen nur Antwortoptionen und Timer (CHG-3) — der
+  // QuestionPeek zeigte den Fragetext wieder an und wurde entfernt.
+  it("does not show the question text to players while playing", async () => {
     const view = renderRole("player");
     await deliver(view, snapshot("player", "playing"));
     expect(screen.getByRole("timer")).toBeTruthy();
-    const peek = screen.getByRole("button", { name: /Welche Stadt/ });
-    expect(peek.getAttribute("aria-expanded")).toBe("false");
-    const sentBefore = view.socket().sent.length;
-    fireEvent.click(peek);
-    expect(peek.getAttribute("aria-expanded")).toBe("true");
-    expect(peek.className).toContain("question-peek--expanded");
-    fireEvent.click(peek);
-    expect(peek.getAttribute("aria-expanded")).toBe("false");
-    expect(view.socket().sent.length).toBe(sentBefore);
-    const answers = screen.getByRole("group", { name: /antwortoptionen/i });
-    expect(peek.compareDocumentPosition(answers) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByText(/Welche Stadt/)).toBeNull();
+    expect(document.querySelector(".question-peek")).toBeNull();
     for (const option of ["Paris", "Lyon", "Marseille", "Toulouse"]) {
       expect(screen.getByRole("button", { name: option })).toBeTruthy();
     }

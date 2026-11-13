@@ -7,7 +7,6 @@ import type { Answer, PlayerSnapshot } from "@raccoons/contracts";
 import { SubmissionCounter } from "../shared/SubmissionCounter";
 import { TimerDisplay } from "../shared/TimerDisplay";
 import { PlayerHeader } from "./PlayerHeader";
-import { QuestionPeek } from "./QuestionPeek";
 
 type Send = (message: Record<string, unknown>) => void;
 
@@ -75,7 +74,6 @@ export function PlayerGameView({ snapshot, send }: { snapshot: PlayerSnapshot; s
       ? <><p role="status" className="player-note">Du steigst bei der nächsten Spielauswahl ein. In dieser Runde ist keine Antwort möglich.</p>
         <div className="player-actions"><button type="button" className="rq-btn-primary" disabled>Abgeben</button></div></>
       : <>
-        <QuestionPeek question={round.task.question} />
         {round.task.kind === "quiz" && <div className="answer-options" role="group" aria-label="Antwortoptionen">{round.task.options.map(option => {
           const chosen = draft?.kind === "quiz" && draft.optionId === option.id;
           return <button type="button" key={option.id} className={`answer-tile answer-option${chosen ? " answer-selected" : ""}`} data-answer-state={chosen ? "selected" : "neutral"} disabled={!canEdit} onClick={() => sendAnswer({ kind: "quiz", optionId: option.id })}>{option.text}</button>;
