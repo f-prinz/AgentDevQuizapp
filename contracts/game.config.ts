@@ -17,7 +17,7 @@ export const GAME_CONFIG = {
     },
   },
   estimation: {
-    rules: 'Schätzt möglichst genau. Die Punkte richten sich nach dem Abstand zur richtigen Lösung. Beste Schätzung 5 Punkte, oberes Drittel 3 Punkte, mittleres Drittel 1 Punkt, unteres Drittel 0 Punkte',
+    rules: 'Schätzt möglichst genau. Die Punkte richten sich nach dem Abstand zur richtigen Lösung. Besten 33%: 3 Punkte, Mittlere 33%: 1 Punkt, untere 33% 0 Punkte. Beste Schätzung: +2 Punkte.',
     scoring: {
       // Punkte nach Drittel-Einstufung der Schätzabstände …
       upperThird: 3,
