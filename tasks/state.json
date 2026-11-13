@@ -2082,8 +2082,23 @@
       "red_evidence": "tasks/evidence/BUG-10-2026-11-13T10-16-51-529Z.json",
       "lint_evidence": "tasks/evidence/BUG-10-2026-11-13T10-20-09-415Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "BUG-11",
+      "component": "server",
+      "title": "option.value beim Spiel-Upload erhalten",
+      "acceptance_criteria": "Quiz-Optionen mit value im Upload-JSON behalten den Wert im generierten GameSeed, damit der Projektor ihn in der Aufloesung anzeigt; Optionen ohne value bleiben unveraendert",
+      "test_command": "npm --prefix apps/server test",
+      "lint_command": "npm --prefix apps/server run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "BUG-10"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-13T10:20:37.634Z"
+  "last_updated_utc": "2026-11-13T10:20:45.983Z"
 }
