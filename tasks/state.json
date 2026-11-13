@@ -2059,8 +2059,23 @@
       "red_evidence": "tasks/evidence/CHG-27-2026-11-12T17-10-53-338Z.json",
       "lint_evidence": "tasks/evidence/CHG-27-2026-11-12T17-13-34-391Z.json",
       "reviewed_by": "code_reviewer"
+    },
+    {
+      "id": "BUG-10",
+      "component": "web",
+      "title": "Fragetext in der Spieleransicht wieder entfernen",
+      "acceptance_criteria": "Spieler sehen waehrend des Spiels nur Antwortoptionen und Timer, keinen Fragetext; QuestionPeek-Komponente und zugehoeriger Test entfernt; Suite bleibt gruen",
+      "test_command": "npm --prefix apps/web test",
+      "lint_command": "npm --prefix apps/web run lint",
+      "red_evidence_required": true,
+      "dependencies": [
+        "CHG-27"
+      ],
+      "status": "TODO",
+      "fix_retries": 0,
+      "inventory_refs": []
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-12T17:13:59.864Z"
+  "last_updated_utc": "2026-11-13T10:16:03.192Z"
 }
