@@ -483,7 +483,7 @@
       ],
       "introduced_by": "FEAT-16",
       "removed_by": null,
-      "notes": "POST akzeptiert Seed-aehnliches JSON ohne ids; Server generiert Spiel-/Fragen-/Options-/Term-ids als UUID (Quiz: correctOptionIndex oder correctOptionId-Verweis wird auf generierte id gemappt), validiert via GameSeedSchema, persistiert in games-Tabelle und haelt In-Memory-Katalog synchron. Bearer-Token ADMIN_TOKEN (timingSafeEqual); ohne Token/Store sind POST/DELETE nicht registriert (404); GET ist oeffentlich und liefert {id,kind,title,rules}. BUG-11: Quiz-Optionen behalten ihren value beim Upload (wurde zuvor bei der id-Vergabe verworfen) — der Projektor kann den Wert in der Aufloesung anzeigen."
+      "notes": "POST akzeptiert Seed-aehnliches JSON ohne ids; Server generiert Spiel-/Fragen-/Options-/Term-ids als UUID (Quiz: correctOptionIndex oder correctOptionId-Verweis wird auf generierte id gemappt), validiert via GameSeedSchema, persistiert in games-Tabelle und haelt In-Memory-Katalog synchron. Bearer-Token ADMIN_TOKEN (timingSafeEqual); ohne Token/Store sind POST/DELETE nicht registriert (404); GET ist oeffentlich und liefert {id,kind,title,rules}. BUG-11: Quiz-Optionen behalten ihren value beim Upload (wurde zuvor bei der id-Vergabe verworfen) — der Projektor kann den Wert in der Aufloesung anzeigen. CHG-28: Katalog wird alphabetisch nach Titel geliefert (ORDER BY title statt id; In-Memory-Katalog sortiert Uploads ebenfalls per Titel ein) — Host/Projektor listen die Spiele so."
     },
     {
       "id": "INV-23",

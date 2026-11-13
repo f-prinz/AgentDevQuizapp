@@ -1,0 +1,10 @@
+{
+  "task_id": "CHG-28",
+  "command": "npm --prefix apps/server test -- -t sorted by title",
+  "exit_code": 0,
+  "stdout_tail": "\n> @raccoons/server@1.0.0 test\n> vitest run -t sorted by title\n\n\n\u001b[1m\u001b[30m\u001b[46m RUN \u001b[49m\u001b[39m\u001b[22m \u001b[36mv5.0.5 \u001b[39m\u001b[90mC:/dev/Bedburg/AgentDevQuizapp/apps/server\u001b[39m\n\n \u001b[2m\u001b[90m↓\u001b[39m\u001b[22m test/e2e/lobby.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m | \u001b[22m\u001b[33m4 skipped\u001b[39m\u001b[2m)\u001b[22m\n \u001b[2m\u001b[90m↓\u001b[39m\u001b[22m test/lobby.test.ts \u001b[2m(\u001b[22m\u001b[2m8 tests\u001b[22m\u001b[2m | \u001b[22m\u001b[33m8 skipped\u001b[39m\u001b[2m)\u001b[22m\n\n\u001b[2m Test Files \u001b[22m \u001b[33m2 skipped\u001b[39m\u001b[90m (2)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[33m12 skipped\u001b[39m\u001b[90m (12)\u001b[39m\n\u001b[2m   Start at \u001b[22m 11:55:24\n\u001b[2m   Duration \u001b[22m 1.93s\u001b[2m (import 90%, transform 9%, worker 1%)\u001b[22m\n\n",
+  "stderr_tail": "",
+  "started": "2026-11-13T10:55:22.997Z",
+  "finished": "2026-11-13T10:55:26.709Z",
+  "cwd": "C:\\dev\\Bedburg\\AgentDevQuizapp"
+}
