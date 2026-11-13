@@ -96,7 +96,6 @@ describe("e2e: ranking overview lifecycle on the projector", () => {
     const first = board.querySelectorAll(".ranking-podium [data-ranking-entry]")[0];
     expect(first.querySelector(".ranking-name")?.textContent).toBe("Ada");
     expect(first.querySelector(".ranking-total")?.textContent).toBe("3");
-    expect(first.textContent).toContain("Weltwissen: 3");
     const unplayedSection = screen.getByRole("region", { name: /offene spiele/i });
     expect(unplayedSection.textContent).toContain("Sortieren: Jahre");
     expect(unplayedSection.textContent).not.toContain("Weltwissen");

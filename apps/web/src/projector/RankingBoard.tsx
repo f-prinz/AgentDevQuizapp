@@ -5,8 +5,6 @@ import { RANKING_TIMELINE, climbers, hasPlayedAnyGame, interpolateTotal, sortByR
 type Stage = "before" | "counting" | "after";
 type Transition = Snapshot["rankingTransition"];
 
-const KIND_LABEL: Record<string, string> = { quiz: "Quiz", sorting: "Sortieren", estimation: "Schätzen" };
-
 function prefersReducedMotion() {
   try { return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false; } catch { return false; }
 }

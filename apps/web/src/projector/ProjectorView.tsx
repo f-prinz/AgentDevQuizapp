@@ -88,7 +88,7 @@ function LobbyStage({ snapshot }: { snapshot: ProjectorSnapshot }) {
 
 function OverviewStage({ snapshot }: { snapshot: ProjectorSnapshot }) {
   return <>
-    <RankingBoard ranking={snapshot.ranking} transition={snapshot.rankingTransition} catalog={snapshot.catalog} />
+    <RankingBoard ranking={snapshot.ranking} transition={snapshot.rankingTransition} />
     <aside className="projector-games" aria-label="Spielübersicht">
       <Logo variant="full" className="games-logo" />
       <GameList games={snapshot.catalog.filter(game => !game.played)} label="Offene Spiele" />
