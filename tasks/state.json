@@ -1,6 +1,6 @@
 {
   "schema_version": 3,
-  "phase": "development",
+  "phase": "complete",
   "components": [
     "server",
     "web"
@@ -2071,12 +2071,19 @@
       "dependencies": [
         "CHG-27"
       ],
-      "status": "IN_PROGRESS",
+      "status": "DONE",
       "fix_retries": 0,
-      "inventory_refs": [],
-      "implemented_by": "web_test_engineer"
+      "inventory_refs": [
+        "INV-14"
+      ],
+      "implemented_by": "web_developer",
+      "review_result": "Freigabe ohne Blocker; QuestionPeek samt CSS entfernt, Absenz-Test gruen",
+      "test_evidence": "tasks/evidence/BUG-10-2026-11-13T10-19-48-026Z.json",
+      "red_evidence": "tasks/evidence/BUG-10-2026-11-13T10-16-51-529Z.json",
+      "lint_evidence": "tasks/evidence/BUG-10-2026-11-13T10-20-09-415Z.json",
+      "reviewed_by": "code_reviewer"
     }
   ],
   "blockers": [],
-  "last_updated_utc": "2026-11-13T10:16:10.697Z"
+  "last_updated_utc": "2026-11-13T10:20:37.634Z"
 }
